@@ -40,7 +40,27 @@ from .decoder import (
 from ._regions import Region
 from .exceptions import SwoopError, SwoopHTTPError, SwoopParseError, SwoopRateLimitError
 from .builders import CabinClass, SearchLeg
-from .models import Deal, DealsDiff, DealsResult, ExploreDestination, ExploreResult, Passengers, PriceChange, PriceResult, ResolvedLeg, SearchResult, SelectedLeg, TransportConfig, TripLeg, TripOption
+from .models import (
+    Deal,
+    DealsDiff,
+    DealsResult,
+    ExploreDestination,
+    ExploreResult,
+    Hotel,
+    HotelProvider,
+    HotelReview,
+    HotelReviewsResult,
+    HotelSearchResult,
+    Passengers,
+    PriceChange,
+    PriceResult,
+    ResolvedLeg,
+    SearchResult,
+    SelectedLeg,
+    TransportConfig,
+    TripLeg,
+    TripOption,
+)
 from .rpc import (
     SORT_ARRIVAL_TIME,
     SORT_CHEAPEST,
@@ -1084,6 +1104,120 @@ def deals(
     return result
 
 
+# ---------------------------------------------------------------------------
+# hotels() — search Google Travel Hotels and fetch prices/reviews.
+# ---------------------------------------------------------------------------
+
+
+def _validate_hotel_inputs(
+    query: str,
+    check_in: str,
+    check_out: str,
+    adults: int,
+    child_ages: Optional[list[int]],
+    rooms: int,
+) -> None:
+    if not query:
+        raise ValueError("query is required")
+    validate_date(check_in, "check_in")
+    validate_date(check_out, "check_out")
+    validate_adults(adults)
+    if rooms < 1:
+        raise ValueError("rooms must be at least 1")
+    for age in child_ages or []:
+        if age < 0 or age > 17:
+            raise ValueError("child ages must be between 0 and 17")
+
+
+def hotels(
+    query: str,
+    check_in: str,
+    check_out: str,
+    *,
+    adults: int = 2,
+    child_ages: Optional[list[int]] = None,
+    rooms: int = 1,
+    currency: str = "USD",
+    transport: TransportConfig = TransportConfig(),
+) -> HotelSearchResult:
+    """Search Google Travel Hotels.
+
+    Args:
+        query: Destination or hotel query (e.g. ``"New York"``).
+        check_in: Check-in date as ``YYYY-MM-DD``.
+        check_out: Check-out date as ``YYYY-MM-DD``.
+        adults: Adult guest count.
+        child_ages: Ages for child guests. Children require ages in
+            Google Hotels' occupancy payloads.
+        rooms: Room count.
+        currency: ISO 4217 currency code requested from Google.
+        transport: HTTP transport configuration.
+
+    Returns:
+        A :class:`HotelSearchResult` containing hotel cards.
+    """
+    _validate_hotel_inputs(query, check_in, check_out, adults, child_ages, rooms)
+
+    from ._hotels import fetch_hotels
+
+    return fetch_hotels(
+        query,
+        check_in=check_in,
+        check_out=check_out,
+        adults=adults,
+        child_ages=child_ages,
+        rooms=rooms,
+        currency=currency,
+        transport=transport,
+    )
+
+
+def hotel_prices(
+    hotel_token: str,
+    *,
+    query: str = "",
+    check_in: str,
+    check_out: str,
+    adults: int = 2,
+    child_ages: Optional[list[int]] = None,
+    rooms: int = 1,
+    currency: str = "USD",
+    transport: TransportConfig = TransportConfig(),
+) -> Hotel:
+    """Fetch bookable provider prices for a hotel token."""
+    if not hotel_token:
+        raise ValueError("hotel_token is required")
+    _validate_hotel_inputs(query or hotel_token, check_in, check_out, adults, child_ages, rooms)
+
+    from ._hotels import fetch_hotel_prices
+
+    return fetch_hotel_prices(
+        hotel_token,
+        query=query,
+        check_in=check_in,
+        check_out=check_out,
+        adults=adults,
+        child_ages=child_ages,
+        rooms=rooms,
+        currency=currency,
+        transport=transport,
+    )
+
+
+def hotel_reviews(
+    hotel_token: str,
+    *,
+    transport: TransportConfig = TransportConfig(),
+) -> HotelReviewsResult:
+    """Fetch reviews for a Google Travel hotel token."""
+    if not hotel_token:
+        raise ValueError("hotel_token is required")
+
+    from ._hotels import fetch_hotel_reviews
+
+    return fetch_hotel_reviews(hotel_token, transport=transport)
+
+
 __all__ = [
     # Functions
     "search",
@@ -1099,6 +1233,9 @@ __all__ = [
     "explore",
     "price_explore",
     "price_explore_all",
+    "hotels",
+    "hotel_prices",
+    "hotel_reviews",
     "get_booking_results",
     "search_raw",
     "set_country",
@@ -1114,6 +1251,11 @@ __all__ = [
     "ExploreResult",
     "PriceChange",
     "Region",
+    "Hotel",
+    "HotelProvider",
+    "HotelReview",
+    "HotelReviewsResult",
+    "HotelSearchResult",
     "Passengers",
     "TransportConfig",
     "PriceResult",
