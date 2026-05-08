@@ -1,7 +1,7 @@
-"""Swoop — Search Google Flights programmatically.
+"""Swoop — Search Google Flights and Google Travel Hotels programmatically.
 
-Calls Google Flights' internal RPC endpoints with TLS impersonation
-and decodes the nested-list responses into typed Python dataclasses.
+Calls Google Travel's internal RPC endpoints with TLS impersonation and
+decodes the nested-list responses into typed Python dataclasses.
 
 Basic usage::
 
@@ -562,7 +562,7 @@ def check_price(
             airlines=[outbound_carrier] if outbound_carrier else None,
         )
     ]
-    requested_flights = [flight_number]
+    requested_flights: list[str | None] = [flight_number]
     if return_date is not None:
         request_legs.append(
             _normalize_rpc_leg(

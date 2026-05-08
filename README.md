@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/github/license/saraswatayu/swoop)](https://github.com/saraswatayu/swoop/blob/main/LICENSE)
 [![CI](https://github.com/saraswatayu/swoop/actions/workflows/ci.yml/badge.svg)](https://github.com/saraswatayu/swoop/actions/workflows/ci.yml)
 
-Search Google Flights programmatically. Real prices, typed results, no API key.
+Search Google Flights and Google Travel Hotels programmatically. Real prices, typed results, no API key.
 
 ```python
 from swoop import search
@@ -18,7 +18,7 @@ for option in results.results[:3]:
 > [!NOTE]
 > swoop is not affiliated with Google. It calls undocumented RPC endpoints that can change without notice.
 
-swoop calls Google Flights' internal `GetShoppingResults`, `GetBookingResults`, and `GetExploreDestinations` RPC endpoints, the same ones the web app uses when you search for flights. Requests use TLS fingerprint impersonation via [primp](https://github.com/deedy5/primp) to match a real browser session. Responses are deeply nested lists (matching an internal protobuf schema) decoded into typed Python dataclasses.
+swoop calls Google Flights' internal `GetShoppingResults`, `GetBookingResults`, and `GetExploreDestinations` RPC endpoints, plus Google Travel Hotels' internal `TravelFrontendUi` batchexecute endpoints. Requests use TLS fingerprint impersonation via [primp](https://github.com/deedy5/primp) to match a real browser session. Responses are deeply nested lists (matching internal protobuf-style schemas) decoded into typed Python dataclasses.
 
 [Perch](https://perchtravel.com) uses swoop in production to monitor booked flights for price drops, saving users an average of $247 per trip.
 
@@ -213,6 +213,33 @@ for destination in result.destinations[:10]:
     print(destination.name, destination.airport_code, destination.departure_date)
 ```
 
+### Hotel search, prices, and reviews
+
+```python
+from swoop import hotel_prices, hotel_reviews, hotels
+
+result = hotels("HI New York City Hostel", "2026-06-01", "2026-06-03")
+hotel = result.hotels[0]
+
+print(hotel.name, hotel.price, hotel.total_price, hotel.rating)
+
+if hotel.booking_token:
+    priced = hotel_prices(
+        hotel.booking_token,
+        query=hotel.name,
+        check_in="2026-06-01",
+        check_out="2026-06-03",
+    )
+    for provider in priced.providers:
+        print(provider.name, provider.total_price, provider.url)
+
+    reviews = hotel_reviews(hotel.booking_token)
+    for review in reviews.reviews[:3]:
+        print(review.source, review.rating, review.text)
+```
+
+Exact hotel queries can return a selected-hotel `booking_token` for provider prices and reviews. Broad destination queries return hotel cards when Google includes them in the first response, but may be marked `is_complete=False` because Google's follow-up list RPC can reject direct non-browser calls.
+
 ### Booking details (fare options)
 
 ```python
@@ -236,7 +263,7 @@ for opt in options:
 
 ## How it works
 
-swoop reverse-engineers the `FlightsFrontendService` RPC interface that powers Google Flights. Search parameters are encoded as nested JSON arrays matching Google's internal protobuf schema, then sent as HTTP POST requests. The HTTP client uses TLS fingerprint impersonation (via [primp](https://github.com/deedy5/primp)) so requests are indistinguishable from a real Chrome session.
+swoop reverse-engineers the `FlightsFrontendService` RPC interface that powers Google Flights and selected `TravelFrontendUi` batchexecute RPCs that power Google Travel Hotels. Search parameters are encoded as nested JSON arrays matching Google's internal protobuf-style schemas, then sent as HTTP POST requests. The HTTP client uses TLS fingerprint impersonation (via [primp](https://github.com/deedy5/primp)) so requests are indistinguishable from a real Chrome session.
 
 Responses arrive as deeply nested list structures, no field names, just positional indices. swoop's decoder walks these structures and maps them to typed Python dataclasses (`Itinerary`, `Segment`, `Layover`, `CarbonEmissions`, etc.) with named attributes.
 
@@ -337,6 +364,31 @@ Returns `PriceResult | None`. `PriceResult` has `price`, `fare_brand`, `is_basic
 
 Discover flexible destination ideas from the Google Flights Explore endpoint. Returns `ExploreResult` with destination names, coordinates, optional airport codes, suggested dates, images, distance text, and approximate travel duration.
 
+### `hotels(query, check_in, check_out, **kwargs)`
+
+Search Google Travel Hotels and return a `HotelSearchResult`.
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `query` | `str` | required | Hotel or destination query |
+| `check_in` | `str` | required | Check-in date (`YYYY-MM-DD`) |
+| `check_out` | `str` | required | Check-out date (`YYYY-MM-DD`) |
+| `adults` | `int` | `2` | Adult guest count |
+| `child_ages` | `list[int] \| None` | `None` | Ages for child guests |
+| `rooms` | `int` | `1` | Room count |
+| `currency` | `str` | `"USD"` | Requested ISO 4217 currency |
+| `transport` | `TransportConfig` | `TransportConfig()` | HTTP transport configuration |
+
+Exact hotel queries can include `Hotel.booking_token`, which can be passed to `hotel_prices()` and `hotel_reviews()`.
+
+### `hotel_prices(hotel_token, **kwargs)`
+
+Fetch provider offers for a selected hotel token. Returns a `Hotel` with `providers: list[HotelProvider]`. Pass the original hotel name in `query` when available so swoop can rehydrate Google's destination context before pricing.
+
+### `hotel_reviews(hotel_token, **kwargs)`
+
+Fetch reviews for a selected hotel token. Returns `HotelReviewsResult`.
+
 ### `get_booking_results(itinerary_or_token, **kwargs)`
 
 Get fare options for a specific itinerary. Pass an `Itinerary` object directly, or a booking token string with explicit `origin`, `destination`, `date`, and `selected_legs`. Returns `list[BookingOption]` with `price`, `brand_label`, `brand_code`, `fare_family`, etc.
@@ -357,6 +409,11 @@ Set the default proxy URL for all subsequent requests. Pass `None` to clear.
 - **`SearchLeg`** — `date: str`, `from_airport: str`, `to_airport: str`, `max_stops: int | None`, `airlines: list[str] | None`
 - **`ExploreResult`** — `destinations: list[ExploreDestination]`, origin metadata
 - **`ExploreDestination`** — `place_id`, `name`, `country`, coordinates, `airport_code: str | None`, suggested dates, images, distance, duration
+- **`HotelSearchResult`** — `hotels: list[Hotel]`, `query`, `destination_name`, `currency`, `is_complete`
+- **`Hotel`** — Hotel card/details with `hotel_id`, `name`, prices, currency, rating, class, location, image, `booking_token`, and provider offers
+- **`HotelProvider`** — Provider offer with name, nightly/total prices, currency, booking URL, logo, room name, and cancellation signal
+- **`HotelReviewsResult`** — `reviews: list[HotelReview]`, `hotel_token`
+- **`HotelReview`** — Review source, author, rating, max rating, relative date, text, and source URL
 - **`SearchResult`** — `results: list[TripOption]`, `price_range: PriceRange | None`, `is_complete: bool`, `currency: str | None`
 - **`TripOption`** — `selector: str`, `price: int | None`, `currency: str | None`, `legs: list[TripLeg]`
 - **`TripLeg`** — `origin: str`, `destination: str`, `date: str`, `itinerary: Itinerary | None`
