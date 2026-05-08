@@ -13,6 +13,19 @@ from .utils import (
     check_past_date,
 )
 
+HOTEL_PROPERTY_TYPE_CHOICES = [
+    "beach-hotels",
+    "boutique-hotels",
+    "hostels",
+    "inns",
+    "motels",
+    "resorts",
+    "spa-hotels",
+    "bed-and-breakfasts",
+    "other",
+    "apartment-hotels",
+]
+
 
 def _err_console(no_color: bool = False) -> Console:
     return Console(stderr=True, no_color=no_color)
@@ -843,6 +856,11 @@ def _hotel_error(ctx, err, exc) -> None:
 @click.option("--max-total-price", type=click.IntRange(0), default=None, help="Maximum total stay price.")
 @click.option("--min-rating", type=click.FloatRange(0, 5), default=None, help="Minimum Google rating.")
 @click.option("--min-class", "min_hotel_class", type=click.IntRange(0, 5), default=None, help="Minimum hotel class/star count.")
+@click.option("--property-type", "property_types", type=click.Choice(HOTEL_PROPERTY_TYPE_CHOICES, case_sensitive=False), multiple=True, help="Property type filter (repeatable).")
+@click.option("--pool", "has_pool", is_flag=True, default=False, help="Only show hotels with a pool.")
+@click.option("--free-cancellation", is_flag=True, default=False, help="Only show hotels with free cancellation offers.")
+@click.option("--special-offers", is_flag=True, default=False, help="Only show hotels with special offers.")
+@click.option("--eco-certified", is_flag=True, default=False, help="Only show eco-certified hotels.")
 @click.option("--require-booking-token", is_flag=True, default=False, help="Show only hotels with pricing/review tokens.")
 @click.option("--include-booking-tokens", is_flag=True, default=False, help="Run exact follow-up searches to attach pricing/review tokens.")
 @click.option("--token-enrichment-limit", type=click.IntRange(0), default=None, help="Maximum number of hotel cards to enrich.")
@@ -858,7 +876,9 @@ def hotels_cmd(
     adults, child_ages, rooms, currency,
     sort_by, min_price, max_price,
     min_total_price, max_total_price,
-    min_rating, min_hotel_class, require_booking_token,
+    min_rating, min_hotel_class, property_types,
+    has_pool, free_cancellation, special_offers, eco_certified,
+    require_booking_token,
     include_booking_tokens, token_enrichment_limit,
     country, proxy, timeout, retries,
     limit, output_format, no_color, quiet,
@@ -869,6 +889,7 @@ def hotels_cmd(
     Examples:
       swoop hotels "New York" 2026-06-01 2026-06-03
       swoop hotels "New York" 2026-06-01 2026-06-03 --sort rating --min-rating 4
+      swoop hotels "New York" 2026-06-01 2026-06-03 --pool --property-type hostels
       swoop hotels "New York" 2026-06-01 2026-06-03 --include-booking-tokens --token-enrichment-limit 3
       swoop hotels "HI New York City Hostel" 2026-06-01 2026-06-03 -o json -q
     """
@@ -904,6 +925,11 @@ def hotels_cmd(
                 max_total_price=max_total_price,
                 min_rating=min_rating,
                 min_hotel_class=min_hotel_class,
+                property_types=[value.replace("-", "_") for value in property_types] or None,
+                has_pool=has_pool,
+                free_cancellation=free_cancellation,
+                special_offers=special_offers,
+                eco_certified=eco_certified,
                 require_booking_token=require_booking_token,
                 include_booking_tokens=include_booking_tokens,
                 token_enrichment_limit=token_enrichment_limit,
