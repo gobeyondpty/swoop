@@ -18,7 +18,7 @@ for option in results.results[:3]:
 > [!NOTE]
 > swoop is not affiliated with Google. It calls undocumented RPC endpoints that can change without notice.
 
-swoop calls Google Flights' internal `GetShoppingResults` and `GetBookingResults` RPC endpoints, the same ones the web app uses when you search for flights. Requests use TLS fingerprint impersonation via [primp](https://github.com/deedy5/primp) to match a real browser session. Responses are deeply nested lists (matching an internal protobuf schema) decoded into typed Python dataclasses.
+swoop calls Google Flights' internal `GetShoppingResults`, `GetBookingResults`, and `GetExploreDestinations` RPC endpoints, the same ones the web app uses when you search for flights. Requests use TLS fingerprint impersonation via [primp](https://github.com/deedy5/primp) to match a real browser session. Responses are deeply nested lists (matching an internal protobuf schema) decoded into typed Python dataclasses.
 
 [Perch](https://perchtravel.com) uses swoop in production to monitor booked flights for price drops, saving users an average of $247 per trip.
 
@@ -59,6 +59,9 @@ swoop price JFK LAX --depart 2026-06-15 DL2300
 
 # Show copy/paste price commands for displayed rows
 swoop search JFK LAX 2026-06-15 --show-price-commands
+
+# Flexible destination ideas
+swoop explore JFK
 
 # Script-stable pricing via selector
 SELECTOR=$(swoop search JFK LAX 2026-06-15 -o json -q | jq -r '.results[0].selector')
@@ -200,6 +203,16 @@ results = search(
 )
 ```
 
+### Explore destinations
+
+```python
+from swoop import explore
+
+result = explore("JFK", cabin="economy")
+for destination in result.destinations[:10]:
+    print(destination.name, destination.airport_code, destination.departure_date)
+```
+
 ### Booking details (fare options)
 
 ```python
@@ -320,6 +333,10 @@ Look up the current bookable fare for a specific flight. Optimized for the "what
 
 Returns `PriceResult | None`. `PriceResult` has `price`, `fare_brand`, `is_basic_economy`, `booking_options`, `itinerary`, `resolved_legs`, `rpc_calls`.
 
+### `explore(origin, **kwargs)`
+
+Discover flexible destination ideas from the Google Flights Explore endpoint. Returns `ExploreResult` with destination names, coordinates, optional airport codes, suggested dates, images, distance text, and approximate travel duration.
+
 ### `get_booking_results(itinerary_or_token, **kwargs)`
 
 Get fare options for a specific itinerary. Pass an `Itinerary` object directly, or a booking token string with explicit `origin`, `destination`, `date`, and `selected_legs`. Returns `list[BookingOption]` with `price`, `brand_label`, `brand_code`, `fare_family`, etc.
@@ -338,6 +355,8 @@ Set the default proxy URL for all subsequent requests. Pass `None` to clear.
 - **`ResolvedLeg`** — `flight_summary: str`, `origin: str`, `destination: str`, `date: str`, `itinerary: Itinerary | None`, `selection: str`
 - **`SelectedLeg`** — `flight_number: str`, `origin: str`, `destination: str`, `date: str`
 - **`SearchLeg`** — `date: str`, `from_airport: str`, `to_airport: str`, `max_stops: int | None`, `airlines: list[str] | None`
+- **`ExploreResult`** — `destinations: list[ExploreDestination]`, origin metadata
+- **`ExploreDestination`** — `place_id`, `name`, `country`, coordinates, `airport_code: str | None`, suggested dates, images, distance, duration
 - **`SearchResult`** — `results: list[TripOption]`, `price_range: PriceRange | None`, `is_complete: bool`, `currency: str | None`
 - **`TripOption`** — `selector: str`, `price: int | None`, `currency: str | None`, `legs: list[TripLeg]`
 - **`TripLeg`** — `origin: str`, `destination: str`, `date: str`, `itinerary: Itinerary | None`

@@ -22,3 +22,8 @@ htmlcov/
 # IDE
 .vscode/
 .idea/
+
+# Local reverse-engineering captures
+references/google-flights/explore/
+scripts/capture_explore.py
+scripts/capture_explore_browser.mjs
