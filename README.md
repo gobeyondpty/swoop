@@ -63,6 +63,12 @@ swoop search JFK LAX 2026-06-15 --show-price-commands
 # Flexible destination ideas
 swoop explore JFK
 
+# Search hotels
+swoop hotels "New York" 2026-06-01 2026-06-03
+
+# Enrich broad hotel cards with pricing/review tokens
+swoop hotels "New York" 2026-06-01 2026-06-03 --include-booking-tokens --token-enrichment-limit 3
+
 # Script-stable pricing via selector
 SELECTOR=$(swoop search JFK LAX 2026-06-15 -o json -q | jq -r '.results[0].selector')
 swoop price --selector "$SELECTOR"
@@ -86,11 +92,16 @@ swoop search JFK LAX 2026-06-15 -o json -q | jq '.results[0] | {selector, price,
 
 # Filter by airline and time window
 swoop search JFK LAX 2026-06-15 -a DL -a UA --depart-after 8 --depart-before 14
+
+# Hotel provider prices and reviews from a booking token
+TOKEN=$(swoop hotels "HI New York City Hostel" 2026-06-01 2026-06-03 -o json -q | jq -r '.hotels[0].booking_token')
+swoop hotel-prices "$TOKEN" --query "HI New York City Hostel" --check-in 2026-06-01 --check-out 2026-06-03
+swoop hotel-reviews "$TOKEN"
 ```
 
 </details>
 
-Run `swoop search --help` for all options.
+Run `swoop search --help` or `swoop hotels --help` for all options.
 
 > [!TIP]
 > Search shows shopping totals for browsing. Use `--show-price-commands` for copy/paste `swoop price --selector ...` commands in human output, or use `selector` from JSON with `swoop price --selector ...` in scripts.
