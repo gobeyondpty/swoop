@@ -506,7 +506,8 @@ class TestSearchSignature:
         param_names = list(sig.parameters.keys())
         expected = [
             "query", "check_in", "check_out",
-            "adults", "child_ages", "rooms", "currency", "transport",
+            "adults", "child_ages", "rooms", "currency",
+            "include_booking_tokens", "token_enrichment_limit", "transport",
         ]
         assert param_names == expected
 
