@@ -353,6 +353,58 @@ class DealsDiff:
 
 
 @dataclass
+class CalendarDay:
+    """A single day in a calendar/date-grid price scan.
+
+    ``price`` is in the currency's major unit (e.g. 333 for $333 USD).
+    ``currency`` is the ISO 4217 code. ``return_date`` is None for one-way
+    scans, populated for round-trip scans.
+    """
+
+    departure_date: str
+    return_date: Optional[str]
+    price: int
+    currency: Optional[str] = None
+    selector: Optional[str] = None
+
+    def __repr__(self) -> str:
+        if self.return_date:
+            return f"CalendarDay({self.departure_date}→{self.return_date} {self.price})"
+        return f"CalendarDay({self.departure_date} {self.price})"
+
+
+@dataclass
+class CalendarResult:
+    """A date→price grid for a route + window.
+
+    Bucket the prices yourself for fare-color UI (Google computes coloring
+    client-side from these same values).
+    """
+
+    days: list[CalendarDay] = field(default_factory=list)
+
+    @property
+    def currency(self) -> Optional[str]:
+        return self.days[0].currency if self.days else None
+
+    @property
+    def min_price(self) -> Optional[int]:
+        return min((d.price for d in self.days), default=None)
+
+    @property
+    def max_price(self) -> Optional[int]:
+        return max((d.price for d in self.days), default=None)
+
+    def __repr__(self) -> str:
+        n = len(self.days)
+        parts = [f"{n} day{'s' if n != 1 else ''}"]
+        lo, hi = self.min_price, self.max_price
+        if lo is not None and hi is not None:
+            parts.append(f"{lo}-{hi}")
+        return f"CalendarResult({', '.join(parts)})"
+
+
+@dataclass
 class PriceResult:
     """Result of a targeted price check for a specific trip.
 

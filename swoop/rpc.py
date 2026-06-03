@@ -33,7 +33,7 @@ from ._booking import (
 from .builders import CABIN_CLASS_MAP, CabinClass
 from .decoder import BookingOption, RawSearchResult, Itinerary, decode_result, _safe_get
 from .exceptions import SwoopHTTPError, SwoopParseError, SwoopRateLimitError
-from .models import Passengers, TransportConfig
+from .models import CalendarDay, CalendarResult, Passengers, TransportConfig
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +44,10 @@ SHOPPING_RPC_URL = (
 BOOKING_RPC_URL = (
     "https://www.google.com/_/FlightsFrontendUi/data/"
     "travel.frontend.flights.FlightsFrontendService/GetBookingResults"
+)
+CALENDAR_RPC_URL = (
+    "https://www.google.com/_/FlightsFrontendUi/data/"
+    "travel.frontend.flights.FlightsFrontendService/GetCalendarPicker"
 )
 
 # Sort order values
@@ -707,3 +711,196 @@ def _parse_rpc_response(text: str) -> Optional[RawSearchResult]:
         return None
 
     return decode_result(data)
+
+
+# ---------------------------------------------------------------------------
+# GetCalendarPicker — date-grid / "price graph" RPC.
+# ---------------------------------------------------------------------------
+
+
+def _build_calendar_payload(
+    origin: str,
+    destination: str,
+    window_start: str,
+    window_end: str,
+    *,
+    return_date_window: Optional[tuple[str, str]] = None,
+    min_stay: Optional[int] = None,
+    max_stay: Optional[int] = None,
+    cabin: CabinClass = "economy",
+    passengers: Passengers = Passengers(),
+) -> list[Any]:
+    """Build the inner JSON payload for GetCalendarPicker.
+
+    For one-way scans pass ``return_date_window=None``. For round-trip scans
+    pass ``min_stay`` / ``max_stay`` in days. When ``min_stay == max_stay``
+    Google returns one row per outbound day in the window; widening the range
+    surfaces more flexible options.
+    """
+    seat_type = CABIN_CLASS_MAP.get(cabin, 1)
+    is_roundtrip = return_date_window is not None or (min_stay is not None and max_stay is not None)
+
+    if is_roundtrip:
+        legs_block = [
+            [[[[origin, 0]]], [[[destination, 0]]], None, 0],
+            [[[[destination, 0]]], [[[origin, 0]]], None, 0],
+        ]
+        trip_flag = 1
+        stay_block = [min_stay or 0, max_stay or min_stay or 0]
+    else:
+        legs_block = [[[[[origin, 0]]], [[[destination, 0]]], None, 0]]
+        trip_flag = 2
+        stay_block = None
+
+    filter_block = [
+        None,
+        None,
+        1,
+        None,
+        [],
+        seat_type,
+        [
+            passengers.adults,
+            passengers.children,
+            passengers.infants_in_seat,
+            passengers.infants_on_lap,
+        ],
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        legs_block,
+        None,
+        None,
+        None,
+        trip_flag,
+    ]
+
+    return [
+        None,
+        filter_block,
+        [window_start, window_end],
+        None,
+        stay_block,
+    ]
+
+
+def _parse_calendar_response(text: str, *, currency: Optional[str] = None) -> CalendarResult:
+    """Parse a GetCalendarPicker response into a CalendarResult.
+
+    The response can be either naked JSON (``rt`` unset) or length-framed
+    container chunks (``rt=c``). We handle both.
+    """
+    stripped = text.lstrip(")]}'").lstrip()
+    if not stripped:
+        return CalendarResult()
+
+    # Try naked JSON first.
+    outer: Any
+    try:
+        outer = json.loads(stripped)
+    except json.JSONDecodeError:
+        # Length-framed: lines alternate `<int>\n<json>\n`. Decode the first
+        # JSON chunk.
+        try:
+            _len_line, _, rest = stripped.partition("\n")
+            if not _len_line.strip().isdigit():
+                raise SwoopParseError("Unrecognized calendar response framing")
+            outer, _ = json.JSONDecoder().raw_decode(rest)
+        except Exception as e:  # noqa: BLE001
+            raise SwoopParseError(f"Failed to parse calendar response: {e}") from e
+
+    inner_json: Optional[str] = None
+    try:
+        inner_json = outer[0][2]
+    except (IndexError, TypeError):
+        logger.warning("Calendar response missing data at [0][2]")
+        return CalendarResult()
+
+    if not inner_json:
+        return CalendarResult()
+
+    try:
+        data = json.loads(inner_json)
+    except (json.JSONDecodeError, TypeError) as e:
+        raise SwoopParseError(f"Failed to parse inner calendar response: {e}") from e
+
+    days: list[CalendarDay] = []
+    raw_days = _safe_get(data, [1], default=[]) or []
+    for entry in raw_days:
+        if not isinstance(entry, list) or len(entry) < 3:
+            continue
+        dep = entry[0]
+        ret = entry[1] if len(entry) > 1 else None
+        price_block = entry[2] if len(entry) > 2 else None
+        price = _safe_get(price_block, [0, 1])
+        selector = _safe_get(price_block, [1])
+        if not isinstance(dep, str) or price is None:
+            continue
+        days.append(
+            CalendarDay(
+                departure_date=dep,
+                return_date=ret if isinstance(ret, str) else None,
+                price=int(price),
+                currency=currency,
+                selector=selector if isinstance(selector, str) else None,
+            )
+        )
+
+    return CalendarResult(days=days)
+
+
+def get_calendar(
+    origin: str,
+    destination: str,
+    window_start: str,
+    window_end: str,
+    *,
+    min_stay: Optional[int] = None,
+    max_stay: Optional[int] = None,
+    cabin: CabinClass = "economy",
+    passengers: Passengers = Passengers(),
+    transport: TransportConfig = TransportConfig(),
+) -> CalendarResult:
+    """Fetch Google Flights' date-grid prices for a route + date window.
+
+    For a one-way scan, omit ``min_stay`` / ``max_stay``. For a round-trip
+    scan, pass at least ``min_stay`` (set ``max_stay=min_stay`` for an exact
+    stay length). The response contains one row per outbound date in the
+    window, each with the total trip price.
+
+    The currency follows the request's point of sale (use
+    :func:`set_country` or ``transport.country``). Bucket the returned
+    prices yourself to reproduce Google's calendar fare coloring — the
+    colors are computed client-side, not delivered as an enum.
+    """
+    logger.debug(
+        "get_calendar %s->%s %s..%s (stay=%s..%s)",
+        origin, destination, window_start, window_end, min_stay, max_stay,
+    )
+
+    return_window = (window_start, window_end) if (min_stay is not None or max_stay is not None) else None
+    payload = _build_calendar_payload(
+        origin,
+        destination,
+        window_start,
+        window_end,
+        return_date_window=return_window,
+        min_stay=min_stay,
+        max_stay=max_stay,
+        cabin=cabin,
+        passengers=passengers,
+    )
+    encoded_body = _encode_f_req_payload(payload)
+    res = _http_post(
+        CALENDAR_RPC_URL,
+        content=f"f.req={encoded_body}".encode(),
+        transport=transport,
+    )
+    # Currency comes from the point of sale but isn't echoed in this RPC's
+    # payload. Best-effort: leave None unless caller knows it.
+    result = _parse_calendar_response(res.text)
+    logger.info("get_calendar returned %d days", len(result.days))
+    return result

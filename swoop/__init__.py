@@ -40,7 +40,7 @@ from .decoder import (
 from ._regions import Region
 from .exceptions import SwoopError, SwoopHTTPError, SwoopParseError, SwoopRateLimitError
 from .builders import CabinClass, SearchLeg
-from .models import Deal, DealsDiff, DealsResult, ExploreDestination, ExploreResult, Passengers, PriceChange, PriceResult, ResolvedLeg, SearchResult, SelectedLeg, TransportConfig, TripLeg, TripOption
+from .models import CalendarDay, CalendarResult, Deal, DealsDiff, DealsResult, ExploreDestination, ExploreResult, Passengers, PriceChange, PriceResult, ResolvedLeg, SearchResult, SelectedLeg, TransportConfig, TripLeg, TripOption
 from .rpc import (
     SORT_ARRIVAL_TIME,
     SORT_CHEAPEST,
@@ -52,6 +52,7 @@ from .rpc import (
     STOPS_ONE_OR_FEWER,
     STOPS_TWO_OR_FEWER,
     get_booking_results,
+    get_calendar,
     search_raw,
     set_country,
     set_proxy,
@@ -1084,6 +1085,77 @@ def deals(
     return result
 
 
+def calendar(
+    origin: str,
+    destination: str,
+    window_start: str,
+    window_end: str,
+    *,
+    min_stay: Optional[int] = None,
+    max_stay: Optional[int] = None,
+    cabin: CabinClass = "economy",
+    passengers: Passengers = Passengers(),
+    transport: TransportConfig = TransportConfig(),
+) -> CalendarResult:
+    """Fetch Google Flights' date-grid prices for a route + date window.
+
+    Returns one entry per outbound day in ``[window_start, window_end]`` with
+    the total trip price. Useful for date-picker fare colors and "cheapest
+    day to fly" UIs.
+
+    For a one-way scan, omit ``min_stay`` / ``max_stay``. For a round-trip
+    scan, pass at least ``min_stay`` (set ``max_stay = min_stay`` for an
+    exact stay length, or widen to surface flexible options).
+
+    The returned prices' coloring (green/typical/red) is computed
+    client-side from the prices themselves — bucket them yourself with
+    e.g. percentile thresholds.
+
+    Args:
+        origin: Origin IATA code (e.g. ``"JFK"``).
+        destination: Destination IATA code (e.g. ``"LAX"``).
+        window_start: Earliest outbound date (``YYYY-MM-DD``).
+        window_end: Latest outbound date (``YYYY-MM-DD``).
+        min_stay: For round-trip: minimum stay in days.
+        max_stay: For round-trip: maximum stay in days (defaults to ``min_stay``).
+        cabin: Cabin class (default ``"economy"``).
+        passengers: Passenger counts (default ``Passengers()``).
+        transport: HTTP transport configuration (default ``TransportConfig()``).
+
+    Example::
+
+        import swoop
+        cal = swoop.calendar("JFK", "LAX", "2026-06-01", "2026-06-30",
+                             min_stay=7, max_stay=7)
+        for d in cal.days:
+            print(d.departure_date, d.price)
+    """
+    validate_iata_code(origin, "origin")
+    validate_iata_code(destination, "destination")
+    validate_date(window_start, "window_start")
+    validate_date(window_end, "window_end")
+    validate_cabin(cabin)
+    validate_adults(passengers.adults)
+    if window_end < window_start:
+        raise ValueError("window_end must be >= window_start")
+    if min_stay is not None and min_stay < 0:
+        raise ValueError("min_stay must be >= 0")
+    if max_stay is not None and min_stay is not None and max_stay < min_stay:
+        raise ValueError("max_stay must be >= min_stay")
+
+    return get_calendar(
+        origin,
+        destination,
+        window_start,
+        window_end,
+        min_stay=min_stay,
+        max_stay=max_stay if max_stay is not None else min_stay,
+        cabin=cabin,
+        passengers=passengers,
+        transport=transport,
+    )
+
+
 __all__ = [
     # Functions
     "search",
@@ -1099,7 +1171,9 @@ __all__ = [
     "explore",
     "price_explore",
     "price_explore_all",
+    "calendar",
     "get_booking_results",
+    "get_calendar",
     "search_raw",
     "set_country",
     "set_proxy",
@@ -1116,6 +1190,8 @@ __all__ = [
     "Region",
     "Passengers",
     "TransportConfig",
+    "CalendarDay",
+    "CalendarResult",
     "PriceResult",
     "RawSearchResult",
     "SearchResult",
