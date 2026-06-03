@@ -1161,9 +1161,14 @@ class TestHotelsCommand:
     @patch("swoop.hotels")
     def test_hotels_json_output_and_options(self, mock_hotels):
         mock_hotels.return_value = _make_hotel_result()
+        # Use future dates so the past-date warning (emitted on stderr and
+        # folded into output by CliRunner) doesn't corrupt the JSON we parse.
+        from datetime import date, timedelta
+        check_in = (date.today() + timedelta(days=30)).isoformat()
+        check_out = (date.today() + timedelta(days=32)).isoformat()
         runner = CliRunner()
         result = runner.invoke(main, [
-            "hotels", "New York", "2026-06-01", "2026-06-03",
+            "hotels", "New York", check_in, check_out,
             "--include-booking-tokens", "--token-enrichment-limit", "1",
             "--sort", "rating", "--min-rating", "4",
             "--max-total-price", "250", "--require-booking-token",
@@ -1180,7 +1185,7 @@ class TestHotelsCommand:
         assert data["is_complete"] is False
         assert data["hotels"][0]["booking_token"] == "hotel-token-1"
         args, kwargs = mock_hotels.call_args
-        assert args == ("New York", "2026-06-01", "2026-06-03")
+        assert args == ("New York", check_in, check_out)
         assert kwargs["include_booking_tokens"] is True
         assert kwargs["token_enrichment_limit"] == 1
         assert kwargs["child_ages"] == [9]
