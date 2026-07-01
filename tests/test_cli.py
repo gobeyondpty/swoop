@@ -18,6 +18,7 @@ from swoop import (
     TripOption,
 )
 from swoop.cli.commands import search_cmd, price_cmd
+from swoop.exceptions import SwoopUpstreamError
 from swoop.cli.utils import format_time, format_duration, format_date_display, format_route, check_past_date, IATACodeType, DateType
 from swoop.decoder import (
     BookingOption,
@@ -27,6 +28,19 @@ from swoop.decoder import (
     Layover,
     PriceRange,
 )
+
+from datetime import date as _date, timedelta as _timedelta
+
+# Dates passed to the CLI below as the departure / return / second-leg value.
+# Computed at import so they are ALWAYS in the future. A hardcoded date
+# eventually goes stale: swoop then prints "Warning: <date> is in the past."
+# to stderr, Click 8.3 folds stderr into result.output, and every test that
+# parses the JSON/CSV/brief payload breaks on the warning line. The invariant
+# that keeps real (stdout-only) output clean is pinned by
+# TestPastDateWarningStreamSeparation.
+_FUTURE = (_date.today() + _timedelta(days=30)).isoformat()
+_RETURN = (_date.today() + _timedelta(days=37)).isoformat()
+_LEG2 = (_date.today() + _timedelta(days=33)).isoformat()
 
 
 # ---------------------------------------------------------------------------
@@ -418,7 +432,7 @@ class TestVerboseFlag:
         mock_search.side_effect = _capture_state
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-q", "-o", "json", "--verbose",
+            "search", "JFK", "LAX", _FUTURE, "-q", "-o", "json", "--verbose",
         ])
         assert result.exit_code == 0
         # While the command was running.
@@ -447,7 +461,7 @@ class TestVerboseFlag:
         mock_search.side_effect = _capture
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-q", "-o", "json", "-v",
+            "search", "JFK", "LAX", _FUTURE, "-q", "-o", "json", "-v",
         ])
         assert result.exit_code == 0
         assert observed_level == [logging.DEBUG]
@@ -466,7 +480,7 @@ class TestVerboseFlag:
         # rises to exactly one during the next invocation.
         for _ in range(3):
             runner.invoke(main, [
-                "search", "JFK", "LAX", "2026-06-15", "-q", "-o", "json", "-v",
+                "search", "JFK", "LAX", _FUTURE, "-q", "-o", "json", "-v",
             ])
             assert not any(
                 isinstance(h, _SwoopVerboseHandler)
@@ -491,7 +505,7 @@ class TestVerboseFlag:
         runner = CliRunner()
         prior_level = logging.getLogger("swoop").level
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-q", "-o", "json",
+            "search", "JFK", "LAX", _FUTURE, "-q", "-o", "json",
         ])
         assert result.exit_code == 0
         swoop_log = logging.getLogger("swoop")
@@ -522,7 +536,7 @@ class TestSearchCommand:
         mock_search.return_value = _make_search_result()
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-o", "json", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-o", "json", "-q",
         ])
         assert result.exit_code == 0
         import json
@@ -539,7 +553,7 @@ class TestSearchCommand:
         mock_search.return_value = _make_search_result()
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-q",
         ])
         assert result.exit_code == 0
         assert "DL 2300" in result.output  # flight_summary
@@ -554,7 +568,7 @@ class TestSearchCommand:
         mock_search.return_value = _make_search_result()
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-o", "csv", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-o", "csv", "-q",
         ])
         assert result.exit_code == 0
         lines = result.output.strip().split("\n")
@@ -567,7 +581,7 @@ class TestSearchCommand:
         mock_search.return_value = _make_search_result()
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-o", "brief", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-o", "brief", "-q",
         ])
         assert result.exit_code == 0
         lines = result.output.strip().split("\n")
@@ -582,7 +596,7 @@ class TestSearchCommand:
         mock_search.return_value = _make_search_result()
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-o", "json", "-q", "-l", "1",
+            "search", "JFK", "LAX", _FUTURE, "-o", "json", "-q", "-l", "1",
         ])
         assert result.exit_code == 0
         import json
@@ -594,7 +608,7 @@ class TestSearchCommand:
         mock_search.return_value = SearchResult(results=[])
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-q",
         ])
         assert result.exit_code == 1
         assert "No flights found" in result.stderr
@@ -602,7 +616,7 @@ class TestSearchCommand:
     def test_bad_iata(self):
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "XY", "LAX", "2026-06-15", "-q",
+            "search", "XY", "LAX", _FUTURE, "-q",
         ])
         assert result.exit_code == 2
         assert "not a valid IATA" in result.stderr
@@ -620,7 +634,7 @@ class TestSearchCommand:
         mock_search.return_value = _make_search_result(1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "--nonstop", "-o", "json", "-q",
+            "search", "JFK", "LAX", _FUTURE, "--nonstop", "-o", "json", "-q",
         ])
         assert result.exit_code == 0
         # Verify nonstop was passed
@@ -632,11 +646,11 @@ class TestSearchCommand:
         mock_search.return_value = _make_search_result(1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-r", "2026-06-22", "-o", "json", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-r", _RETURN, "-o", "json", "-q",
         ])
         assert result.exit_code == 0
         _, kwargs = mock_search.call_args
-        assert kwargs["return_date"] == "2026-06-22"
+        assert kwargs["return_date"] == _RETURN
 
     @patch("swoop.cli.commands._run_search")
     def test_rate_limit_error(self, mock_search):
@@ -644,7 +658,7 @@ class TestSearchCommand:
         mock_search.side_effect = SwoopRateLimitError()
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-q",
         ])
         assert result.exit_code == 3
         assert "Rate limited" in result.stderr
@@ -655,7 +669,7 @@ class TestSearchCommand:
         mock_search.side_effect = SwoopHTTPError(500)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-q",
         ])
         assert result.exit_code == 3
         assert "HTTP 500" in result.stderr
@@ -666,7 +680,7 @@ class TestSearchCommand:
         mock_search.side_effect = SwoopParseError("bad")
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-q",
         ])
         assert result.exit_code == 4
         assert "Could not parse" in result.stderr
@@ -676,7 +690,7 @@ class TestSearchCommand:
         mock_search.side_effect = ValueError("origin must be valid")
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-q",
         ])
         assert result.exit_code == 2
         assert "origin must be valid" in result.stderr
@@ -686,7 +700,7 @@ class TestSearchCommand:
         mock_search.return_value = _make_search_result(1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-a", "DL", "-a", "UA", "-o", "json", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-a", "DL", "-a", "UA", "-o", "json", "-q",
         ])
         assert result.exit_code == 0
         _, kwargs = mock_search.call_args
@@ -697,7 +711,7 @@ class TestSearchCommand:
         mock_search.return_value = _make_search_result(1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "jfk", "lax", "2026-06-15", "-o", "json", "-q",
+            "search", "jfk", "lax", _FUTURE, "-o", "json", "-q",
         ])
         assert result.exit_code == 0
         # IATA should be uppercased
@@ -711,7 +725,7 @@ class TestSearchCommand:
         mock_search.return_value = _make_search_result(1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-r", "2026-06-22", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-r", _RETURN, "-q",
         ])
         assert result.exit_code == 0
         assert "JFK -> LAX" in result.output
@@ -722,7 +736,7 @@ class TestSearchCommand:
         mock_search.return_value = _make_search_result()
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-q",
         ])
         assert result.exit_code == 0
         mock_price_selector.assert_not_called()
@@ -732,7 +746,7 @@ class TestSearchCommand:
         mock_search.return_value = _make_search_result()
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "--show-price-commands", "-q",
+            "search", "JFK", "LAX", _FUTURE, "--show-price-commands", "-q",
         ])
         assert result.exit_code == 0
         assert "Bookable fare commands for shown rows" in result.output
@@ -744,7 +758,7 @@ class TestSearchCommand:
         mock_search.return_value = _make_search_result()
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "--show-price-commands", "-l", "1", "-q",
+            "search", "JFK", "LAX", _FUTURE, "--show-price-commands", "-l", "1", "-q",
         ])
         assert result.exit_code == 0
         assert "1. swoop price --selector 'selector-1'" in result.output
@@ -753,7 +767,7 @@ class TestSearchCommand:
     def test_show_price_commands_rejects_json(self):
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "--show-price-commands", "-o", "json", "-q",
+            "search", "JFK", "LAX", _FUTURE, "--show-price-commands", "-o", "json", "-q",
         ])
         assert result.exit_code == 2
         assert "--show-price-commands is only supported with table or brief output" in result.stderr
@@ -761,7 +775,7 @@ class TestSearchCommand:
     def test_show_price_commands_rejects_csv(self):
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "--show-price-commands", "-o", "csv", "-q",
+            "search", "JFK", "LAX", _FUTURE, "--show-price-commands", "-o", "csv", "-q",
         ])
         assert result.exit_code == 2
         assert "--show-price-commands is only supported with table or brief output" in result.stderr
@@ -774,7 +788,7 @@ class TestSearchCommand:
         )
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-q",
         ])
         assert result.exit_code == 0
         assert "stop" in result.output
@@ -785,7 +799,7 @@ class TestSearchCommand:
         """CLI search passes retries=2 by default."""
         mock_search.return_value = _make_search_result()
         runner = CliRunner()
-        result = runner.invoke(main, ["search", "JFK", "LAX", "2026-06-15", "-q"])
+        result = runner.invoke(main, ["search", "JFK", "LAX", _FUTURE, "-q"])
         assert result.exit_code == 0
         _, kwargs = mock_search.call_args
         assert kwargs["retries"] == 2
@@ -795,7 +809,7 @@ class TestSearchCommand:
         mock_search_legs.return_value = _make_search_result(1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "--leg", "JFK", "LAX", "2026-06-15", "--leg", "LAX", "SFO", "2026-06-18", "-q",
+            "search", "--leg", "JFK", "LAX", _FUTURE, "--leg", "LAX", "SFO", _LEG2, "-q",
         ])
         assert result.exit_code == 0
         mock_search_legs.assert_called_once()
@@ -812,7 +826,7 @@ class TestPriceCommand:
         mock_check.return_value = PriceResult(price=342, currency="USD", fare_brand="Main Cabin", rpc_calls=1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "JFK", "LAX", "--depart", "2026-06-15", "DL2300", "-q",
+            "price", "JFK", "LAX", "--depart", _FUTURE, "DL2300", "-q",
         ])
         assert result.exit_code == 0
         assert "$342" in result.output
@@ -821,7 +835,7 @@ class TestPriceCommand:
         assert args == ("DL2300",)
         assert kwargs["origin"] == "JFK"
         assert kwargs["destination"] == "LAX"
-        assert kwargs["date"] == "2026-06-15"
+        assert kwargs["date"] == _FUTURE
         assert kwargs["cabin"] == "economy"
         pax = kwargs["passengers"]
         assert pax.adults == 1
@@ -834,7 +848,7 @@ class TestPriceCommand:
         mock_check.return_value = PriceResult(price=342, fare_brand="Main Cabin", rpc_calls=1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "JFK", "LAX", "--depart", "2026-06-15", "DL2300",
+            "price", "JFK", "LAX", "--depart", _FUTURE, "DL2300",
             "-o", "json", "-q",
         ])
         assert result.exit_code == 0
@@ -848,7 +862,7 @@ class TestPriceCommand:
         mock_check.return_value = PriceResult(price=342, currency="USD", fare_brand="Main Cabin", rpc_calls=1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "JFK", "LAX", "--depart", "2026-06-15", "DL2300",
+            "price", "JFK", "LAX", "--depart", _FUTURE, "DL2300",
             "-o", "brief", "-q",
         ])
         assert result.exit_code == 0
@@ -887,7 +901,7 @@ class TestPriceCommand:
         )
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "JFK", "LAX", "--depart", "2026-06-15", "DL2300",
+            "price", "JFK", "LAX", "--depart", _FUTURE, "DL2300",
             "-o", "csv", "-q",
         ])
         assert result.exit_code == 0
@@ -923,7 +937,7 @@ class TestPriceCommand:
         )
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "JFK", "LAX", "--depart", "2026-06-15", "DL2300",
+            "price", "JFK", "LAX", "--depart", _FUTURE, "DL2300",
             "-o", "csv", "-q",
         ])
         assert result.exit_code == 0
@@ -937,6 +951,33 @@ class TestPriceCommand:
         assert rows[1][rows[0].index("price")] == "342"
 
     @patch("swoop.check_price")
+    def test_price_output_surfaces_is_estimate(self, mock_check):
+        """An estimate (search-derived, no confirmed fare) must be visible in
+        machine-readable output — JSON and CSV — so consumers can tell it apart
+        from a confirmed bookable fare. The no-booking-options path is exactly
+        the is_estimate=True case."""
+        mock_check.return_value = PriceResult(
+            price=342, currency="USD", is_estimate=True, rpc_calls=0,
+        )
+        runner = CliRunner()
+        json_res = runner.invoke(main, [
+            "price", "JFK", "LAX", "--depart", _FUTURE, "DL2300", "-o", "json", "-q",
+        ])
+        assert json_res.exit_code == 0
+        import json
+        assert json.loads(json_res.output)["is_estimate"] is True
+
+        csv_res = runner.invoke(main, [
+            "price", "JFK", "LAX", "--depart", _FUTURE, "DL2300", "-o", "csv", "-q",
+        ])
+        assert csv_res.exit_code == 0
+        import csv as _csv
+        import io as _io
+        rows = list(_csv.reader(_io.StringIO(csv_res.output)))
+        assert "is_estimate" in rows[0]
+        assert rows[1][rows[0].index("is_estimate")] == "true"
+
+    @patch("swoop.check_price")
     def test_price_csv_empty_currency_column_when_none(self, mock_check):
         """currency=None must serialize as an empty string, not 'None'."""
         mock_check.return_value = PriceResult(
@@ -944,7 +985,7 @@ class TestPriceCommand:
         )
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "JFK", "LAX", "--depart", "2026-06-15", "DL2300",
+            "price", "JFK", "LAX", "--depart", _FUTURE, "DL2300",
             "-o", "csv", "-q",
         ])
         assert result.exit_code == 0
@@ -970,7 +1011,7 @@ class TestPriceCommand:
         )
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "JFK", "LAX", "--depart", "2026-06-15", "DL2300",
+            "price", "JFK", "LAX", "--depart", _FUTURE, "DL2300",
             "-o", "csv", "-q",
         ])
         assert result.exit_code == 0
@@ -1005,7 +1046,7 @@ class TestPriceCommand:
         )
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "JFK", "LAX", "--depart", "2026-06-15", "DL2300",
+            "price", "JFK", "LAX", "--depart", _FUTURE, "DL2300",
             "-o", "csv", "-q",
         ])
         assert result.exit_code == 0
@@ -1031,7 +1072,7 @@ class TestPriceCommand:
         mock_check.return_value = PriceResult(price=342, fare_brand="Main Cabin", rpc_calls=1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "JFK", "LAX", "--depart", "2026-06-15", "DL2300",
+            "price", "JFK", "LAX", "--depart", _FUTURE, "DL2300",
         ])
         assert result.exit_code == 0
         assert "RPC calls:" not in result.output
@@ -1041,7 +1082,7 @@ class TestPriceCommand:
         mock_check.return_value = None
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "JFK", "LAX", "--depart", "2026-06-15", "DL2300", "-q",
+            "price", "JFK", "LAX", "--depart", _FUTURE, "DL2300", "-q",
         ])
         assert result.exit_code == 1
 
@@ -1057,8 +1098,8 @@ class TestPriceCommand:
         runner = CliRunner()
         result = runner.invoke(main, [
             "price", "JFK", "LAX",
-            "--depart", "2026-06-15", "DL2300",
-            "--return", "2026-06-22", "DL2301",
+            "--depart", _FUTURE, "DL2300",
+            "--return", _RETURN, "DL2301",
             "-q",
         ])
         assert result.exit_code == 0
@@ -1067,9 +1108,9 @@ class TestPriceCommand:
         assert args == ("DL2300",)
         assert kwargs["origin"] == "JFK"
         assert kwargs["destination"] == "LAX"
-        assert kwargs["date"] == "2026-06-15"
+        assert kwargs["date"] == _FUTURE
         assert kwargs["return_flight_number"] == "DL2301"
-        assert kwargs["return_date"] == "2026-06-22"
+        assert kwargs["return_date"] == _RETURN
         assert kwargs["cabin"] == "economy"
         pax = kwargs["passengers"]
         assert pax.adults == 1
@@ -1082,8 +1123,8 @@ class TestPriceCommand:
         runner = CliRunner()
         result = runner.invoke(main, [
             "price",
-            "--leg", "JFK", "LAX", "2026-06-15", "DL2300",
-            "--leg", "LAX", "JFK", "2026-06-22", "DL2301",
+            "--leg", "JFK", "LAX", _FUTURE, "DL2300",
+            "--leg", "LAX", "JFK", _RETURN, "DL2301",
             "-q",
         ])
         assert result.exit_code == 0
@@ -1096,8 +1137,8 @@ class TestPriceCommand:
         """Shorthand + --leg is an error."""
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "JFK", "LAX", "--depart", "2026-06-15", "DL2300",
-            "--leg", "JFK", "LAX", "2026-06-15", "DL2300",
+            "price", "JFK", "LAX", "--depart", _FUTURE, "DL2300",
+            "--leg", "JFK", "LAX", _FUTURE, "DL2300",
         ])
         assert result.exit_code == 2
         assert "mutually exclusive" in result.stderr
@@ -1105,7 +1146,7 @@ class TestPriceCommand:
     def test_price_return_requires_depart(self):
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "JFK", "LAX", "--return", "2026-06-22", "DL2301",
+            "price", "JFK", "LAX", "--return", _RETURN, "DL2301",
         ])
         assert result.exit_code == 2
         assert "--return requires --depart" in result.stderr
@@ -1113,7 +1154,7 @@ class TestPriceCommand:
     def test_price_depart_requires_route_args(self):
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "--depart", "2026-06-15", "DL2300",
+            "price", "--depart", _FUTURE, "DL2300",
         ])
         assert result.exit_code == 2
         assert "ORIGIN DESTINATION are required" in result.stderr
@@ -1121,7 +1162,7 @@ class TestPriceCommand:
     def test_price_legacy_positional_fails_cleanly(self):
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "DL2300", "JFK", "LAX", "2026-06-15",
+            "price", "DL2300", "JFK", "LAX", _FUTURE,
         ])
         assert result.exit_code == 2
         assert "not a valid iata airport code" in result.stderr.lower()
@@ -1129,7 +1170,7 @@ class TestPriceCommand:
     def test_price_legacy_return_flag_fails_cleanly(self):
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "JFK", "LAX", "--depart", "2026-06-15", "DL2300", "--return-date", "2026-06-22",
+            "price", "JFK", "LAX", "--depart", _FUTURE, "DL2300", "--return-date", "2026-06-22",
         ])
         assert result.exit_code == 2
         stderr = result.stderr.lower()
@@ -1318,7 +1359,7 @@ class TestCurrencyDisplay:
         mock_search.return_value = SearchResult(results=[option])
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "LHR", "CDG", "2026-07-01", "-q",
+            "search", "LHR", "CDG", _FUTURE, "-q",
         ])
         assert result.exit_code == 0
         assert "\u00a3150" in result.output  # £150
@@ -1340,7 +1381,7 @@ class TestCurrencyDisplay:
         mock_search.return_value = SearchResult(results=[option])
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "LHR", "CDG", "2026-07-01", "-o", "brief", "-q",
+            "search", "LHR", "CDG", _FUTURE, "-o", "brief", "-q",
         ])
         assert result.exit_code == 0
         assert "\u00a3150" in result.output
@@ -1351,7 +1392,7 @@ class TestCurrencyDisplay:
         mock_check.return_value = PriceResult(price=150, currency="GBP", fare_brand="Flex", rpc_calls=1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "LHR", "CDG", "--depart", "2026-07-01", "BA304", "-q",
+            "price", "LHR", "CDG", "--depart", _FUTURE, "BA304", "-q",
         ])
         assert result.exit_code == 0
         assert "\u00a3150" in result.output
@@ -1362,7 +1403,7 @@ class TestCurrencyDisplay:
         mock_check.return_value = PriceResult(price=150, currency="GBP", fare_brand="Flex", rpc_calls=1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "LHR", "CDG", "--depart", "2026-07-01", "BA304", "-o", "brief", "-q",
+            "price", "LHR", "CDG", "--depart", _FUTURE, "BA304", "-o", "brief", "-q",
         ])
         assert result.exit_code == 0
         assert "\u00a3150" in result.output
@@ -1373,7 +1414,7 @@ class TestCurrencyDisplay:
         mock_check.return_value = PriceResult(price=150, currency="GBP", fare_brand="Flex", rpc_calls=1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "LHR", "CDG", "--depart", "2026-07-01", "BA304", "-o", "json", "-q",
+            "price", "LHR", "CDG", "--depart", _FUTURE, "BA304", "-o", "json", "-q",
         ])
         assert result.exit_code == 0
         import json
@@ -1398,7 +1439,7 @@ class TestCurrencyDisplay:
         mock_search.return_value = SearchResult(results=[option])
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "LHR", "CDG", "2026-07-01", "-o", "json", "-q",
+            "search", "LHR", "CDG", _FUTURE, "-o", "json", "-q",
         ])
         assert result.exit_code == 0
         import json
@@ -1424,7 +1465,7 @@ class TestCurrencyDisplay:
         mock_search.return_value = SearchResult(results=[option])
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "LHR", "CDG", "2026-07-01", "-o", "csv", "-q",
+            "search", "LHR", "CDG", _FUTURE, "-o", "csv", "-q",
         ])
         assert result.exit_code == 0
         lines = result.output.strip().split("\n")
@@ -1443,7 +1484,7 @@ class TestNewFlags:
         mock_search.return_value = _make_search_result(1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "--country", "GB", "-o", "json", "-q",
+            "search", "JFK", "LAX", _FUTURE, "--country", "GB", "-o", "json", "-q",
         ])
         assert result.exit_code == 0
         _, kwargs = mock_search.call_args
@@ -1454,7 +1495,7 @@ class TestNewFlags:
         mock_search.return_value = _make_search_result(1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "--proxy", "socks5://localhost:1080", "-o", "json", "-q",
+            "search", "JFK", "LAX", _FUTURE, "--proxy", "socks5://localhost:1080", "-o", "json", "-q",
         ])
         assert result.exit_code == 0
         _, kwargs = mock_search.call_args
@@ -1465,7 +1506,7 @@ class TestNewFlags:
         mock_search.return_value = _make_search_result(1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "--children", "2", "-o", "json", "-q",
+            "search", "JFK", "LAX", _FUTURE, "--children", "2", "-o", "json", "-q",
         ])
         assert result.exit_code == 0
         _, kwargs = mock_search.call_args
@@ -1476,7 +1517,7 @@ class TestNewFlags:
         mock_search.return_value = _make_search_result(1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15",
+            "search", "JFK", "LAX", _FUTURE,
             "--infants-in-seat", "1", "--infants-on-lap", "1",
             "-o", "json", "-q",
         ])
@@ -1490,7 +1531,7 @@ class TestNewFlags:
         mock_check.return_value = PriceResult(price=342, currency="GBP", fare_brand="Main Cabin", rpc_calls=1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "JFK", "LAX", "--depart", "2026-06-15", "DL2300",
+            "price", "JFK", "LAX", "--depart", _FUTURE, "DL2300",
             "--country", "GB", "-q",
         ])
         assert result.exit_code == 0
@@ -1502,7 +1543,7 @@ class TestNewFlags:
         mock_check.return_value = PriceResult(price=342, currency="USD", fare_brand="Main Cabin", rpc_calls=1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "price", "JFK", "LAX", "--depart", "2026-06-15", "DL2300",
+            "price", "JFK", "LAX", "--depart", _FUTURE, "DL2300",
             "--children", "1", "--infants-on-lap", "1", "-q",
         ])
         assert result.exit_code == 0
@@ -1564,7 +1605,7 @@ class TestEnrichedOutput:
         mock_search.return_value = _make_search_result()
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-o", "brief", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-o", "brief", "-q",
         ])
         assert result.exit_code == 0
         lines = result.output.strip().split("\n")
@@ -1579,7 +1620,7 @@ class TestEnrichedOutput:
         )
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-o", "brief", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-o", "brief", "-q",
         ])
         assert result.exit_code == 0
         assert "1 stop" in result.output
@@ -1589,7 +1630,7 @@ class TestEnrichedOutput:
         mock_search.return_value = _make_search_result()
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-o", "csv", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-o", "csv", "-q",
         ])
         assert result.exit_code == 0
         lines = result.output.strip().split("\n")
@@ -1615,7 +1656,7 @@ class TestEnrichedOutput:
         mock_search.return_value = SearchResult(results=[option])
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-q",
         ])
         assert result.exit_code == 0
         assert "-12%" in result.output
@@ -1625,7 +1666,7 @@ class TestEnrichedOutput:
         mock_search.return_value = _make_search_result(1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-q",
         ])
         assert result.exit_code == 0
         # CO2 column header should be present
@@ -1637,7 +1678,7 @@ class TestEnrichedOutput:
         mock_search.return_value = _make_search_result(1)
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-q",
         ])
         assert result.exit_code == 0
         assert "32 inches" in result.output
@@ -1679,7 +1720,7 @@ class TestEnrichedOutput:
         mock_search.return_value = SearchResult(results=[option])
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-q",
         ])
         assert result.exit_code == 0
         assert "overnight" in result.output.lower()
@@ -1693,7 +1734,7 @@ class TestEnrichedOutput:
         )
         runner = CliRunner()
         result = runner.invoke(main, [
-            "search", "JFK", "LAX", "2026-06-15", "-q",
+            "search", "JFK", "LAX", _FUTURE, "-q",
         ])
         assert result.exit_code == 0
         assert "--max-results" in result.output
@@ -1715,3 +1756,110 @@ class TestMainModule:
         )
         assert result.returncode == 0
         assert "search" in result.stdout
+
+
+# ---------------------------------------------------------------------------
+# Past-date warning stream separation (regression guard)
+# ---------------------------------------------------------------------------
+
+
+class TestPastDateWarningStreamSeparation:
+    """The past-date warning must land on stderr only; stdout stays a clean,
+    parseable payload.
+
+    This is the invariant the dated CLI tests above were silently leaning on.
+    When their hardcoded departure dates went stale, swoop correctly printed
+    "Warning: <date> is in the past." to stderr — but those tests read
+    ``result.output``, which Click 8.3 folds stdout+stderr into, so the warning
+    corrupted the JSON/CSV they parsed. The fix made the test dates dynamic;
+    this test pins the underlying product contract directly against
+    ``result.stdout`` / ``result.stderr`` with a guaranteed-past date, so the
+    failure class can't return if someone ever routes the warning to stdout.
+    """
+
+    @patch("swoop.cli.commands._run_search")
+    def test_search_past_date_warns_on_stderr_only(self, mock_search):
+        import json
+        mock_search.return_value = _make_search_result()
+        past = (_date.today() - _timedelta(days=1)).isoformat()
+        result = CliRunner().invoke(main, [
+            "search", "JFK", "LAX", past, "-o", "json", "-q",
+        ])
+        assert result.exit_code == 0
+        # stdout is pure JSON — the warning did not leak in.
+        data = json.loads(result.stdout)
+        assert data["query"]["origin"] == "JFK"
+        # the warning fired, and it went to stderr.
+        assert "is in the past" in result.stderr
+        assert "is in the past" not in result.stdout
+
+    @patch("swoop.check_price")
+    def test_price_past_date_warns_on_stderr_only(self, mock_check):
+        import json
+        mock_check.return_value = PriceResult(price=342, fare_brand="Main Cabin", rpc_calls=1)
+        past = (_date.today() - _timedelta(days=1)).isoformat()
+        result = CliRunner().invoke(main, [
+            "price", "JFK", "LAX", "--depart", past, "DL2300", "-o", "json", "-q",
+        ])
+        assert result.exit_code == 0
+        data = json.loads(result.stdout)
+        assert data["price"] == 342
+        assert "is in the past" in result.stderr
+        assert "is in the past" not in result.stdout
+
+
+class TestUpstreamErrorHandling:
+    """SwoopUpstreamError is a sibling of SwoopHTTPError/SwoopParseError, so the
+    CLI must catch it explicitly — otherwise an upstream outage (which fires
+    often under throttling) crashes the command with a raw traceback."""
+
+    @patch("swoop.cli.commands._run_search")
+    def test_search_reports_upstream_error_cleanly(self, mock_search):
+        mock_search.side_effect = SwoopUpstreamError(
+            13, type_url="type.googleapis.com/travel.frontend.flights.ErrorResponse"
+        )
+        result = CliRunner().invoke(main, ["search", "JFK", "LAX", _FUTURE, "-q"])
+        # Handled, not crashed: clean exit code, no leaked exception/traceback.
+        assert result.exit_code == 3
+        assert not isinstance(result.exception, SwoopUpstreamError)
+        assert "gRPC 13" in result.output
+
+    @patch("swoop.check_price")
+    def test_price_reports_upstream_error_cleanly(self, mock_price):
+        mock_price.side_effect = SwoopUpstreamError(13)
+        result = CliRunner().invoke(
+            main, ["price", "JFK", "LAX", "--depart", _FUTURE, "DL2300", "-q"]
+        )
+        assert result.exit_code == 3
+        assert not isinstance(result.exception, SwoopUpstreamError)
+        assert "upstream error" in result.output.lower()
+
+    @patch("swoop.deals")
+    def test_deals_reports_upstream_error_cleanly(self, mock_deals):
+        mock_deals.side_effect = SwoopUpstreamError(13)
+        result = CliRunner().invoke(main, ["deals", "JFK", "-q"])
+        assert result.exit_code == 3
+        assert not isinstance(result.exception, SwoopUpstreamError)
+        assert "gRPC 13" in result.output
+
+    @patch("swoop.explore")
+    def test_explore_reports_upstream_error_cleanly(self, mock_explore):
+        mock_explore.side_effect = SwoopUpstreamError(13)
+        result = CliRunner().invoke(main, ["explore", "JFK", "-q"])
+        assert result.exit_code == 3
+        assert not isinstance(result.exception, SwoopUpstreamError)
+        assert "gRPC 13" in result.output
+
+    @patch("swoop.check_price")
+    def test_unrecognized_swoop_error_exits_cleanly_not_traceback(self, mock_price):
+        # An unrecognized SwoopError subclass must surface its message and exit
+        # non-zero rather than crashing the CLI with a raw traceback.
+        from swoop.exceptions import SwoopError
+
+        mock_price.side_effect = SwoopError("something unexpected broke")
+        result = CliRunner().invoke(
+            main, ["price", "JFK", "LAX", "--depart", _FUTURE, "DL2300", "-q"]
+        )
+        assert result.exit_code == 3
+        assert not isinstance(result.exception, SwoopError)
+        assert "something unexpected broke" in result.output
