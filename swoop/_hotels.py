@@ -10,7 +10,13 @@ import time
 import urllib.parse
 from typing import Any, Optional
 
-from .exceptions import SwoopHTTPError, SwoopParseError, SwoopRateLimitError
+from .decoder import raise_if_error_envelope
+from .exceptions import (
+    SwoopHTTPError,
+    SwoopParseError,
+    SwoopRateLimitError,
+    SwoopUpstreamError,
+)
 from .models import (
     Hotel,
     HotelProvider,
@@ -242,6 +248,7 @@ def _parse_batchexecute_response(text: str, rpc_id: Optional[str] = None) -> lis
     """Parse a TravelFrontendUi batchexecute response inner payload."""
     stripped = text[4:] if text.startswith(")]}'") else text
     parse_errors: list[json.JSONDecodeError] = []
+    frames: list[Any] = []
 
     for line in stripped.splitlines():
         line = line.strip()
@@ -253,6 +260,11 @@ def _parse_batchexecute_response(text: str, rpc_id: Optional[str] = None) -> lis
             parse_errors.append(exc)
             continue
         for entry in _iter_wrb_entries(chunk):
+            # Collect every frame for the error-envelope scan below *before* the
+            # rpc_id filter: Google's ErrorResponse frame carries a null rpc_id
+            # (``["wrb.fr", null, null, ..., [code, ...]]``), so filtering first
+            # would drop it and mask the rejection as a parse failure.
+            frames.append(entry)
             if rpc_id is not None and _safe_get(entry, [1]) != rpc_id:
                 continue
             inner = _safe_get(entry, [2])
@@ -267,6 +279,12 @@ def _parse_batchexecute_response(text: str, rpc_id: Optional[str] = None) -> lis
             if not isinstance(payload, list):
                 raise SwoopParseError("Travel inner payload is not a list")
             return payload
+
+    # No result payload found. Distinguish a structured Google rejection (an
+    # ErrorResponse envelope -> SwoopUpstreamError, per the library-wide
+    # error-handling contract) from a genuine parse failure before falling
+    # through to SwoopParseError.
+    raise_if_error_envelope(frames, endpoint=rpc_id or "TravelFrontendUi")
 
     if parse_errors:
         raise SwoopParseError(f"Failed to parse Travel response JSON: {parse_errors[-1]}")
@@ -1172,7 +1190,7 @@ def _enrich_booking_tokens(
                 browser_params=browser_params,
                 transport=transport,
             )
-        except (SwoopHTTPError, SwoopParseError, SwoopRateLimitError):
+        except (SwoopHTTPError, SwoopParseError, SwoopRateLimitError, SwoopUpstreamError):
             logger.debug("Hotel token enrichment failed for %s", hotel.name, exc_info=True)
             continue
 
@@ -1427,7 +1445,7 @@ def fetch_hotels(
                     browser_params=browser_params,
                     transport=transport,
                 )
-            except (SwoopHTTPError, SwoopParseError, SwoopRateLimitError):
+            except (SwoopHTTPError, SwoopParseError, SwoopRateLimitError, SwoopUpstreamError):
                 logger.debug("Hotel filtered search RPC failed", exc_info=True)
             else:
                 filtered_result = parse_hotels_payload(
@@ -1511,7 +1529,7 @@ def fetch_hotels(
             browser_params=browser_params,
             transport=transport,
         )
-    except SwoopParseError:
+    except (SwoopParseError, SwoopUpstreamError):
         logger.debug("Hotel results RPC did not return parseable results", exc_info=True)
         seed_result = _prefer_page_result(seed_result, page_result)
         if include_booking_tokens:

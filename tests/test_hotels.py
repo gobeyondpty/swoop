@@ -5,6 +5,9 @@ from __future__ import annotations
 import json
 import urllib.parse
 
+import pytest
+
+from swoop.exceptions import SwoopParseError, SwoopUpstreamError
 from swoop._hotels import (
     HOTEL_RESULTS_RPC,
     HOTEL_REVIEWS_RPC,
@@ -32,6 +35,18 @@ from swoop.models import Hotel
 def _batchexecute(rpc_id: str, inner: list[object]) -> str:
     payload = [["wrb.fr", rpc_id, json.dumps(inner), None, None, [], "generic"]]
     line = json.dumps(payload)
+    return f")]}}'\n\n{len(line)}\n{line}\n"
+
+
+def _error_batchexecute(grpc_code: int = 13, *, product: str = "hotels") -> str:
+    """A batchexecute response carrying a Google ErrorResponse envelope.
+
+    Mirrors Google's rejection shape: a ``wrb.fr`` frame with a null rpc_id and
+    a ``[grpc_code, null, [[type_url]]]`` error block instead of a payload.
+    """
+    type_url = f"type.googleapis.com/travel.frontend.{product}.ErrorResponse"
+    frame = ["wrb.fr", None, None, None, None, [grpc_code, None, [[type_url]]]]
+    line = json.dumps([frame])
     return f")]}}'\n\n{len(line)}\n{line}\n"
 
 
@@ -162,6 +177,22 @@ def test_encode_travel_f_req_roundtrips():
 def test_parse_batchexecute_response_extracts_inner_payload():
     inner = _universal_payload()
     assert _parse_batchexecute_response(_batchexecute(UNIVERSAL_SEARCH_RPC, inner), UNIVERSAL_SEARCH_RPC) == inner
+
+
+def test_parse_batchexecute_response_raises_upstream_error_on_error_envelope():
+    # A Google ErrorResponse envelope must surface as SwoopUpstreamError (with
+    # its gRPC code), not be masked as a parse failure or a silent empty result.
+    with pytest.raises(SwoopUpstreamError) as excinfo:
+        _parse_batchexecute_response(_error_batchexecute(13), UNIVERSAL_SEARCH_RPC)
+    assert excinfo.value.grpc_code == 13
+
+
+def test_parse_batchexecute_response_missing_payload_stays_parse_error():
+    # A response with neither a matching payload nor an error envelope is a
+    # genuine parse failure — it must not be misreported as an upstream error.
+    missing = _batchexecute("SomeOtherRpc", _universal_payload())
+    with pytest.raises(SwoopParseError):
+        _parse_batchexecute_response(missing, UNIVERSAL_SEARCH_RPC)
 
 
 def test_build_universal_search_payload_includes_dates_currency_and_occupancy():
@@ -526,6 +557,57 @@ def test_fetch_hotels_can_enrich_broad_results_with_booking_tokens(monkeypatch):
     assert result.hotels[0].booking_token == "ChgI5MyhnoKIv-7JARoLL2cvMXdrN3J0MmIQAQ"
     assert result.hotels[1].booking_token is None
     assert client.queries == ["New York", "HI New York City Hostel"]
+
+
+def test_fetch_hotels_raises_when_primary_search_rejected(monkeypatch):
+    # The initial universal search is a single-shot primary call: a Google
+    # ErrorResponse must propagate as SwoopUpstreamError, not a silent empty
+    # result (v0.7.0 error-handling contract).
+    class Response:
+        def __init__(self, text: str):
+            self.status_code = 200
+            self.text = text
+
+    class Client:
+        def get(self, *args, **kwargs):
+            return Response('"cfb2h":"bl-test","FdrFJe":"sid-test"')
+
+        def post(self, url, *, content, headers, timeout):
+            return Response(_error_batchexecute(13))
+
+    monkeypatch.setattr("swoop._hotels._get_client", lambda *args: Client())
+
+    with pytest.raises(SwoopUpstreamError) as excinfo:
+        fetch_hotels("New York", check_in="2026-06-01", check_out="2026-06-03")
+    assert excinfo.value.grpc_code == 13
+
+
+def test_fetch_hotels_degrades_when_results_rpc_rejected(monkeypatch):
+    # The follow-up list RPC often rejects direct non-browser calls. That is a
+    # secondary call: it must degrade to an incomplete result (is_complete
+    # False) with the seed cards preserved, not raise.
+    class Response:
+        def __init__(self, text: str):
+            self.status_code = 200
+            self.text = text
+
+    class Client:
+        def get(self, *args, **kwargs):
+            return Response('"cfb2h":"bl-test","FdrFJe":"sid-test"')
+
+        def post(self, url, *, content, headers, timeout):
+            parsed = urllib.parse.parse_qs(content.decode())
+            outer = json.loads(urllib.parse.unquote(parsed["f.req"][0]))
+            rpc_id = outer[0][0][0]
+            if rpc_id == UNIVERSAL_SEARCH_RPC:
+                return Response(_batchexecute(UNIVERSAL_SEARCH_RPC, _broad_universal_payload()))
+            return Response(_error_batchexecute(13))
+
+    monkeypatch.setattr("swoop._hotels._get_client", lambda *args: Client())
+
+    result = fetch_hotels("New York", check_in="2026-06-01", check_out="2026-06-03")
+    assert result.is_complete is False
+    assert len(result.hotels) >= 1
 
 
 def test_fetch_hotels_uses_captured_server_filter_payload(monkeypatch):
