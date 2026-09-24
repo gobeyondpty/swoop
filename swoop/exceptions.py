@@ -29,7 +29,9 @@ line.** The specifics:
    upstream ErrorResponse codes are surfaced (with ``grpc_code``) so a caller
    can apply its own retry rather than swoop hard-coding one — a default that
    retried during a broad outage would turn a fleet of clients into a retry
-   storm and deepen the upstream's gating of everyone.
+   storm and deepen the upstream's gating of everyone. One exception is a
+   compact shopping rejection (status-only ``[13]``): supported unselected
+   searches try the public search page once over HTTP on the same exit.
 
 ``SwoopUpstreamError.grpc_code`` carries the status; ``_GRPC_CODE_NAMES`` labels
 the known codes.

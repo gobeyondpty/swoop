@@ -244,7 +244,21 @@ def _search_from_legs(
         transport=transport,
     )
 
-    result = _parse_rpc_response(res.text)
+    try:
+        result = _parse_rpc_response(res.text)
+    except SwoopUpstreamError as exc:
+        # Some exits reject unsigned RPCs while serving the same inventory in
+        # the public search page. Only the observed compact INTERNAL rejection
+        # gets one alternate-transport attempt; detailed outages still raise.
+        if exc.grpc_code != 13 or exc.type_url is not None:
+            raise
+        from ._search_page import fetch_search_page
+
+        result = fetch_search_page(
+            _get_client(transport.proxy, transport.impersonate), legs,
+            cabin=cabin, passengers=passengers, sort=sort,
+            exclude_basic_economy=exclude_basic_economy, transport=transport,
+        )
     if isinstance(result, RawSearchResult):
         if not retain_raw:
             result._raw = []

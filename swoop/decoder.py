@@ -91,6 +91,12 @@ def detect_error_envelope(frame: Any) -> Optional[Tuple[int, Optional[str]]]:
     """
     if not isinstance(frame, list):
         return None
+    # Google also emits a compact status-only rejection, without ErrorResponse
+    # details. Check the protocol slot, never arbitrary nested flight integers.
+    if (len(frame) > 5 and frame[0] == "wrb.fr" and frame[2] is None
+            and isinstance(frame[5], list) and len(frame[5]) == 1
+            and type(frame[5][0]) is int and 1 <= frame[5][0] <= 16):
+        return frame[5][0], None
     for element in frame:
         if not (isinstance(element, list) and len(element) >= 3):
             continue
