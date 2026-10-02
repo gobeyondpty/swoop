@@ -49,6 +49,7 @@ from swoop.exceptions import (
     SwoopHTTPError,
     SwoopParseError,
     SwoopRateLimitError,
+    SwoopTransportError,
     SwoopUpstreamError,
 )
 
@@ -118,6 +119,7 @@ class TestFrozenExports:
         "SwoopHTTPError",
         "SwoopParseError",
         "SwoopRateLimitError",
+        "SwoopTransportError",
         "SwoopUpstreamError",
         # Constants
         "SORT_TOP",
@@ -586,6 +588,7 @@ class TestExceptionHierarchy:
         assert issubclass(SwoopHTTPError, SwoopError)
         assert issubclass(SwoopParseError, SwoopError)
         assert issubclass(SwoopRateLimitError, SwoopError)
+        assert issubclass(SwoopTransportError, SwoopError)
         assert issubclass(SwoopUpstreamError, SwoopError)
 
     def test_upstream_error_carries_grpc_code(self):
@@ -606,7 +609,7 @@ class TestExceptionHierarchy:
         assert err.status_code == 429
 
     def test_all_inherit_from_exception(self):
-        for cls in (SwoopError, SwoopHTTPError, SwoopParseError, SwoopRateLimitError, SwoopUpstreamError):
+        for cls in (SwoopError, SwoopHTTPError, SwoopParseError, SwoopRateLimitError, SwoopTransportError, SwoopUpstreamError):
             assert issubclass(cls, Exception)
 
 

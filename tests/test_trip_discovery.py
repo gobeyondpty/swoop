@@ -6,6 +6,9 @@ from copy import deepcopy
 import csv
 import io
 import json
+from types import SimpleNamespace
+
+import primp
 
 import pytest
 from click.testing import CliRunner
@@ -15,6 +18,7 @@ import swoop._selection as selection
 from swoop.models import Passengers, TransportConfig
 from swoop.cli import main
 from swoop.exceptions import SwoopUpstreamError
+import swoop.rpc as rpc
 from tests.factories import make_simple_itinerary, make_raw_result
 
 
@@ -244,3 +248,41 @@ def test_cli_csv_discloses_unresolved_and_blocks_partial_fare_commands(monkeypat
     exact = CliRunner().invoke(main, [*route, "--show-price-commands", "--expand-legs"])
     assert exact.exit_code == 0, exact.output
     assert "swoop price --selector" in exact.output
+
+
+@pytest.mark.parametrize("fail_all", [False, True])
+@pytest.mark.parametrize("phase", ["post", "body"])
+def test_expansion_keeps_complete_choices_after_a_transport_timeout(monkeypatch, fail_all, phase):
+    legs, outbounds, _, _ = _stage_fixture(monkeypatch)
+    original_stage = selection._search_from_legs
+
+    class LazyResponse:
+        status_code = 200
+
+        @property
+        def text(self):
+            raise primp.TimeoutError("lazy response body timeout")
+
+    def timeout(*args, **kwargs):
+        if phase == "post":
+            raise primp.TimeoutError("proxy connect timeout")
+        return LazyResponse()
+
+    monkeypatch.setattr(rpc, "_get_client", lambda *args: SimpleNamespace(post=timeout))
+
+    def fake_stage(request_legs, **kwargs):
+        selected = request_legs[0].get("selected_legs")
+        if selected is not None and (fail_all or selected == selection._build_selected_legs(outbounds[1])):
+            return rpc._http_post(rpc.SHOPPING_RPC_URL, b"body", transport=TransportConfig(retries=0))
+        return original_stage(request_legs, **kwargs)
+
+    monkeypatch.setattr(selection, "_search_from_legs", fake_stage)
+    if fail_all:
+        with pytest.raises(swoop.SwoopTransportError, match="transport"):
+            selection.search_trip_options(legs, expand_legs=True)
+    else:
+        result = selection.search_trip_options(legs, expand_legs=True)
+        assert result.is_complete is False
+        assert len(result.results) == 2
+        assert all(option.is_resolved for option in result.results)
+        assert all(option.legs[0].itinerary.segments[0].flight_number == "101" for option in result.results)
