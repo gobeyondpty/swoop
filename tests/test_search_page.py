@@ -38,6 +38,9 @@ def test_compact_rpc_rejection_uses_page_and_preserves_intent(rejected_exit):
                           passengers=swoop.Passengers(adults=2), max_stops=0, airlines=['AA'],
                           transport=swoop.TransportConfig(country='US', timeout=17))
     assert result.results
+    assert result.result_scope == "limited"
+    assert result.truncation_reasons == ["limited_transport"]
+    assert result.is_complete is False
     assert len(rejected_exit.gets) == 1
     url, kwargs = rejected_exit.gets[0]
     params = parse_qs(urlparse(url).query)

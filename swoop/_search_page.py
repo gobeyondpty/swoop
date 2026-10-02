@@ -79,6 +79,7 @@ TFS encoding here; reject them rather than return flights ignoring the intent.
     if response.status_code != 200:
         raise SwoopHTTPError(response.status_code)
     result = decode_result(_page_payload(response.text))
+    result._result_scope = "limited"
     # The page ranks best flights by default. Honor the requested ordering over
     # the returned inventory without claiming the page provides every RPC row.
     if sort != 1:
