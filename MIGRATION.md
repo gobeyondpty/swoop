@@ -2,6 +2,57 @@
 
 Upgrade notes for swoop. Each section shows the old call shape, the new one, and what (if anything) you have to change.
 
+## Unreleased — trip discovery and exact selectors
+
+Roundtrip and two-bound open-jaw searches still default to quick discovery: one
+search call returns outbound flight details and an estimated **whole-trip**
+price. That price does not identify a chosen return. Such `TripOption` rows now
+have `is_resolved=False`. One-way rows and fully expanded trip rows have
+`is_resolved=True`.
+Manually constructed `TripOption` instances default to unresolved; the search
+builder explicitly sets resolution from the number of selected/requested bounds.
+
+Pass `expand_legs=True` to `search()` or `search_legs()` when you need exact
+complete flight combinations. Each outbound is sent back to Google as a selected
+prefix to discover valid remaining bounds. The final stage supplies the trip
+total and booking token; prices from individual stages are never added together.
+Searches with three or more bounds retain their staged expansion by default.
+
+```python
+from swoop import search, price_selector
+
+quick = search("JFK", "LHR", "2030-04-15", return_date="2030-04-22")
+assert all(not option.is_resolved for option in quick.results)
+
+complete = search(
+    "JFK", "LHR", "2030-04-15", return_date="2030-04-22",
+    expand_legs=True, max_results=20, beam_width=20, time_budget=30,
+)
+for option in complete.results:
+    assert option.is_resolved
+    price = price_selector(option.selector)
+```
+
+**Behavioral migration:** `price_selector()` now returns `None` for any selector
+that leaves a requested bound unselected, including old outbound-only roundtrip
+selectors. It no longer silently selects Google's first return. Search again
+with `expand_legs=True` to obtain an exact selector, or use `check_price()` /
+`price_legs()` to explicitly supply the desired flights. `price_deal()` and
+`price_explore()` request complete expansion internally.
+
+`SearchResult.is_complete` continues to describe search coverage, independently
+of per-trip `is_resolved`. A fast discovery result can be complete while its
+trips remain unresolved. Expanded searches share the beam fairly across chosen
+prefixes, but still expose a bounded subset: `max_results` (default 10),
+`beam_width` (default 15), and `time_budget` (default 90 seconds) apply. Truncation,
+budget exhaustion, and partial upstream rejections set `is_complete=False`.
+Expansion includes the initial call in its time budget and caps each request's
+timeout to remaining time; retries can extend total elapsed time.
+
+The CLI adds `--expand-legs`; search JSON and CSV expose `is_resolved`.
+`--show-price-commands` requires resolved rows and explains the expansion flag
+when a quick roundtrip would produce an incomplete selector.
+
 ## 0.6 → 0.7
 
 ### Upstream outages now raise instead of returning empty

@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `search(..., expand_legs=True)`, `search_legs(..., expand_legs=True)` and CLI
+  `--expand-legs` resolve exact roundtrip and open-jaw flight combinations.
+- `TripOption.is_resolved` distinguishes quick outbound discovery from complete
+  trip itineraries; search JSON and CSV include it.
+
+### Fixed
+
+- Exact selector pricing rejects incomplete selections before any RPC instead of
+  automatically choosing an unspecified return. See `MIGRATION.md`.
+- Expanded search allocates the beam fairly across selected prefixes and applies
+  flight-number filtering before truncation, preserving later outbound choices.
+- Expansion budgets include initial discovery and cap each request timeout to
+  remaining time. Deal/explore pricing bridges request complete trips.
+
 ## [0.7.0] - 2026-06-23
 
 ### Added

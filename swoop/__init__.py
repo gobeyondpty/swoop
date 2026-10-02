@@ -152,6 +152,8 @@ def _search_with_normalized_legs(
     max_results: Optional[int] = None,
     beam_width: Optional[int] = None,
     time_budget: Optional[int] = None,
+    expand_legs: bool = False,
+    first_flight_filter: Optional[tuple[Optional[str], str]] = None,
 ) -> SearchResult:
     """Execute a staged trip search from normalized leg definitions."""
     return search_trip_options(
@@ -164,6 +166,8 @@ def _search_with_normalized_legs(
         max_results=max_results,
         beam_width=beam_width,
         time_budget=time_budget,
+        expand_legs=expand_legs,
+        first_flight_filter=first_flight_filter,
     )
 
 
@@ -178,6 +182,7 @@ def search_legs(
     max_results: Optional[int] = None,
     beam_width: Optional[int] = None,
     time_budget: Optional[int] = None,
+    expand_legs: bool = False,
 ) -> SearchResult:
     """Search Google Flights using explicit leg definitions.
 
@@ -191,12 +196,16 @@ def search_legs(
         sort: Sort order constant (default ``SORT_DEPARTURE_TIME``).
         include_basic_economy: Include basic economy fares (default ``False``).
         transport: HTTP transport configuration (default ``TransportConfig()``).
-        max_results: Maximum trip combinations the beam search targets
-            (default 10).  Only affects multi-leg (3+ city) searches.
+        max_results: Maximum expanded trip combinations (default 10).
         beam_width: Number of candidate prefixes carried between stages
-            (default 15).  Only affects multi-leg searches.
-        time_budget: Seconds before the beam search stops exploring
-            (default 90).  Only affects multi-leg searches.
+            (default 15). A fair allocation preserves different prefixes.
+        time_budget: Exploration budget in seconds including the first RPC
+            (default 90). Each request timeout is capped to remaining time;
+            retries can extend the elapsed time. Applies to expanded searches.
+        expand_legs: Resolve every requested bound (default ``False``).
+            Two-bound discovery otherwise returns outbound detail with
+            ``TripOption.is_resolved=False``. Searches with 3+ bounds always
+            expand. Expansion may require multiple sequential RPCs.
 
     Returns:
         A trip-level :class:`SearchResult` with shopping totals.
@@ -229,6 +238,7 @@ def search_legs(
         max_results=max_results,
         beam_width=beam_width,
         time_budget=time_budget,
+        expand_legs=expand_legs,
     )
 
 
@@ -255,6 +265,7 @@ def search(
     max_results: Optional[int] = None,
     beam_width: Optional[int] = None,
     time_budget: Optional[int] = None,
+    expand_legs: bool = False,
 ) -> SearchResult:
     """Search Google Flights and return decoded results.
 
@@ -284,12 +295,17 @@ def search(
         return_earliest_departure: Earliest return departure hour (0–23).
         return_latest_departure: Latest return departure hour (1–24).
         transport: HTTP transport configuration (default ``TransportConfig()``).
-        max_results: Maximum trip combinations the beam search targets
-            (default 10).  Only affects multi-leg (3+ city) searches.
+        max_results: Maximum expanded trip combinations (default 10).
         beam_width: Number of candidate prefixes carried between stages
-            (default 15).  Only affects multi-leg searches.
-        time_budget: Seconds before the beam search stops exploring
-            (default 90).  Only affects multi-leg searches.
+            (default 15). A fair allocation preserves different prefixes.
+        time_budget: Exploration budget in seconds including the first RPC
+            (default 90). Each request timeout is capped to remaining time;
+            retries can extend the elapsed time. Applies to expanded searches.
+        expand_legs: Resolve exact outbound and return combinations (default
+            ``False``). Quick roundtrip discovery needs one RPC and marks
+            candidates ``is_resolved=False``; its price is an estimated
+            whole-trip total, with no return selected. Expansion requires
+            follow-up RPCs and may return a truncated set.
 
     Returns:
         A trip-level :class:`SearchResult` with shopping totals.
@@ -380,6 +396,8 @@ def search(
         max_results=max_results,
         beam_width=beam_width,
         time_budget=time_budget,
+        expand_legs=expand_legs,
+        first_flight_filter=(parsed_carrier, parsed_number) if parsed_number is not None else None,
     )
 
     if parsed_number is not None:
@@ -474,7 +492,8 @@ def price_selector(
 
     Returns:
         A :class:`PriceResult`, or ``None`` if the selected itinerary no
-        longer exists.
+        longer exists or the selector does not select every requested bound.
+        Use ``expand_legs=True`` when searching for a roundtrip selector.
 
     Raises:
         SwoopUpstreamError: If Google rejects the request with a structured
@@ -767,7 +786,7 @@ def price_deal(
 ) -> Optional[PriceResult]:
     """Get the current bookable price for a :class:`Deal`.
 
-    Runs :func:`search_deal` and prices the cheapest matching itinerary
+    Expands matching trip itineraries and prices the cheapest complete choice
     via :func:`price_selector`. Returns ``None`` if no itineraries match
     (the deal may have expired or its carriers may no longer operate
     the route on those dates).
@@ -784,7 +803,8 @@ def price_deal(
             ErrorResponse envelope — an upstream outage, distinct from an empty
             result. See :func:`search` for the full transport-error set.
     """
-    return _price_cheapest(search_deal(deal, transport=transport), transport)
+    result = search(expand_legs=True, transport=transport, **deal.to_search_kwargs())
+    return _price_cheapest(result, transport)
 
 
 # ---------------------------------------------------------------------------
@@ -905,7 +925,7 @@ def price_explore(
             ErrorResponse envelope — an upstream outage, distinct from an empty
             result. See :func:`search` for the full transport-error set.
     """
-    result = search(transport=transport, **destination.to_search_kwargs())
+    result = search(expand_legs=True, transport=transport, **destination.to_search_kwargs())
     return _price_cheapest(result, transport)
 
 
