@@ -2,7 +2,7 @@
 
 import hashlib
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Literal, Optional
 
 from ._regions import Region
 from .decoder import BookingOption, Itinerary, PriceRange, _flight_summary_repr
@@ -83,6 +83,14 @@ class SearchResult:
     results: list[TripOption] = field(default_factory=list)
     price_range: Optional[PriceRange] = None
     is_complete: bool = True
+    # Completeness is relative to the requested provider list, never all market
+    # inventory. A shortened or fallback list is explicitly labelled.
+    result_scope: Literal["all", "default", "limited"] = "all"
+    truncation_reasons: list[str] = field(default_factory=list)
+    raw_result_count: int = 0
+    decoded_result_count: int = 0
+    rpc_calls: int = 0
+    unexpanded_prefixes: int = 0
 
     @property
     def currency(self) -> Optional[str]:

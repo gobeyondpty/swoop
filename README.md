@@ -154,12 +154,19 @@ print(results.is_complete)
 
 `search()` and `search_legs()` return shopping totals. Use `check_price()`, `price_legs()`, or `price_selector()` when you need the bookable fare for one chosen itinerary.
 
-Quick roundtrip discovery contains outbound details and an estimated whole-trip
+Quick discovery for any multi-bound trip contains first-bound details and an estimated whole-trip
 price, with `option.is_resolved=False`. Use `expand_legs=True` (CLI
 `--expand-legs`) for exact outbound/return or open-jaw combinations before calling
 `price_selector()`. Expansion requires follow-up requests and returns a bounded
 set controlled by `max_results`, `beam_width`, and `time_budget`;
-`result.is_complete=False` indicates incomplete exploration. The discovery
+`result.is_complete=False` indicates incomplete exploration;
+`result.truncation_reasons` explains which limit or failure reduced coverage.
+Searches request the wider Google list by default (`show_all_results=True`).
+Use `search_next_leg(option.selector)` to choose any discovered flight and retrieve
+all compatible next-bound choices without expanding other outbounds. Repeat
+until `is_resolved=True`, then price that exact selector. The CLI supports
+`swoop next --selector SEL`. Wider coverage does not guarantee every airline or
+flight is listed by Google. The discovery
 price is never an outbound-only fare and must not be added to a return price.
 
 Each price-check call costs ~2 RPCs (one search, one booking lookup) — including one-way trips, so `PriceResult.booking_options` is populated and `booking_url` is available. For high-volume scoring of many fares, expect rate-limit pressure to scale accordingly; increase `retries` or pace your calls.

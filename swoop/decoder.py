@@ -343,6 +343,8 @@ class RawSearchResult:
     best: List[Itinerary] = field(default_factory=list)
     other: List[Itinerary] = field(default_factory=list)
     price_range: Optional[PriceRange] = None  # Price range from response
+    _raw_result_count: Optional[int] = None
+    _result_scope: Optional[str] = None
 
     def __repr__(self) -> str:
         return f"RawSearchResult(best={len(self.best)}, other={len(self.other)})"
@@ -714,4 +716,6 @@ def decode_result(data: list) -> RawSearchResult:
     # Price range at [7, 0]
     price_range = _decode_price_range(data)
 
-    return RawSearchResult(_raw=data, best=best, other=other, price_range=price_range)
+    raw_count = sum(len(rows) for rows in (best_raw, other_raw) if isinstance(rows, list))
+    return RawSearchResult(_raw=data, best=best, other=other, price_range=price_range,
+                           _raw_result_count=raw_count)
