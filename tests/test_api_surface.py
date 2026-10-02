@@ -63,6 +63,7 @@ class TestFrozenExports:
         "search_legs",
         "check_price",
         "price_selector",
+        "search_next_leg",
         "price_legs",
         "deals",
         "search_deal",
@@ -245,7 +246,9 @@ class TestFrozenDataclassFields:
         assert self._field_names(Itinerary) == expected
 
     def test_search_result_fields(self):
-        expected = {"results", "price_range", "is_complete"}
+        expected = {"results", "price_range", "is_complete", "result_scope",
+                    "truncation_reasons", "raw_result_count", "decoded_result_count",
+                    "rpc_calls", "unexpanded_prefixes"}
         assert self._field_names(SearchResult) == expected
 
     def test_search_result_currency_property(self):
@@ -256,7 +259,7 @@ class TestFrozenDataclassFields:
         assert sr_with.currency == "USD"
 
     def test_raw_search_result_fields(self):
-        expected = {"_raw", "best", "other", "price_range"}
+        expected = {"_raw", "best", "other", "price_range", "_raw_result_count", "_result_scope"}
         assert self._field_names(RawSearchResult) == expected
 
     def test_booking_option_fields(self):
@@ -419,7 +422,7 @@ class TestSearchSignature:
             "earliest_arrival", "latest_arrival",
             "return_earliest_departure", "return_latest_departure",
             "transport",
-            "max_results", "beam_width", "time_budget", "expand_legs",
+            "max_results", "beam_width", "time_budget", "expand_legs", "show_all_results",
         ]
         assert param_names == expected
 
@@ -435,7 +438,7 @@ class TestSearchSignature:
             "return_date", "return_earliest_departure", "return_latest_departure",
             "selected_outbound_legs",
             "transport",
-            "exclude_basic_economy",
+            "exclude_basic_economy", "show_all_results",
         ]
         assert param_names == expected
 
@@ -458,7 +461,7 @@ class TestSearchSignature:
             "legs", "cabin", "passengers",
             "sort",
             "include_basic_economy", "transport",
-            "max_results", "beam_width", "time_budget", "expand_legs",
+            "max_results", "beam_width", "time_budget", "expand_legs", "show_all_results",
         ]
         assert param_names == expected
 
@@ -474,8 +477,13 @@ class TestSearchSignature:
     def test_price_selector_params(self):
         sig = inspect.signature(swoop.price_selector)
         param_names = list(sig.parameters.keys())
-        expected = ["selector", "transport"]
+        expected = ["selector", "transport", "time_budget"]
         assert param_names == expected
+
+    def test_search_next_leg_params(self):
+        assert list(inspect.signature(swoop.search_next_leg).parameters) == [
+            "selector", "transport", "time_budget",
+        ]
 
     def test_deals_params(self):
         sig = inspect.signature(swoop.deals)

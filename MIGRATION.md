@@ -16,7 +16,8 @@ Pass `expand_legs=True` to `search()` or `search_legs()` when you need exact
 complete flight combinations. Each outbound is sent back to Google as a selected
 prefix to discover valid remaining bounds. The final stage supplies the trip
 total and booking token; prices from individual stages are never added together.
-Searches with three or more bounds retain their staged expansion by default.
+All trip shapes now default to discovery. Three or more bounds no longer expand
+automatically; use `expand_legs=True` to retain the previous behavior.
 
 ```python
 from swoop import search, price_selector
@@ -62,6 +63,32 @@ when a quick roundtrip would produce an incomplete selector.
 Expanded RPCs can fail even when quick discovery succeeds through the search-page
 fallback. That fallback does not support selected prefixes or open-jaw searches.
 No complete option is synthesized from an independent return search.
+
+
+### Wider inventory and chosen-prefix continuation
+
+Searches request Google's wider result list by default (`show_all_results=True`).
+Set it to `False` (CLI `--default-results`) to use the shortened list. The flag is
+stored in every selector and replayed during continuation and pricing. Existing
+selectors without the flag retain their original shortened mode.
+
+`search_next_leg(selector, time_budget=30)` returns every next-bound choice for
+that exact selected prefix without a beam or result cap. It replays selected
+flights, preserving all query bounds, cabin, party and filters; disappeared
+flights raise `ValueError`. Repeat until `is_resolved=True`, then call
+`price_selector(selector, time_budget=30)`. A completed selector cannot continue.
+The CLI equivalent is `swoop next --selector SEL --time-budget 30` (JSON).
+
+`SearchResult` now exposes `result_scope` (`all`, `default`, `limited`),
+`truncation_reasons`, `raw_result_count`, `decoded_result_count`, `rpc_calls`,
+and `unexpanded_prefixes`. Counts include every search RPC, including replay;
+`unexpanded_prefixes` counts branches skipped before completion, not discarded
+complete choices. Reasons distinguish default results, limited transport,
+parse loss, beam/result limits, time budget and failed branches. `is_complete`
+means complete relative to the requested Google response, never all market
+inventory. `price_selector` shares its optional budget across replay and lookup.
+Transport retries may still extend elapsed time; use `retries=0` for a strict
+per-request budget. No return or next bound is chosen automatically.
 
 ## 0.6 → 0.7
 

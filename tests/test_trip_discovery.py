@@ -164,7 +164,7 @@ def test_expanded_selector_replay_ignores_reordered_return_candidates(monkeypatc
 
 def test_expansion_budget_includes_first_search_and_emits_no_partial_trip(monkeypatch):
     legs, _, _, calls = _stage_fixture(monkeypatch)
-    clock = iter([0.0, 2.0])
+    clock = iter([0.0, 0.0, 2.0])
     monkeypatch.setattr(selection.time, "monotonic", lambda: next(clock))
     result = selection.search_trip_options(legs, expand_legs=True, time_budget=1)
 

@@ -399,6 +399,12 @@ def format_search_json(
         "price_range": price_range,
         "total_results": len(result.results),
         "is_complete": result.is_complete,
+        "result_scope": result.result_scope,
+        "truncation_reasons": result.truncation_reasons,
+        "raw_result_count": result.raw_result_count,
+        "decoded_result_count": result.decoded_result_count,
+        "rpc_calls": result.rpc_calls,
+        "unexpanded_prefixes": result.unexpanded_prefixes,
         "results": [
             {
                 "index": index + 1,

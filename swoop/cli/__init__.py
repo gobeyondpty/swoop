@@ -11,6 +11,7 @@ from .commands import (
     hotels_cmd,
     price_cmd,
     search_cmd,
+    next_cmd,
 )
 
 
@@ -24,6 +25,7 @@ def main(ctx: click.Context) -> None:
 
 
 main.add_command(search_cmd)
+main.add_command(next_cmd)
 main.add_command(price_cmd)
 main.add_command(deals_cmd)
 main.add_command(explore_cmd)

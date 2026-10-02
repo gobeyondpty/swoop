@@ -91,6 +91,7 @@ from .rpc import (
 import logging
 import os
 from typing import Iterable, Optional
+from dataclasses import replace
 
 from ._selection import (
     build_request_legs_from_selected,
@@ -98,6 +99,7 @@ from ._selection import (
     price_trip_selector,
     resolve_selected_trip,
     search_trip_options,
+    search_next_leg,
 )
 from ._validate import (
     parse_flight_number,
@@ -128,11 +130,7 @@ def _filter_trip_options_by_flight_number(
             continue
         if itinerary_matches_flight(itinerary, carrier, number):
             filtered.append(option)
-    return SearchResult(
-        results=filtered,
-        price_range=result.price_range,
-        is_complete=result.is_complete,
-    )
+    return replace(result, results=filtered)
 
 
 def _validate_leg_search_inputs(
@@ -172,8 +170,9 @@ def _search_with_normalized_legs(
     transport: TransportConfig = TransportConfig(),
     max_results: Optional[int] = None,
     beam_width: Optional[int] = None,
-    time_budget: Optional[int] = None,
+    time_budget: Optional[float] = None,
     expand_legs: bool = False,
+    show_all_results: bool = True,
     first_flight_filter: Optional[tuple[Optional[str], str]] = None,
 ) -> SearchResult:
     """Execute a staged trip search from normalized leg definitions."""
@@ -188,6 +187,7 @@ def _search_with_normalized_legs(
         beam_width=beam_width,
         time_budget=time_budget,
         expand_legs=expand_legs,
+        show_all_results=show_all_results,
         first_flight_filter=first_flight_filter,
     )
 
@@ -202,8 +202,9 @@ def search_legs(
     transport: TransportConfig = TransportConfig(),
     max_results: Optional[int] = None,
     beam_width: Optional[int] = None,
-    time_budget: Optional[int] = None,
+    time_budget: Optional[float] = None,
     expand_legs: bool = False,
+    show_all_results: bool = True,
 ) -> SearchResult:
     """Search Google Flights using explicit leg definitions.
 
@@ -222,11 +223,12 @@ def search_legs(
             (default 15). A fair allocation preserves different prefixes.
         time_budget: Exploration budget in seconds including the first RPC
             (default 90). Each request timeout is capped to remaining time;
-            retries can extend the elapsed time. Applies to expanded searches.
+            retries can extend the elapsed time.
         expand_legs: Resolve every requested bound (default ``False``).
-            Two-bound discovery otherwise returns outbound detail with
-            ``TripOption.is_resolved=False``. Searches with 3+ bounds always
-            expand. Expansion may require multiple sequential RPCs.
+            Discovery otherwise returns the first bound with
+            ``TripOption.is_resolved=False``. Use ``search_next_leg(option.selector)`` to choose each subsequent
+            bound without truncating other outbound choices. Expansion may
+            require multiple sequential RPCs.
 
     Returns:
         A trip-level :class:`SearchResult` with shopping totals.
@@ -260,6 +262,7 @@ def search_legs(
         beam_width=beam_width,
         time_budget=time_budget,
         expand_legs=expand_legs,
+        show_all_results=show_all_results,
     )
 
 
@@ -285,8 +288,9 @@ def search(
     transport: TransportConfig = TransportConfig(),
     max_results: Optional[int] = None,
     beam_width: Optional[int] = None,
-    time_budget: Optional[int] = None,
+    time_budget: Optional[float] = None,
     expand_legs: bool = False,
+    show_all_results: bool = True,
 ) -> SearchResult:
     """Search Google Flights and return decoded results.
 
@@ -321,7 +325,8 @@ def search(
             (default 15). A fair allocation preserves different prefixes.
         time_budget: Exploration budget in seconds including the first RPC
             (default 90). Each request timeout is capped to remaining time;
-            retries can extend the elapsed time. Applies to expanded searches.
+            retries can extend the elapsed time.
+        show_all_results: Request the wider Google list (default ``True``).
         expand_legs: Resolve exact outbound and return combinations (default
             ``False``). Quick roundtrip discovery needs one RPC and marks
             candidates ``is_resolved=False``; its price is an estimated
@@ -418,6 +423,7 @@ def search(
         beam_width=beam_width,
         time_budget=time_budget,
         expand_legs=expand_legs,
+        show_all_results=show_all_results,
         first_flight_filter=(parsed_carrier, parsed_number) if parsed_number is not None else None,
     )
 
@@ -501,6 +507,7 @@ def price_selector(
     selector: str,
     *,
     transport: TransportConfig = TransportConfig(),
+    time_budget: Optional[float] = None,
 ) -> Optional[PriceResult]:
     """Look up the current bookable fare for an itinerary selector.
 
@@ -514,14 +521,14 @@ def price_selector(
     Returns:
         A :class:`PriceResult`, or ``None`` if the selected itinerary no
         longer exists or the selector does not select every requested bound.
-        Use ``expand_legs=True`` when searching for a roundtrip selector.
+        Use ``search_next_leg()`` until resolved, or search with ``expand_legs=True``.
 
     Raises:
         SwoopUpstreamError: If Google rejects the request with a structured
             ErrorResponse envelope — an upstream outage, distinct from an empty
             result. See :func:`search` for the full transport-error set.
     """
-    return price_trip_selector(selector, transport=transport)
+    return price_trip_selector(selector, transport=transport, time_budget=time_budget)
 
 
 def check_price(
@@ -1471,6 +1478,7 @@ __all__ = [
     # Functions
     "search",
     "search_legs",
+    "search_next_leg",
     "check_price",
     "price_selector",
     "price_legs",

@@ -166,6 +166,7 @@ def _build_filters_from_legs(
     passengers: Passengers = Passengers(),
     sort: int = SORT_TOP,
     exclude_basic_economy: bool = False,
+    show_all_results: bool = True,
 ) -> list[Any]:
     """Build the shopping filters payload from normalized leg definitions."""
     seat_type = CABIN_CLASS_MAP.get(cabin, 1)
@@ -206,7 +207,7 @@ def _build_filters_from_legs(
             1 if exclude_basic_economy else None,    # [28] exclude basic economy
         ],
         sort,                                        # sort order
-        0,                                           # constant
+        1 if show_all_results else 0,                 # include "View more flights"
         0,                                           # constant
         2,                                           # constant
     ]
@@ -229,6 +230,7 @@ def _search_from_legs(
     transport: TransportConfig = TransportConfig(),
     exclude_basic_economy: bool = False,
     retain_raw: bool = True,
+    show_all_results: bool = True,
 ) -> Optional[RawSearchResult]:
     """Search Google Flights from normalized leg definitions."""
     encoded_body = _encode_f_req_payload(
@@ -238,6 +240,7 @@ def _search_from_legs(
             passengers=passengers,
             sort=sort,
             exclude_basic_economy=exclude_basic_economy,
+            show_all_results=show_all_results,
         )
     )
 
@@ -263,6 +266,7 @@ def _search_from_legs(
             exclude_basic_economy=exclude_basic_economy, transport=transport,
         )
     if isinstance(result, RawSearchResult):
+        result._result_scope = result._result_scope or ("all" if show_all_results else "default")
         if not retain_raw:
             result._raw = []
         logger.info(
@@ -511,6 +515,7 @@ def search_raw(
     selected_outbound_legs: Optional[list[list[Any]]] = None,
     transport: TransportConfig = TransportConfig(),
     exclude_basic_economy: bool = False,
+    show_all_results: bool = True,
 ) -> Optional[RawSearchResult]:
     """Search Google Flights via RPC endpoint and return decoded results.
 
@@ -557,6 +562,7 @@ def search_raw(
         legs, cabin=cabin, passengers=passengers,
         sort=sort, transport=transport,
         exclude_basic_economy=exclude_basic_economy,
+        show_all_results=show_all_results,
     )
 
 
