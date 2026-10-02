@@ -43,6 +43,7 @@ from .exceptions import (
     SwoopHTTPError,
     SwoopParseError,
     SwoopRateLimitError,
+    SwoopTransportError,
     SwoopUpstreamError,
 )
 from .builders import CabinClass, SearchLeg
@@ -1241,6 +1242,7 @@ __all__ = [
     "SwoopHTTPError",
     "SwoopParseError",
     "SwoopRateLimitError",
+    "SwoopTransportError",
     "SwoopUpstreamError",
     # Constants
     "SORT_TOP",

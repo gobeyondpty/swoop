@@ -12,7 +12,7 @@ from typing import Any, Optional
 from .builders import CabinClass
 from ._validate import parse_flight_number
 from .decoder import Itinerary, RawSearchResult, itinerary_matches_flight
-from .exceptions import SwoopError, SwoopUpstreamError
+from .exceptions import SwoopError, SwoopTransportError, SwoopUpstreamError
 from .models import Passengers, PriceResult, ResolvedLeg, SearchResult, TransportConfig, TripLeg, TripOption
 from .rpc import (
     SORT_DEPARTURE_TIME,
@@ -342,11 +342,11 @@ def search_trip_options(
 
     is_complete = len(first_candidates) <= beam_width
     prefixes = [[itinerary] for itinerary in first_candidates[:beam_width]]
-    # Remember the last staged upstream rejection. A single bad branch degrades
+    # Remember the last staged upstream or transport failure. A bad branch degrades
     # gracefully (below), but if the beam collapses to zero results entirely it
     # was an outage, not "no such trip" — surface it rather than returning an
     # empty SearchResult the CLI would render as "No flights found".
-    upstream_error: Optional[SwoopUpstreamError] = None
+    stage_error: Optional[SwoopError] = None
 
     for _ in range(1, len(request_legs)):
         branches: list[list[list[Itinerary]]] = []
@@ -375,14 +375,10 @@ def search_trip_options(
                     exclude_basic_economy=exclude_basic,
                     retain_raw=False,
                 )
-            except SwoopUpstreamError as exc:
-                # A transient upstream rejection on one beam branch must not
-                # sink the whole multi-city search. Before SwoopUpstreamError
-                # existed this path returned None and was absorbed here as an
-                # empty stage; preserve that graceful degradation and just mark
-                # the result incomplete. The first pass (no prefix yet) still
-                # raises, since a rejected first call means no results at all.
-                upstream_error = exc
+            except (SwoopUpstreamError, SwoopTransportError) as exc:
+                # Retain complete choices from other prefixes. A failed first
+                # pass still raises because no discovery results exist yet.
+                stage_error = exc
                 is_complete = False
                 continue
             stage_candidates = _iter_raw_itineraries(stage_result)
@@ -420,10 +416,10 @@ def search_trip_options(
         for prefix in prefixes[:max_results]
         if len(prefix) == len(request_legs)
     ]
-    if not options and upstream_error is not None:
-        # Every beam branch was rejected upstream — this is an outage, not an
+    if not options and stage_error is not None:
+        # The beam collapsed after an upstream/transport failure, not an
         # empty itinerary set. Surface it instead of an empty SearchResult.
-        raise upstream_error
+        raise stage_error
     result = SearchResult(results=options, price_range=None, is_complete=is_complete)
 
     return result

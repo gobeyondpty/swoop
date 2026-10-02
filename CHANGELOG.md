@@ -9,12 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `SwoopTransportError` wraps request-send and lazy response-body failures with
+  the original error as its cause.
+
 - `search(..., expand_legs=True)`, `search_legs(..., expand_legs=True)` and CLI
   `--expand-legs` resolve exact roundtrip and open-jaw flight combinations.
 - `TripOption.is_resolved` distinguishes quick outbound discovery from complete
   trip itineraries; search JSON and CSV include it.
 
 ### Fixed
+
+- Expanded trip searches retain completed choices when another selected prefix
+  times out; total transport failures raise instead of returning an empty result.
 
 - Exact selector pricing rejects incomplete selections before any RPC instead of
   automatically choosing an unspecified return. See `MIGRATION.md`.

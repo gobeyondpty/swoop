@@ -49,6 +49,12 @@ budget exhaustion, and partial upstream rejections set `is_complete=False`.
 Expansion includes the initial call in its time budget and caps each request's
 timeout to remaining time; retries can extend total elapsed time.
 
+`SwoopTransportError` now wraps failures while sending a POST or reading its
+response body, including lazy body timeouts. Catch it (or `SwoopError`) instead
+of a provider-specific exception. Expanded searches retain completed choices
+from other prefixes with `is_complete=False`; a failed initial call or an empty
+beam after transport failure raises. HTTP 429 retry policy remains unchanged.
+
 The CLI adds `--expand-legs`; search JSON and CSV expose `is_resolved`.
 `--show-price-commands` requires resolved rows and explains the expansion flag
 when a quick roundtrip would produce an incomplete selector.

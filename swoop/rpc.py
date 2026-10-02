@@ -7,6 +7,7 @@ Based on reverse-engineering from punitarani/fli.
 """
 
 from copy import deepcopy
+from dataclasses import dataclass
 import json
 import logging
 import threading
@@ -33,9 +34,11 @@ from ._booking import (
 from .builders import CABIN_CLASS_MAP, CabinClass
 from .decoder import BookingOption, RawSearchResult, Itinerary, decode_result, _safe_get, raise_if_error_envelope
 from .exceptions import (
+    SwoopError,
     SwoopHTTPError,
     SwoopParseError,
     SwoopRateLimitError,
+    SwoopTransportError,
     SwoopUpstreamError,
 )
 from .models import Passengers, TransportConfig
@@ -389,6 +392,12 @@ def _apply_country(url: str, country: Optional[str]) -> str:
     return url
 
 
+@dataclass(frozen=True)
+class _HTTPResponse:
+    status_code: int
+    text: str
+
+
 def _post_with_retry(
     client: Any,
     url: str,
@@ -404,6 +413,7 @@ def _post_with_retry(
     session). Lets both share one retry implementation.
 
     Raises:
+        SwoopTransportError: If sending or reading the response fails.
         SwoopRateLimitError: If 429 persists after all retries.
         SwoopHTTPError: If a non-200/non-429 response is received.
     """
@@ -416,11 +426,20 @@ def _post_with_retry(
     # make range() empty, fall off the end, and return None — crashing callers
     # that dereference `res.text`.
     for attempt in range(max(1, 1 + transport.retries)):
-        res = client.post(url, content=body, headers=headers, timeout=transport.timeout)
-        if res.status_code == 200:
-            logger.debug("HTTP 200 from %s (%d bytes)", short_url, len(res.text))
-            return res
-        if res.status_code == 429 and attempt < transport.retries:
+        try:
+            res = client.post(url, content=body, headers=headers, timeout=transport.timeout)
+            status_code = res.status_code
+            # primp can defer reading/decoding until .text is accessed. Cache
+            # the body here so every such failure crosses the typed boundary.
+            text = res.text if status_code == 200 else ""
+        except SwoopError:
+            raise
+        except Exception as exc:
+            raise SwoopTransportError("Google Flights transport failed while sending or reading a response") from exc
+        if status_code == 200:
+            logger.debug("HTTP 200 from %s (%d bytes)", short_url, len(text))
+            return _HTTPResponse(status_code=status_code, text=text)
+        if status_code == 429 and attempt < transport.retries:
             delay = (2 ** attempt) + random.uniform(0, 1)
             logger.info(
                 "HTTP 429 from %s, retrying in %.1fs (attempt %d/%d)",
@@ -428,9 +447,9 @@ def _post_with_retry(
             )
             time.sleep(delay)
             continue
-        if res.status_code == 429:
+        if status_code == 429:
             raise SwoopRateLimitError()
-        raise SwoopHTTPError(res.status_code)
+        raise SwoopHTTPError(status_code)
 
 
 def _http_post(
