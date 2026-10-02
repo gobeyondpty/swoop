@@ -22,7 +22,7 @@ class Passengers:
 class TransportConfig:
     """HTTP transport configuration for API requests."""
 
-    timeout: int = 90
+    timeout: float = 90
     retries: int = 2
     country: Optional[str] = None
     proxy: Optional[str] = None
@@ -47,16 +47,20 @@ class TripLeg:
 
 @dataclass
 class TripOption:
-    """A complete trip option spanning one or more requested legs.
+    """A shopping candidate or a resolved trip spanning requested legs.
 
     ``price`` is in the currency's major unit (e.g. 250 for $250 USD,
     6725 for ₹6,725 INR). ``currency`` is the ISO 4217 code.
+    ``is_resolved`` is true only when every requested bound has an exact
+    itinerary. Quick roundtrip discovery contains outbound detail and an
+    estimated whole-trip price; its remaining bound is not selected.
     """
 
     selector: str
     price: Optional[int] = None
     currency: Optional[str] = None
     legs: list[TripLeg] = field(default_factory=list)
+    is_resolved: bool = False
 
     def __repr__(self) -> str:
         parts = []

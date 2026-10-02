@@ -326,8 +326,11 @@ class TestFrozenDataclassFields:
         assert self._field_names(Passengers) == expected
 
     def test_trip_option_fields(self):
-        expected = {"selector", "price", "currency", "legs"}
+        expected = {"selector", "price", "currency", "legs", "is_resolved"}
         assert self._field_names(TripOption) == expected
+
+    def test_trip_option_unknown_resolution_fails_closed(self):
+        assert TripOption(selector="unknown").is_resolved is False
 
     def test_deal_fields(self):
         expected = {
@@ -414,7 +417,7 @@ class TestSearchSignature:
             "earliest_arrival", "latest_arrival",
             "return_earliest_departure", "return_latest_departure",
             "transport",
-            "max_results", "beam_width", "time_budget",
+            "max_results", "beam_width", "time_budget", "expand_legs",
         ]
         assert param_names == expected
 
@@ -453,7 +456,7 @@ class TestSearchSignature:
             "legs", "cabin", "passengers",
             "sort",
             "include_basic_economy", "transport",
-            "max_results", "beam_width", "time_budget",
+            "max_results", "beam_width", "time_budget", "expand_legs",
         ]
         assert param_names == expected
 

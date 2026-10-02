@@ -194,6 +194,7 @@ def _build_trip_option(
         price=itineraries[-1].price,
         currency=itineraries[-1].currency,
         legs=_trip_legs_from_itineraries(request_legs, itineraries),
+        is_resolved=len(itineraries) == len(request_legs),
     )
 
 
@@ -280,6 +281,8 @@ def search_trip_options(
     max_results: Optional[int] = None,
     beam_width: Optional[int] = None,
     time_budget: Optional[int] = None,
+    expand_legs: bool = False,
+    first_flight_filter: Optional[tuple[Optional[str], str]] = None,
 ) -> SearchResult:
     if not request_legs:
         return SearchResult()
@@ -287,6 +290,16 @@ def search_trip_options(
     max_results = max_results if max_results is not None else TARGET_RESULTS
     beam_width = beam_width if beam_width is not None else BEAM_WIDTH
     time_budget = time_budget if time_budget is not None else TIME_BUDGET_SECONDS
+    staged_search = len(request_legs) > 2 or (expand_legs and len(request_legs) > 1)
+    if staged_search and (max_results <= 0 or beam_width <= 0 or time_budget <= 0):
+        raise ValueError("max_results, beam_width, and time_budget must be positive")
+    # Include the discovery call in the expansion budget. Requests and retries
+    # may still finish after the deadline; never begin a new stage after it.
+    started_at = time.monotonic()
+    first_transport = (
+        replace(transport, timeout=min(transport.timeout, float(time_budget)))
+        if staged_search else transport
+    )
 
     exclude_basic = cabin == "economy" and not include_basic_economy
     first_pass = _search_from_legs(
@@ -294,7 +307,7 @@ def search_trip_options(
         cabin=cabin,
         passengers=passengers,
         sort=sort,
-        transport=transport,
+        transport=first_transport,
         exclude_basic_economy=exclude_basic,
         retain_raw=False,
     )
@@ -302,11 +315,15 @@ def search_trip_options(
         return SearchResult()
 
     first_candidates = _iter_raw_itineraries(first_pass)
-    if len(request_legs) <= 2:
-        # One-way and roundtrip: first pass already returns full prices.
-        # For roundtrip, Google prices both legs in one call — the itinerary
-        # price is the roundtrip total.  Beam search is only needed for
-        # 3+ leg multi-city trips.
+    if first_flight_filter is not None:
+        carrier, number = first_flight_filter
+        first_candidates = [
+            itinerary for itinerary in first_candidates
+            if itinerary_matches_flight(itinerary, carrier, number)
+        ]
+    if not staged_search:
+        # Quick two-bound discovery returns outbound details and an estimated
+        # whole-trip price, not a selected return. Expansion is opt-in.
         return SearchResult(
             results=[
                 _build_trip_option(
@@ -323,7 +340,6 @@ def search_trip_options(
             is_complete=True,
         )
 
-    started_at = time.monotonic()
     is_complete = len(first_candidates) <= beam_width
     prefixes = [[itinerary] for itinerary in first_candidates[:beam_width]]
     # Remember the last staged upstream rejection. A single bad branch degrades
@@ -333,12 +349,13 @@ def search_trip_options(
     upstream_error: Optional[SwoopUpstreamError] = None
 
     for _ in range(1, len(request_legs)):
-        next_prefixes: list[list[Itinerary]] = []
+        branches: list[list[list[Itinerary]]] = []
         if not prefixes:
             break
 
-        for prefix_index, prefix in enumerate(prefixes):
-            if time.monotonic() - started_at >= time_budget:
+        for prefix in prefixes:
+            remaining_budget = time_budget - (time.monotonic() - started_at)
+            if remaining_budget <= 0:
                 is_complete = False
                 break
 
@@ -354,7 +371,7 @@ def search_trip_options(
                     cabin=cabin,
                     passengers=passengers,
                     sort=sort,
-                    transport=transport,
+                    transport=replace(transport, timeout=min(transport.timeout, remaining_budget)),
                     exclude_basic_economy=exclude_basic,
                     retain_raw=False,
                 )
@@ -372,18 +389,21 @@ def search_trip_options(
             if not stage_candidates:
                 continue
 
-            remaining = beam_width - len(next_prefixes)
-            if len(stage_candidates) > remaining:
-                is_complete = False
-            for candidate in stage_candidates[:remaining]:
-                next_prefixes.append(prefix + [candidate])
+            branches.append([prefix + [candidate] for candidate in stage_candidates])
 
-            if len(next_prefixes) >= beam_width:
-                if prefix_index < len(prefixes) - 1 or len(stage_candidates) > remaining:
-                    is_complete = False
+        # Take one child per explored prefix before taking a second. Filling
+        # the beam from the first outbound alone hides later outbound flights.
+        if sum(len(branch) for branch in branches) > beam_width:
+            is_complete = False
+        prefixes = []
+        for index in range(max((len(branch) for branch in branches), default=0)):
+            for branch in branches:
+                if index < len(branch):
+                    prefixes.append(branch[index])
+                    if len(prefixes) == beam_width:
+                        break
+            if len(prefixes) == beam_width:
                 break
-
-        prefixes = next_prefixes
 
     if len(prefixes) > max_results:
         is_complete = False
@@ -398,6 +418,7 @@ def search_trip_options(
             sort=sort,
         )
         for prefix in prefixes[:max_results]
+        if len(prefix) == len(request_legs)
     ]
     if not options and upstream_error is not None:
         # Every beam branch was rejected upstream — this is an outage, not an
@@ -426,6 +447,8 @@ def resolve_trip_selector(
     payload = decode_trip_selector(selector)
     request_legs = [_copy_request_leg(leg) for leg in payload["query_legs"]]
     selected_legs = payload["selected_legs"]
+    if not request_legs or len(selected_legs) != len(request_legs) or not all(selected_legs):
+        raise ValueError("incomplete selector: every requested leg must be selected")
     resolved: list[Itinerary] = []
     rpc_calls = 0
 
@@ -445,11 +468,7 @@ def resolve_trip_selector(
         )
         rpc_calls += 1
         candidates = _iter_raw_itineraries(stage_result)
-        if index < len(selected_legs):
-            itinerary = _match_itinerary_by_selected_segments(candidates, selected_legs[index])
-        else:
-            # Auto-select first candidate (e.g. return leg from roundtrip fast path)
-            itinerary = candidates[0] if candidates else None
+        itinerary = _match_itinerary_by_selected_segments(candidates, selected_legs[index])
         if itinerary is None:
             raise ValueError("selector itinerary no longer available")
         resolved.append(itinerary)

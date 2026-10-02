@@ -171,6 +171,14 @@ print(results.is_complete)
 
 `search()` and `search_legs()` return shopping totals. Use `check_price()`, `price_legs()`, or `price_selector()` when you need the bookable fare for one chosen itinerary.
 
+Quick roundtrip discovery contains outbound details and an estimated whole-trip
+price, with `option.is_resolved=False`. Use `expand_legs=True` (CLI
+`--expand-legs`) for exact outbound/return or open-jaw combinations before calling
+`price_selector()`. Expansion requires follow-up requests and returns a bounded
+set controlled by `max_results`, `beam_width`, and `time_budget`;
+`result.is_complete=False` indicates incomplete exploration. The discovery
+price is never an outbound-only fare and must not be added to a return price.
+
 Each price-check call costs ~2 RPCs (one search, one booking lookup) — including one-way trips, so `PriceResult.booking_options` is populated and `booking_url` is available. For high-volume scoring of many fares, expect rate-limit pressure to scale accordingly; increase `retries` or pace your calls.
 
 <details>
@@ -595,7 +603,7 @@ Set the default proxy URL for all subsequent requests. Pass `None` to clear.
 - **`HotelReviewsResult`** — `reviews: list[HotelReview]`, `hotel_token`
 - **`HotelReview`** — Review source, author, rating, max rating, relative date, text, and source URL
 - **`SearchResult`** — `results: list[TripOption]`, `price_range: PriceRange | None`, `is_complete: bool`, `currency: str | None`
-- **`TripOption`** — `selector: str`, `price: int | None`, `currency: str | None`, `legs: list[TripLeg]`
+- **`TripOption`** — `selector: str`, `price: int | None`, `currency: str | None`, `legs: list[TripLeg]`, `is_resolved: bool`
 - **`TripLeg`** — `origin: str`, `destination: str`, `date: str`, `itinerary: Itinerary | None`
 - **`RawSearchResult`** — low-level `best: list[Itinerary]`, `other: list[Itinerary]`, `price_range: PriceRange | None`
 - **`Itinerary`** — Full itinerary with `price`, `flights`, `layovers`, `travel_time`, `booking_token`, `carbon_emissions`
