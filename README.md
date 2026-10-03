@@ -614,7 +614,7 @@ Set the default proxy URL for all subsequent requests. Pass `None` to clear.
 - **`TripLeg`** — `origin: str`, `destination: str`, `date: str`, `itinerary: Itinerary | None`
 - **`RawSearchResult`** — low-level `best: list[Itinerary]`, `other: list[Itinerary]`, `price_range: PriceRange | None`
 - **`Itinerary`** — Full itinerary with `price`, `flights`, `layovers`, `travel_time`, `booking_token`, `carbon_emissions`
-- **`Segment`** — Segment details: `airline`, `flight_number`, `aircraft`, `legroom`, `co2_grams`, `amenities`
+- **`Segment`** — Segment details: `airline`, `flight_number`, `aircraft`, `legroom`, `co2_grams`, `amenities`, `seat_type`, `cabin_class`
 - **`Layover`** — Stop info: `minutes`, airports, `is_overnight`
 - **`CarbonEmissions`** — `this_flight_grams`, `typical_for_route_grams`, `difference_percent`
 
@@ -664,3 +664,16 @@ Trip selectors preserve this setting through `search_next_leg` and
 `price_selector`, including exact booking-option lookups. The same option on
 `TFSData` encodes the filter for search-page URLs. This does not exclude ordinary
 interline or codeshare itineraries sold on one ticket.
+
+### Segment cabin and amenity scope
+
+`Segment.cabin_class` preserves the actual cabin at Google shopping segment index 16:
+1 = economy, 2 = premium economy, 3 = business, 4 = first. Missing or unrecognized
+values remain `None`. A business search can include economy connecting segments;
+never apply the requested cabin to every segment. `seat_type` is a separate raw
+seat-product/quality indicator, not a cabin code.
+
+Amenity flags are scoped to that segment's cabin. An absent Wi-Fi tier means
+unknown availability; it does not establish that Wi-Fi is unavailable or included
+in a fare. The raw tier should not be used to promise a free service without
+checking the applicable carrier/fare terms.
