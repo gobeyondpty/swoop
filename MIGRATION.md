@@ -312,3 +312,10 @@ These are additive and don't require code changes, but they're worth knowing:
 - **CO₂ and amenities**: `Segment.legroom`, `Segment.has_premium_ife`, `Segment.amenities`, `Segment.seat_type`, `Itinerary.stop_count`, `Itinerary.is_budget_carrier`, `Itinerary.quality_signals` are now decoded.
 - **Booking fare metadata**: `BookingOption.fare_family` and `BookingOption.rebookability_signal`.
 - **CLI flags**: `--country`, `--proxy`, `--children`, `--infants-in-seat`, `--infants-on-lap`, `--max-results`, `--beam-width`, `--time-budget`.
+
+### Additive separate-ticket exclusion
+
+`exclude_separate_tickets=False` is a new keyword on flight search/pricing and
+deals entry points. Set it to `True` to request exclusion of separate tickets
+and self-transfer. Existing selectors without the field retain their original
+unrestricted behavior; new selectors carry the exact boolean through replay.

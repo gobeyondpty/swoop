@@ -166,6 +166,7 @@ def _build_filters_from_legs(
     passengers: Passengers = Passengers(),
     sort: int = SORT_TOP,
     exclude_basic_economy: bool = False,
+    exclude_separate_tickets: bool = False,
     show_all_results: bool = True,
 ) -> list[Any]:
     """Build the shopping filters payload from normalized leg definitions."""
@@ -194,7 +195,8 @@ def _build_filters_from_legs(
             None,
             None,
             1,                                       # [17] constant
-            None,                                    # [18-27] placeholders
+            1 if exclude_separate_tickets else None, # [18] hide separate/self-transfer
+            # [19-27] placeholders
             None,
             None,
             None,
@@ -230,6 +232,7 @@ def _search_from_legs(
     transport: TransportConfig = TransportConfig(),
     exclude_basic_economy: bool = False,
     retain_raw: bool = True,
+    exclude_separate_tickets: bool = False,
     show_all_results: bool = True,
 ) -> Optional[RawSearchResult]:
     """Search Google Flights from normalized leg definitions."""
@@ -241,6 +244,7 @@ def _search_from_legs(
             sort=sort,
             exclude_basic_economy=exclude_basic_economy,
             show_all_results=show_all_results,
+            exclude_separate_tickets=exclude_separate_tickets,
         )
     )
 
@@ -515,6 +519,7 @@ def search_raw(
     selected_outbound_legs: Optional[list[list[Any]]] = None,
     transport: TransportConfig = TransportConfig(),
     exclude_basic_economy: bool = False,
+    exclude_separate_tickets: bool = False,
     show_all_results: bool = True,
 ) -> Optional[RawSearchResult]:
     """Search Google Flights via RPC endpoint and return decoded results.
@@ -563,6 +568,7 @@ def search_raw(
         sort=sort, transport=transport,
         exclude_basic_economy=exclude_basic_economy,
         show_all_results=show_all_results,
+        exclude_separate_tickets=exclude_separate_tickets,
     )
 
 
@@ -608,6 +614,7 @@ def get_booking_results(
     selected_legs: Optional[list[list[Any]]] = None,
     registry_version: str | None = None,
     required_keys: tuple[str, ...] | None = None,
+    exclude_separate_tickets: bool = False,
     transport: TransportConfig = TransportConfig(),
 ) -> list[BookingOption]:
     """Fetch fare options (brand + price) for a specific itinerary.
@@ -671,6 +678,7 @@ def get_booking_results(
     filters = _build_filters_from_legs(
         legs, cabin=cabin, passengers=passengers,
         sort=SORT_DEPARTURE_TIME,
+        exclude_separate_tickets=exclude_separate_tickets,
     )
     filter_block = filters[1]
     encoded_body = _build_booking_f_req(booking_token, filter_block, selected_legs)
@@ -703,6 +711,7 @@ def get_trip_booking_results(
     *,
     cabin: CabinClass = "economy",
     passengers: Passengers = Passengers(),
+    exclude_separate_tickets: bool = False,
     transport: TransportConfig = TransportConfig(),
 ) -> list[BookingOption]:
     """Fetch booking options for an exact multi-leg trip selection."""
@@ -714,6 +723,7 @@ def get_trip_booking_results(
         cabin=cabin,
         passengers=passengers,
         sort=SORT_DEPARTURE_TIME,
+        exclude_separate_tickets=exclude_separate_tickets,
     )
     inner = [[None, booking_token], filters[1], None, 0]
     encoded_body = _encode_f_req_payload(inner)

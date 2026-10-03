@@ -172,6 +172,7 @@ def _search_with_normalized_legs(
     beam_width: Optional[int] = None,
     time_budget: Optional[float] = None,
     expand_legs: bool = False,
+    exclude_separate_tickets: bool = False,
     show_all_results: bool = True,
     first_flight_filter: Optional[tuple[Optional[str], str]] = None,
 ) -> SearchResult:
@@ -189,6 +190,7 @@ def _search_with_normalized_legs(
         expand_legs=expand_legs,
         show_all_results=show_all_results,
         first_flight_filter=first_flight_filter,
+        exclude_separate_tickets=exclude_separate_tickets,
     )
 
 
@@ -204,6 +206,7 @@ def search_legs(
     beam_width: Optional[int] = None,
     time_budget: Optional[float] = None,
     expand_legs: bool = False,
+    exclude_separate_tickets: bool = False,
     show_all_results: bool = True,
 ) -> SearchResult:
     """Search Google Flights using explicit leg definitions.
@@ -263,6 +266,7 @@ def search_legs(
         time_budget=time_budget,
         expand_legs=expand_legs,
         show_all_results=show_all_results,
+        exclude_separate_tickets=exclude_separate_tickets,
     )
 
 
@@ -290,6 +294,7 @@ def search(
     beam_width: Optional[int] = None,
     time_budget: Optional[float] = None,
     expand_legs: bool = False,
+    exclude_separate_tickets: bool = False,
     show_all_results: bool = True,
 ) -> SearchResult:
     """Search Google Flights and return decoded results.
@@ -425,6 +430,7 @@ def search(
         expand_legs=expand_legs,
         show_all_results=show_all_results,
         first_flight_filter=(parsed_carrier, parsed_number) if parsed_number is not None else None,
+        exclude_separate_tickets=exclude_separate_tickets,
     )
 
     if parsed_number is not None:
@@ -443,6 +449,7 @@ def price_legs(
     cabin: CabinClass = "economy",
     passengers: Passengers = Passengers(),
     include_basic_economy: bool = False,
+    exclude_separate_tickets: bool = False,
     transport: TransportConfig = TransportConfig(),
 ) -> Optional[PriceResult]:
     """Look up the current bookable fare using explicit leg definitions.
@@ -487,6 +494,7 @@ def price_legs(
             and len(legs) == 1
             and not include_basic_economy
         ),
+        exclude_separate_tickets=exclude_separate_tickets,
     )
     if not resolved:
         return None
@@ -500,6 +508,7 @@ def price_legs(
         transport=transport,
         rpc_calls=rpc_calls,
         selections=selections,
+        exclude_separate_tickets=exclude_separate_tickets,
     )
 
 
@@ -543,6 +552,7 @@ def check_price(
     passengers: Passengers = Passengers(),
     max_stops: Optional[int] = None,
     include_basic_economy: bool = False,
+    exclude_separate_tickets: bool = False,
     transport: TransportConfig = TransportConfig(),
 ) -> Optional[PriceResult]:
     """Look up the current bookable fare for a specific flight.
@@ -634,6 +644,7 @@ def check_price(
             and return_date is None
             and not include_basic_economy
         ),
+        exclude_separate_tickets=exclude_separate_tickets,
     )
     if not resolved:
         return None
@@ -647,6 +658,7 @@ def check_price(
         transport=transport,
         rpc_calls=rpc_calls,
         selections=selections,
+        exclude_separate_tickets=exclude_separate_tickets,
     )
 
 
@@ -663,6 +675,7 @@ def _fetch_deals_per_origin(
     airlines: Optional[list[str]],
     passengers: Passengers,
     include_basic_economy: bool,
+    exclude_separate_tickets: bool = False,
     transport: TransportConfig,
 ) -> DealsResult:
     """Fetch deals for each origin in parallel, merge and dedupe by fingerprint."""
@@ -692,6 +705,7 @@ def _fetch_deals_per_origin(
             include_basic_economy=include_basic_economy,
             transport=transport,
             _client=worker_client,
+            exclude_separate_tickets=exclude_separate_tickets,
         )
 
     # Modest concurrency to avoid triggering upstream rate-limits when the
@@ -1080,6 +1094,7 @@ def deals(
     max_price: Optional[int] = None,
     min_discount_pct: Optional[int] = None,
     # Transport
+    exclude_separate_tickets: bool = False,
     transport: TransportConfig = TransportConfig(),
 ) -> DealsResult:
     """Discover the best flight deals from an origin airport.
@@ -1180,6 +1195,7 @@ def deals(
             passengers=passengers,
             include_basic_economy=include_basic_economy,
             transport=transport,
+            exclude_separate_tickets=exclude_separate_tickets,
         )
     else:
         # Single string OR list as one RPC call (slot-0 native multi-origin).
@@ -1191,6 +1207,7 @@ def deals(
             passengers=passengers,
             include_basic_economy=include_basic_economy,
             transport=transport,
+            exclude_separate_tickets=exclude_separate_tickets,
         )
 
     # Apply client-side filters if any are set.
