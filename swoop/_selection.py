@@ -78,6 +78,7 @@ def encode_trip_selector(
     passengers: Passengers = Passengers(),
     include_basic_economy: bool,
     sort: int = SORT_DEPARTURE_TIME,
+    exclude_separate_tickets: bool = False,
     show_all_results: bool = True,
 ) -> str:
     payload = {
@@ -94,6 +95,7 @@ def encode_trip_selector(
         "include_basic_economy": include_basic_economy,
         "sort": sort,
         "show_all_results": show_all_results,
+        "exclude_separate_tickets": exclude_separate_tickets,
         "booking_token_hint": itineraries[-1].booking_token or None,
     }
     return f"{SELECTOR_PREFIX}{_encode_payload(payload)}"
@@ -110,6 +112,9 @@ def decode_trip_selector(selector: str) -> dict[str, Any]:
         raise ValueError("invalid selector payload") from exc
     if not isinstance(payload, dict) or payload.get("v") != 1:
         raise ValueError("unsupported selector version")
+    payload.setdefault("exclude_separate_tickets", False)
+    if not isinstance(payload["exclude_separate_tickets"], bool):
+        raise ValueError("invalid selector separate-ticket filter")
     # Old selectors were created from the shortened provider list.
     payload.setdefault("show_all_results", False)
     if not isinstance(payload["show_all_results"], bool):
@@ -189,6 +194,7 @@ def _build_trip_option(
     passengers: Passengers = Passengers(),
     include_basic_economy: bool,
     sort: int = SORT_DEPARTURE_TIME,
+    exclude_separate_tickets: bool = False,
     show_all_results: bool = True,
 ) -> TripOption:
     return TripOption(
@@ -200,6 +206,7 @@ def _build_trip_option(
             include_basic_economy=include_basic_economy,
             sort=sort,
             show_all_results=show_all_results,
+            exclude_separate_tickets=exclude_separate_tickets,
         ),
         price=itineraries[-1].price,
         currency=itineraries[-1].currency,
@@ -241,6 +248,7 @@ def fetch_trip_booking_options(
     *,
     cabin: CabinClass,
     passengers: Passengers = Passengers(),
+    exclude_separate_tickets: bool = False,
     transport: TransportConfig = TransportConfig(),
 ) -> list:
     selected_payloads = _selected_payloads_for_itineraries(itineraries)
@@ -256,6 +264,7 @@ def fetch_trip_booking_options(
         cabin=cabin,
         passengers=passengers,
         transport=transport,
+        exclude_separate_tickets=exclude_separate_tickets,
     )
 
 
@@ -340,6 +349,7 @@ def search_trip_options(
     time_budget: Optional[float] = None,
     expand_legs: bool = False,
     first_flight_filter: Optional[tuple[Optional[str], str]] = None,
+    exclude_separate_tickets: bool = False,
     show_all_results: bool = True,
 ) -> SearchResult:
     coverage = _Coverage(show_all_results)
@@ -359,7 +369,8 @@ def search_trip_options(
         coverage.result.rpc_calls += 1
         raw = _search_from_legs(legs, cabin=cabin, passengers=passengers, sort=sort,
             transport=bounded, exclude_basic_economy=exclude_basic,
-            retain_raw=False, show_all_results=show_all_results)
+            retain_raw=False, show_all_results=show_all_results,
+            exclude_separate_tickets=exclude_separate_tickets)
         coverage.add(raw)
         return raw
 
@@ -373,7 +384,8 @@ def search_trip_options(
     def option(prefix: list[Itinerary]) -> TripOption:
         return _build_trip_option(request_legs, prefix, cabin=cabin, passengers=passengers,
             include_basic_economy=include_basic_economy, sort=sort,
-            show_all_results=show_all_results)
+            show_all_results=show_all_results,
+            exclude_separate_tickets=exclude_separate_tickets)
 
     if not staged_search:
         coverage.result.results = [option([itinerary]) for itinerary in first_candidates]
@@ -508,6 +520,7 @@ def resolve_trip_selector(
             exclude_basic_economy=exclude_basic,
             retain_raw=False,
             show_all_results=payload["show_all_results"],
+            exclude_separate_tickets=payload["exclude_separate_tickets"],
         )
         if coverage is not None:
             coverage.add(stage_result)
@@ -544,12 +557,14 @@ def search_next_leg(
     raw = _search_from_legs(_with_selected_prefix(legs, selected), cabin=payload["cabin"],
         passengers=payload["passengers"], sort=payload.get("sort", SORT_DEPARTURE_TIME),
         exclude_basic_economy=payload["cabin"] == "economy" and not payload["include_basic_economy"],
-        transport=bounded, retain_raw=False, show_all_results=payload["show_all_results"])
+        transport=bounded, retain_raw=False, show_all_results=payload["show_all_results"],
+        exclude_separate_tickets=payload["exclude_separate_tickets"])
     coverage.add(raw)
     coverage.result.results = [_build_trip_option(legs, [*prefix, candidate],
         cabin=payload["cabin"], passengers=payload["passengers"],
         include_basic_economy=payload["include_basic_economy"],
-        sort=payload.get("sort", SORT_DEPARTURE_TIME), show_all_results=payload["show_all_results"])
+        sort=payload.get("sort", SORT_DEPARTURE_TIME), show_all_results=payload["show_all_results"],
+        exclude_separate_tickets=payload["exclude_separate_tickets"])
         for candidate in _iter_raw_itineraries(raw)]
     coverage.result.price_range = raw.price_range if raw else None
     return coverage.result
@@ -562,6 +577,7 @@ def price_selected_trip(
     cabin: CabinClass = "economy",
     passengers: Passengers = Passengers(),
     include_basic_economy: bool = False,
+    exclude_separate_tickets: bool = False,
     transport: TransportConfig = TransportConfig(),
     rpc_calls: int = 0,
     selections: Optional[list[str]] = None,
@@ -597,6 +613,7 @@ def price_selected_trip(
                 cabin=cabin,
                 passengers=passengers,
                 transport=bounded,
+                exclude_separate_tickets=exclude_separate_tickets,
             )
             rpc_calls += 1
         except SwoopUpstreamError:
@@ -650,6 +667,7 @@ def resolve_selected_trip(
     *,
     cabin: CabinClass = "economy",
     passengers: Passengers = Passengers(),
+    exclude_separate_tickets: bool = False,
     transport: TransportConfig = TransportConfig(),
     exclude_basic_economy: bool = False,
 ) -> tuple[list[Itinerary], list[str], int]:
@@ -670,6 +688,7 @@ def resolve_selected_trip(
             transport=transport,
             exclude_basic_economy=exclude_basic_economy,
             retain_raw=False,
+            exclude_separate_tickets=exclude_separate_tickets,
         )
         rpc_calls += 1
         candidates = _iter_raw_itineraries(stage_result)
@@ -720,6 +739,7 @@ def price_trip_selector(
         transport=transport,
         rpc_calls=rpc_calls,
         deadline=deadline,
+        exclude_separate_tickets=payload["exclude_separate_tickets"],
     )
 
 
