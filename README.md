@@ -563,3 +563,13 @@ Testing notes:
 ## License
 
 MIT
+
+### Separate tickets and self-transfer
+
+Pass `exclude_separate_tickets=True` to `search`, `search_legs`, `search_raw`,
+`check_price`, `price_legs`, or `deals` to request Google Flights’ “Hide separate
+& self-transfer tickets” filter. The default remains `False` for compatibility.
+Trip selectors preserve this setting through `search_next_leg` and
+`price_selector`, including exact booking-option lookups. The same option on
+`TFSData` encodes the filter for search-page URLs. This does not exclude ordinary
+interline or codeshare itineraries sold on one ticket.

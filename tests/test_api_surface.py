@@ -361,7 +361,7 @@ class TestSearchSignature:
             "earliest_arrival", "latest_arrival",
             "return_earliest_departure", "return_latest_departure",
             "transport",
-            "max_results", "beam_width", "time_budget", "expand_legs", "show_all_results",
+            "max_results", "beam_width", "time_budget", "expand_legs", "exclude_separate_tickets", "show_all_results",
         ]
         assert param_names == expected
 
@@ -377,7 +377,7 @@ class TestSearchSignature:
             "return_date", "return_earliest_departure", "return_latest_departure",
             "selected_outbound_legs",
             "transport",
-            "exclude_basic_economy", "show_all_results",
+            "exclude_basic_economy", "exclude_separate_tickets", "show_all_results",
         ]
         assert param_names == expected
 
@@ -389,7 +389,7 @@ class TestSearchSignature:
             "return_flight_number", "return_date",
             "cabin", "passengers",
             "max_stops", "include_basic_economy",
-            "transport",
+            "exclude_separate_tickets", "transport",
         ]
         assert param_names == expected
 
@@ -400,7 +400,7 @@ class TestSearchSignature:
             "legs", "cabin", "passengers",
             "sort",
             "include_basic_economy", "transport",
-            "max_results", "beam_width", "time_budget", "expand_legs", "show_all_results",
+            "max_results", "beam_width", "time_budget", "expand_legs", "exclude_separate_tickets", "show_all_results",
         ]
         assert param_names == expected
 
@@ -409,7 +409,7 @@ class TestSearchSignature:
         param_names = list(sig.parameters.keys())
         expected = [
             "legs", "cabin", "passengers",
-            "include_basic_economy", "transport",
+            "include_basic_economy", "exclude_separate_tickets", "transport",
         ]
         assert param_names == expected
 
@@ -436,7 +436,7 @@ class TestSearchSignature:
             "depart_window", "trip_length", "destinations", "exclude_destinations",
             "region", "max_price", "min_discount_pct",
             # Transport
-            "transport",
+            "exclude_separate_tickets", "transport",
         ]
         assert param_names == expected
 
