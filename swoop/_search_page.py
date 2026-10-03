@@ -41,6 +41,7 @@ def fetch_search_page(
     client: Any, legs: list[dict[str, Any]], *, cabin: CabinClass,
     passengers: Passengers, sort: int, exclude_basic_economy: bool,
     transport: TransportConfig,
+    exclude_separate_tickets: bool = False,
 ) -> RawSearchResult:
     """Make one page request, preserving supported search constraints.
 
@@ -65,6 +66,7 @@ TFS encoding here; reject them rather than return flights ignoring the intent.
             infants_in_seat=passengers.infants_in_seat, infants_on_lap=passengers.infants_on_lap,
         ),
         exclude_basic_economy=exclude_basic_economy,
+        exclude_separate_tickets=exclude_separate_tickets,
     )
     params = {"tfs": tfs.as_b64().decode(), "hl": "en"}
     if transport.country:

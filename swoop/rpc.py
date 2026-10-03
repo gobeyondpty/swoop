@@ -268,6 +268,7 @@ def _search_from_legs(
             _get_client(transport.proxy, transport.impersonate), legs,
             cabin=cabin, passengers=passengers, sort=sort,
             exclude_basic_economy=exclude_basic_economy, transport=transport,
+            exclude_separate_tickets=exclude_separate_tickets,
         )
     if isinstance(result, RawSearchResult):
         result._result_scope = result._result_scope or ("all" if show_all_results else "default")

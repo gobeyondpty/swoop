@@ -62,6 +62,16 @@ def test_default_basic_exclusion_is_encoded(rejected_exit):
     assert info.exclude_basic_economy
 
 
+@pytest.mark.parametrize('excluded', [False, True])
+def test_separate_ticket_filter_survives_rpc_page_fallback(rejected_exit, excluded):
+    result = swoop.search('JFK', 'LAX', '2026-11-15', exclude_separate_tickets=excluded)
+    params = parse_qs(urlparse(rejected_exit.gets[0][0]).query)
+    info = PB.Info.FromString(base64.b64decode(params['tfs'][0]))
+    assert info.exclude_separate_tickets is excluded
+    from swoop._selection import decode_trip_selector
+    assert decode_trip_selector(result.results[0].selector)['exclude_separate_tickets'] is excluded
+
+
 def test_roundtrip_encodes_both_dates(rejected_exit):
     swoop.search('JFK', 'LAX', '2026-11-15', return_date='2026-11-22')
     params = parse_qs(urlparse(rejected_exit.gets[0][0]).query)
