@@ -202,7 +202,7 @@ class TestFrozenDataclassFields:
             "departure_date", "arrival_date",
             "departure_time", "arrival_time",
             "travel_time", "seat_pitch_short", "legroom", "co2_grams",
-            "overnight", "has_premium_ife", "amenities", "seat_type",
+            "overnight", "has_premium_ife", "amenities", "seat_type", "cabin_class",
         }
         assert self._field_names(Segment) == expected
 
