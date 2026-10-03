@@ -73,6 +73,7 @@ class TestFrozenExports:
         "explore",
         "price_explore",
         "price_explore_all",
+        "calendar_prices",
         "hotels",
         "hotel_prices",
         "hotel_reviews",
@@ -84,6 +85,7 @@ class TestFrozenExports:
         "itinerary_matches_flight",
         # Types
         "CabinClass",
+        "CalendarPrice",
         "Deal",
         "DealsDiff",
         "DealsResult",

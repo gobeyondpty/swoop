@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `calendar_prices()` returns the cheapest fare for every date in a flexible
+  window (one-way) or every departure x return combination (roundtrip) from a
+  single `GetCalendarGrid` request, instead of one full search per date pair.
 - `SwoopTransportError` wraps request-send and lazy response-body failures with
   the original error as its cause.
 
