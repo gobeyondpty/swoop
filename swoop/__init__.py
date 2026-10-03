@@ -93,6 +93,7 @@ import os
 from typing import Iterable, Optional
 from dataclasses import replace
 
+from ._calendar import CalendarPrice, calendar_prices
 from ._selection import (
     build_request_legs_from_selected,
     price_selected_trip,
@@ -1507,6 +1508,7 @@ __all__ = [
     "explore",
     "price_explore",
     "price_explore_all",
+    "calendar_prices",
     "hotels",
     "hotel_prices",
     "hotel_reviews",
@@ -1518,6 +1520,7 @@ __all__ = [
     "itinerary_matches_flight",
     # Types
     "CabinClass",
+    "CalendarPrice",
     "Deal",
     "DealsDiff",
     "DealsResult",
