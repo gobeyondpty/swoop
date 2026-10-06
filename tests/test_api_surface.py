@@ -11,6 +11,8 @@ import pytest
 
 import swoop
 from swoop import (
+    CalendarDay,
+    CalendarResult,
     Deal,
     DealsDiff,
     DealsResult,
@@ -74,10 +76,12 @@ class TestFrozenExports:
         "price_explore",
         "price_explore_all",
         "calendar_prices",
+        "calendar",
         "hotels",
         "hotel_prices",
         "hotel_reviews",
         "get_booking_results",
+        "get_calendar",
         "search_raw",
         "set_country",
         "set_proxy",
@@ -100,6 +104,8 @@ class TestFrozenExports:
         "HotelSearchResult",
         "Passengers",
         "TransportConfig",
+        "CalendarDay",
+        "CalendarResult",
         "PriceResult",
         "RawSearchResult",
         "SearchResult",
@@ -223,6 +229,14 @@ class TestFrozenDataclassFields:
     @staticmethod
     def _field_names(cls):
         return {f.name for f in fields(cls)}
+
+    def test_calendar_day_fields(self):
+        assert self._field_names(CalendarDay) == {
+            "departure_date", "return_date", "price", "currency", "selector",
+        }
+
+    def test_calendar_result_fields(self):
+        assert self._field_names(CalendarResult) == {"days"}
 
     def test_segment_fields(self):
         expected = {

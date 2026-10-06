@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `calendar()` / `get_calendar()` return `CalendarResult` and `CalendarDay`
+  date-picker fares for one-way windows or roundtrip stay-length ranges.
 - `calendar_prices()` returns the cheapest fare for every date in a flexible
   window (one-way) or every departure x return combination (roundtrip) from a
   single `GetCalendarGrid` request, instead of one full search per date pair.
