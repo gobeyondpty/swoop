@@ -7,10 +7,11 @@ Based on reverse-engineering from punitarani/fli.
 """
 
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import json
 import logging
 import threading
+import time
 import urllib.parse
 from typing import Any, Optional
 
@@ -248,6 +249,7 @@ def _search_from_legs(
         )
     )
 
+    deadline = time.monotonic() + transport.timeout
     res = _http_post(
         SHOPPING_RPC_URL,
         content=f"f.req={encoded_body}".encode(),
@@ -264,10 +266,16 @@ def _search_from_legs(
             raise
         from ._search_page import fetch_search_page
 
+        # The rejected RPC and its alternate page transport are one attempt.
+        # Reusing the original timeout here could double the caller's budget.
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise SwoopTransportError("Google Flights request budget exhausted before search-page fallback") from exc
         result = fetch_search_page(
             _get_client(transport.proxy, transport.impersonate), legs,
             cabin=cabin, passengers=passengers, sort=sort,
-            exclude_basic_economy=exclude_basic_economy, transport=transport,
+            exclude_basic_economy=exclude_basic_economy,
+            transport=replace(transport, timeout=min(transport.timeout, remaining)),
             exclude_separate_tickets=exclude_separate_tickets,
         )
     if isinstance(result, RawSearchResult):

@@ -1,6 +1,7 @@
 """Rejected exits still search over HTTP; never relax the requested intent."""
 import base64
 import json
+import time
 from pathlib import Path
 from types import SimpleNamespace
 from urllib.parse import parse_qs, urlparse
@@ -12,7 +13,7 @@ from swoop import flights_pb2 as PB
 from swoop import rpc
 from swoop._search_page import _page_payload
 from swoop.decoder import detect_error_envelope
-from swoop.exceptions import SwoopHTTPError, SwoopParseError, SwoopRateLimitError, SwoopUpstreamError
+from swoop.exceptions import SwoopHTTPError, SwoopParseError, SwoopRateLimitError, SwoopTransportError, SwoopUpstreamError
 
 
 @pytest.fixture
@@ -52,7 +53,63 @@ def test_compact_rpc_rejection_uses_page_and_preserves_intent(rejected_exit):
     assert info.data[0].HasField('max_stops')
     assert list(info.data[0].airlines) == ['AA']
     assert params['gl'] == ['US']
-    assert kwargs['timeout'] == 17
+    assert 0 < kwargs['timeout'] <= 17
+
+
+@pytest.mark.parametrize('post_elapsed', [0.0, 7.0, 7.5])
+def test_regression_2354_rpc_and_page_share_one_timeout(rejected_exit, monkeypatch, post_elapsed):
+    now = [100.0]
+    monkeypatch.setattr(time, 'monotonic', lambda: now[0])
+    original_post = rejected_exit.post
+    original_get = rejected_exit.get
+    transport = swoop.TransportConfig(timeout=8, retries=0, country='US', proxy='socks5h://fixture:1080')
+
+    def delayed_post(*args, **kwargs):
+        assert kwargs['timeout'] == 8
+        now[0] += post_elapsed
+        return original_post(*args, **kwargs)
+
+    def page_using_remaining_budget(*args, **kwargs):
+        # Consume the allowed page budget: total network work must still fit
+        # the original eight seconds after the POST's real elapsed time.
+        now[0] += kwargs['timeout']
+        return original_get(*args, **kwargs)
+
+    monkeypatch.setattr(rejected_exit, 'post', delayed_post)
+    monkeypatch.setattr(rejected_exit, 'get', page_using_remaining_budget)
+    result = rpc._search_from_legs(
+        [rpc._normalize_rpc_leg('JFK', 'LAX', '2026-11-15')],
+        transport=transport, exclude_separate_tickets=True,
+    )
+
+    assert result is not None
+    assert len(rejected_exit.gets) == 1
+    assert rejected_exit.gets[0][1]['timeout'] == pytest.approx(8 - post_elapsed)
+    assert now[0] - 100 == pytest.approx(8)
+    assert transport.timeout == 8  # The caller's transport remains reusable.
+    params = parse_qs(urlparse(rejected_exit.gets[0][0]).query)
+    info = PB.Info.FromString(base64.b64decode(params['tfs'][0]))
+    assert info.exclude_separate_tickets
+    assert params['gl'] == ['US']
+
+
+@pytest.mark.parametrize('post_elapsed', [8.0, 9.0])
+def test_regression_2354_expired_rpc_budget_cannot_start_page_io(rejected_exit, monkeypatch, post_elapsed):
+    now = [100.0]
+    monkeypatch.setattr(time, 'monotonic', lambda: now[0])
+    original_post = rejected_exit.post
+
+    def delayed_post(*args, **kwargs):
+        now[0] += post_elapsed
+        return original_post(*args, **kwargs)
+
+    monkeypatch.setattr(rejected_exit, 'post', delayed_post)
+    with pytest.raises(SwoopTransportError, match='budget exhausted'):
+        rpc._search_from_legs(
+            [rpc._normalize_rpc_leg('JFK', 'LAX', '2026-11-15')],
+            transport=swoop.TransportConfig(timeout=8, retries=0),
+        )
+    assert not rejected_exit.gets
 
 
 def test_default_basic_exclusion_is_encoded(rejected_exit):
