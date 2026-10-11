@@ -517,6 +517,25 @@ Price one or more explicit legs and return `PriceResult | None`.
 
 Price a selected trip row by opaque selector and return `PriceResult | None`.
 
+New fully resolved selectors created with `exclude_separate_tickets=True`
+retain a small snapshot of the selected flights for two minutes. Pricing first
+uses the retained booking token in one booking RPC, without replaying a shopping
+request for each journey. The current response must match every flight in order,
+including both local departure and arrival times; passenger, cabin, and fare
+filters are preserved. These snapshots contain no cached fares or raw responses.
+The returned booking options include their current segment facts; the itinerary
+contains the selected flights and duration, while optional shopping-only display
+metadata is not re-fetched on this path.
+
+Old, incomplete, expired, or malformed selectors use the existing replay path.
+An empty or mismatched retained-token response, `NOT_FOUND`, or HTTP `410` triggers
+one replay with a fresh token. Outages, rate limits, and malformed provider
+responses remain typed errors. A replayed shopping price is still explicitly
+marked `is_estimate=True` when no exact booking option can be verified. Set
+`time_budget` to share one deadline across the token attempt, replay, and fresh
+booking lookup; bounded selector pricing disables internal HTTP retries so they
+cannot multiply that budget.
+
 ### `search_raw(origin, destination, date, **kwargs)`
 
 Low-level single-pass search escape hatch. Returns `RawSearchResult` with raw `best` and `other` itinerary buckets from one RPC pass.

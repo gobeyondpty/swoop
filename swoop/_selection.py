@@ -14,6 +14,7 @@ from ._validate import parse_flight_number, validate_cabin, validate_date, valid
 from .decoder import Itinerary, RawSearchResult, itinerary_matches_flight
 from .exceptions import SwoopError, SwoopTransportError, SwoopUpstreamError
 from .models import Passengers, PriceResult, ResolvedLeg, SearchResult, TransportConfig, TripLeg, TripOption
+from ._pricing_hint import make_pricing_hint, matching_booking_options, try_hint_price
 from .rpc import (
     SORT_DEPARTURE_TIME,
     _build_selected_legs,
@@ -98,6 +99,9 @@ def encode_trip_selector(
         "exclude_separate_tickets": exclude_separate_tickets,
         "booking_token_hint": itineraries[-1].booking_token or None,
     }
+    hint = make_pricing_hint(payload, itineraries)
+    if hint is not None:
+        payload["pricing_hint"] = hint
     return f"{SELECTOR_PREFIX}{_encode_payload(payload)}"
 
 
@@ -582,6 +586,7 @@ def price_selected_trip(
     rpc_calls: int = 0,
     selections: Optional[list[str]] = None,
     deadline: Optional[float] = None,
+    strict_booking_manifest: bool = False,
 ) -> Optional[PriceResult]:
     if not itineraries:
         return None
@@ -623,8 +628,12 @@ def price_selected_trip(
             # (parse, transient HTTP) stay best-effort and degrade to base_price.
             raise
         except SwoopError as exc:
+            if strict_booking_manifest:
+                raise
             logger.debug("Trip booking lookup failed: %s", exc)
 
+    if strict_booking_manifest:
+        booking_options = matching_booking_options(booking_options, itineraries)
     if booking_options:
         eligible = _eligible_booking_options(
             booking_options,
@@ -722,7 +731,20 @@ def price_trip_selector(
     time_budget: Optional[float] = None,
 ) -> Optional[PriceResult]:
     deadline = _deadline(time_budget)
+    if deadline is not None:
+        # A per-attempt HTTP timeout cannot bound several internal retries.
+        # Selector pricing owns its one retained-token fallback and shares the
+        # remaining deadline across it, replay searches, and fresh booking.
+        transport = replace(transport, retries=0)
+    hint_attempts = 0
+    strict_manifest = False
     try:
+        decoded = decode_trip_selector(selector)
+        strict_manifest = isinstance(decoded.get("pricing_hint"), dict)
+        hinted, hint_attempts = try_hint_price(decoded, transport=transport, deadline=deadline,
+            load=get_trip_booking_results, eligible=_eligible_booking_options)
+        if hinted is not None:
+            return hinted
         payload, request_legs, itineraries, rpc_calls = resolve_trip_selector(
             selector,
             transport=transport,
@@ -737,9 +759,10 @@ def price_trip_selector(
         passengers=payload["passengers"],
         include_basic_economy=payload["include_basic_economy"],
         transport=transport,
-        rpc_calls=rpc_calls,
+        rpc_calls=rpc_calls + hint_attempts,
         deadline=deadline,
         exclude_separate_tickets=payload["exclude_separate_tickets"],
+        strict_booking_manifest=strict_manifest,
     )
 
 
