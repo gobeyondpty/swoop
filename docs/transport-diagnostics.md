@@ -36,11 +36,12 @@ Snapshots expose:
   outcome, decoded count, and raw count/list scope where the provider adapter
   supplies them. Missing raw count or scope stays unknown.
 
-These measurements cover the shared Flights RPC POST transport and shopping
-and booking decoding. They do not claim that session/bootstrap requests or
-other Google products are fully measured. A runtime with the public search-page
-fallback can instrument its GET using the same recorder and `page` attempt
-kind. No additional Google requests are made for diagnostics.
+These measurements cover the shared Flights RPC POST transport, the public
+search-page fallback GET, and shopping, booking and calendar decoding. They
+do not claim that session/bootstrap requests or other Google products are fully
+measured. RPC rejection followed by one successful page fallback reports two
+HTTP attempts, one RPC and one page, and retains the limited result scope.
+No additional Google requests are made for diagnostics.
 
 Query coverage describes individual provider responses. It does not declare a
 staged journey resolved, remove a truncation reason, or change `is_complete`.

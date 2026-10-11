@@ -1028,6 +1028,7 @@ def get_calendar(
     )
     # Currency comes from the point of sale but isn't echoed in this RPC's
     # payload. Best-effort: leave None unless caller knows it.
-    result = _parse_calendar_response(res.text)
+    with measure_decode(transport):
+        result = _parse_calendar_response(res.text)
     logger.info("get_calendar returned %d days", len(result.days))
     return result

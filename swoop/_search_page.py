@@ -15,6 +15,7 @@ from .builders import CABIN_CLASS_MAP, CabinClass, TFSData, _PBPassengers, _appl
 from .decoder import RawSearchResult, decode_result
 from .exceptions import SwoopHTTPError, SwoopParseError, SwoopRateLimitError, SwoopUpstreamError
 from .models import Passengers, TransportConfig
+from .diagnostics import measure_decode, measure_http
 
 _DATA_START = re.compile(
     r"AF_initDataCallback\(\{key:\s*['\"]ds:1['\"].*?\bdata\s*:", re.S,
@@ -75,16 +76,22 @@ TFS encoding here; reject them rather than return flights ignoring the intent.
     params = {"tfs": base64.b64encode(info.SerializeToString()).decode(), "hl": "en"}
     if transport.country:
         params["gl"] = transport.country.upper()
-    response = client.get(
-        "https://www.google.com/travel/flights?" + urlencode(params),
-        headers={"accept": "text/html", "accept-language": "en-US,en;q=0.9"},
-        timeout=transport.timeout,
-    )
+    with measure_http(transport, "shopping", "page", "GET") as measurement:
+        response = client.get(
+            "https://www.google.com/travel/flights?" + urlencode(params),
+            headers={"accept": "text/html", "accept-language": "en-US,en;q=0.9"},
+            timeout=transport.timeout,
+        )
+        measurement.status_code = response.status_code
+        text = response.text if response.status_code == 200 else ""
+        if response.status_code == 200:
+            measurement.body(text)
     if response.status_code == 429:
         raise SwoopRateLimitError()
     if response.status_code != 200:
         raise SwoopHTTPError(response.status_code)
-    result = decode_result(_page_payload(response.text))
+    with measure_decode(transport):
+        result = decode_result(_page_payload(text))
     result._result_scope = "limited"
     # The page ranks best flights by default. Honor the requested ordering over
     # the returned inventory without claiming the page provides every RPC row.
