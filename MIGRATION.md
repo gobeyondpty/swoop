@@ -48,7 +48,8 @@ prefixes, but still expose a bounded subset: `max_results` (default 10),
 `beam_width` (default 15), and `time_budget` (default 90 seconds) apply. Truncation,
 budget exhaustion, and partial upstream rejections set `is_complete=False`.
 Expansion includes the initial call in its time budget and caps each request's
-timeout to remaining time; retries can extend total elapsed time.
+timeout to remaining time. Each RPC also shares one transport timeout across
+retry waits, HTTP attempts, and an optional shopping page fallback.
 
 `SwoopTransportError` now wraps failures while sending a POST or reading its
 response body, including lazy body timeouts. Catch it (or `SwoopError`) instead
@@ -87,8 +88,9 @@ complete choices. Reasons distinguish default results, limited transport,
 parse loss, beam/result limits, time budget and failed branches. `is_complete`
 means complete relative to the requested Google response, never all market
 inventory. `price_selector` shares its optional budget across replay and lookup.
-Transport retries may still extend elapsed time; use `retries=0` for a strict
-per-request budget. No return or next bound is chosen automatically.
+Transport retries and page fallback receive only the remaining timeout. Expired
+work dispatches no new request and late successful responses are rejected.
+No return or next bound is chosen automatically.
 
 ## 0.6 → 0.7
 

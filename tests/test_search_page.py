@@ -54,7 +54,7 @@ def test_compact_rpc_rejection_uses_page_and_preserves_intent(rejected_exit):
     assert info.data[0].HasField('max_stops')
     assert list(info.data[0].airlines) == ['AA']
     assert params['gl'] == ['US']
-    assert kwargs['timeout'] == 17
+    assert 0 < kwargs['timeout'] <= 17
 
 
 def test_default_basic_exclusion_is_encoded(rejected_exit):
@@ -110,7 +110,7 @@ def test_multi_airport_rpc_rejection_preserves_native_page_route(rejected_exit, 
     assert info.seat == PB.Seat.BUSINESS and info.trip == PB.Trip.ONE_WAY
     assert list(info.passengers) == [1, 1, 2, 3, 4]
     assert info.exclude_basic_economy and info.exclude_separate_tickets
-    assert params['gl'] == ['US'] and kwargs['timeout'] == 17
+    assert params['gl'] == ['US'] and 0 < kwargs['timeout'] <= 17
 
 
 def test_actual_alternative_origin_survives_page_decode(rejected_exit):

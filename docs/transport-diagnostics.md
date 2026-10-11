@@ -22,6 +22,14 @@ request's concurrent workers may share its recorder; each query receives a
 separate ID through a derived transport config. No global request context is
 used and the original transport config is unchanged.
 
+`TransportConfig.timeout` covers one RPC operation, including retry waits and
+the optional shopping page fallback. Each HTTP attempt receives the remaining
+timeout. Exhausted work dispatches no further request, so it creates no attempt
+record. A retry delay that would leave no dispatch time fails immediately with
+HTTP 429, preserving time for caller failover. Actual retry waits contribute to
+`retry_wait_ms` and `elapsed_ms`, including a wait that overruns its deadline.
+Page send/body failures raise `SwoopTransportError` with the original cause.
+
 Snapshots expose:
 
 - Actual HTTP attempts, RPC/page attempts, and HTTP retry attempts. External

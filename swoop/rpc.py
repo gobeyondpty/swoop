@@ -42,6 +42,7 @@ from .exceptions import (
     SwoopUpstreamError,
 )
 from .models import CalendarDay, CalendarResult, Passengers, TransportConfig
+from ._transport_budget import remaining_timeout, transport_deadline
 from .diagnostics import measure_decode, measure_http, measure_retry_wait, observe_query, rpc_operation
 
 logger = logging.getLogger(__name__)
@@ -245,6 +246,7 @@ def _search_from_legs(
     show_all_results: bool = True,
 ) -> Optional[RawSearchResult]:
     """Search Google Flights from normalized leg definitions."""
+    deadline = transport_deadline(transport.timeout)
     encoded_body = _encode_f_req_payload(
         _build_filters_from_legs(
             legs,
@@ -261,6 +263,7 @@ def _search_from_legs(
         SHOPPING_RPC_URL,
         content=f"f.req={encoded_body}".encode(),
         transport=transport,
+        _deadline=deadline,
     )
 
     try:
@@ -274,12 +277,15 @@ def _search_from_legs(
             raise
         from ._search_page import fetch_search_page
 
+        remaining_timeout(deadline)
         result = fetch_search_page(
             _get_client(transport.proxy, transport.impersonate), legs,
             cabin=cabin, passengers=passengers, sort=sort,
             exclude_basic_economy=exclude_basic_economy, transport=transport,
             exclude_separate_tickets=exclude_separate_tickets,
+            _deadline=deadline,
         )
+    remaining_timeout(deadline)
     if isinstance(result, RawSearchResult):
         result._result_scope = result._result_scope or ("all" if show_all_results else "default")
         if not retain_raw:
@@ -443,6 +449,7 @@ def _post_with_retry(
     headers: dict[str, str],
     *,
     transport: TransportConfig = TransportConfig(),
+    _deadline: Optional[float] = None,
 ) -> Any:
     """POST with exponential-backoff retry on HTTP 429.
 
@@ -459,21 +466,24 @@ def _post_with_retry(
     import time
 
     short_url = url.split("/")[-1]
+    deadline = transport_deadline(transport.timeout, _deadline)
     # Always make at least one attempt: a negative `retries` (e.g. a stray
     # `--retries -1` from the CLI, which has no lower bound) would otherwise
     # make range() empty, fall off the end, and return None — crashing callers
     # that dereference `res.text`.
     for attempt in range(max(1, 1 + transport.retries)):
+        timeout = remaining_timeout(deadline)
         operation = rpc_operation(url)
         try:
             with measure_http(transport, operation, "rpc", "POST", attempt) as measurement:
-                res = client.post(url, content=body, headers=headers, timeout=transport.timeout)
+                res = client.post(url, content=body, headers=headers, timeout=timeout)
                 status_code = res.status_code
                 measurement.status_code = status_code
                 # Cache a deferred body read inside the typed transport boundary.
                 text = res.text if status_code == 200 else ""
                 if status_code == 200:
                     measurement.body(text)
+                    remaining_timeout(deadline)
         except SwoopError:
             raise
         except Exception as exc:
@@ -482,12 +492,21 @@ def _post_with_retry(
             logger.debug("HTTP 200 from %s (%d bytes)", short_url, len(text))
             return _HTTPResponse(status_code=status_code, text=text)
         if status_code == 429 and attempt < transport.retries:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise SwoopRateLimitError()
             delay = (2 ** attempt) + random.uniform(0, 1)
+            if delay >= remaining:
+                # A wait that leaves no time to dispatch cannot buy a retry.
+                # Return the remaining budget to caller-controlled failover.
+                raise SwoopRateLimitError()
             logger.info(
                 "HTTP 429 from %s, retrying in %.1fs (attempt %d/%d)",
                 short_url, delay, attempt + 1, transport.retries,
             )
             measure_retry_wait(transport, lambda: time.sleep(delay))
+            if time.monotonic() >= deadline:
+                raise SwoopRateLimitError()
             continue
         if status_code == 429:
             raise SwoopRateLimitError()
@@ -499,6 +518,7 @@ def _http_post(
     content: bytes,
     *,
     transport: TransportConfig = TransportConfig(),
+    _deadline: Optional[float] = None,
 ) -> Any:
     """POST with optional retry on 429 and timeout.
 
@@ -514,10 +534,12 @@ def _http_post(
         SwoopRateLimitError: If 429 persists after all retries.
         SwoopHTTPError: If a non-200/non-429 response is received.
     """
+    deadline = transport_deadline(transport.timeout, _deadline)
+    remaining_timeout(deadline)
     url = _apply_country(url, transport.country)
     client = _get_client(transport.proxy, transport.impersonate)
     headers = {"content-type": "application/x-www-form-urlencoded;charset=UTF-8"}
-    return _post_with_retry(client, url, content, headers, transport=transport)
+    return _post_with_retry(client, url, content, headers, transport=transport, _deadline=deadline)
 
 
 def _normalize_raw_airports(value: str | list[str], name: str) -> str | list[str]:

@@ -180,9 +180,10 @@ class DiagnosticsRecorder:
             if query is not None:
                 query.decode_ms += milliseconds
 
-    def _waited(self, milliseconds: float) -> None:
+    def _waited(self, started: float, finished: float) -> None:
         with self._lock:
-            self._retry_wait_ms += milliseconds
+            self._interval(started, finished)
+            self._retry_wait_ms += (finished - started) * 1000
 
 
 @dataclass
@@ -240,7 +241,7 @@ def measure_retry_wait(transport: Any, wait: Callable[[], None]) -> None:
     try:
         wait()
     finally:
-        transport.diagnostics._waited((perf_counter() - started) * 1000)
+        transport.diagnostics._waited(started, perf_counter())
 
 
 def rpc_operation(url: str) -> Literal["shopping", "booking", "calendar", "other"]:

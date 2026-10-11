@@ -21,7 +21,11 @@ class Passengers:
 
 @dataclass
 class TransportConfig:
-    """HTTP transport configuration for API requests."""
+    """HTTP transport configuration for API requests.
+
+    ``timeout`` is one total RPC budget, including HTTP 429 backoff and retries.
+    Shopping POSTs and their optional page fallback share that same budget.
+    """
 
     timeout: float = 90
     retries: int = 2

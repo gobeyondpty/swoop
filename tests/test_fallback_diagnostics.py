@@ -7,7 +7,7 @@ import swoop
 import swoop.diagnostics as diagnostics
 import swoop._search_page as page
 from swoop import rpc
-from swoop.exceptions import SwoopHTTPError, SwoopParseError, SwoopUpstreamError
+from swoop.exceptions import SwoopHTTPError, SwoopParseError, SwoopTransportError, SwoopUpstreamError
 from tests.factories import make_full_response
 from tests.test_search_page import rejected_exit
 
@@ -84,8 +84,9 @@ def test_failed_page_body_is_unknown_bytes_and_never_empty_inventory(rejected_ex
 
     monkeypatch.setattr(rejected_exit, "get", get)
     recorder = swoop.DiagnosticsRecorder()
-    with pytest.raises(TimeoutError):
+    with pytest.raises(SwoopTransportError) as raised:
         swoop.search("JFK", "LAX", "2026-11-15", transport=swoop.TransportConfig(diagnostics=recorder, retries=0))
+    assert isinstance(raised.value.__cause__, TimeoutError)
     snapshot = recorder.snapshot()
     assert snapshot.http_attempts == 2
     assert snapshot.attempts[-1].transport == "page"
