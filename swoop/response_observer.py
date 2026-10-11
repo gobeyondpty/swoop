@@ -45,7 +45,7 @@ def read_response_body(response: Any, transport: Any, *,
         text = response.text
         return text
     except Exception:
-        if response.status_code == 200 and required:
+        if required:
             raise
         return ""
     finally:

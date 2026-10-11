@@ -482,7 +482,7 @@ def _post_with_retry(
                 measurement.status_code = status_code
                 # Cache a deferred body read inside the typed transport boundary.
                 text = read_response_body(res, transport, operation=response_operation(url), phase="rpc",
-                    method="POST", retry_index=attempt) if status_code == 200 or transport.response_observer else ""
+                    method="POST", retry_index=attempt, required=status_code == 200) if status_code == 200 or transport.response_observer else ""
                 if status_code == 200:
                     measurement.body(text)
                     remaining_timeout(deadline)

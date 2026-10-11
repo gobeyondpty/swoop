@@ -90,7 +90,7 @@ TFS encoding here; reject them rather than return flights ignoring the intent.
             )
             measurement.status_code = response.status_code
             text = read_response_body(response, transport, operation="shopping", phase="page",
-                method="GET") if response.status_code == 200 or transport.response_observer else ""
+                method="GET", required=response.status_code == 200) if response.status_code == 200 or transport.response_observer else ""
             if response.status_code == 200:
                 measurement.body(text)
                 remaining_timeout(deadline)

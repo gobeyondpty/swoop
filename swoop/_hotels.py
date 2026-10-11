@@ -453,7 +453,7 @@ def _post_travel_rpc(
     for attempt in range(1 + transport.retries):
         res = client.post(url, content=body, headers=headers, timeout=transport.timeout)
         text = read_response_body(res, transport, operation="hotels", phase="rpc",
-            method="POST", retry_index=attempt) if res.status_code == 200 or transport.response_observer else ""
+            method="POST", retry_index=attempt, required=res.status_code == 200) if res.status_code == 200 or transport.response_observer else ""
         if res.status_code == 200:
             return _parse_batchexecute_response(text, rpc_id=rpc_id)
         if res.status_code == 429 and attempt < transport.retries:

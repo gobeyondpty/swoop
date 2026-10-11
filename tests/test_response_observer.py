@@ -142,3 +142,30 @@ def test_explore_bootstrap_is_observed_without_duplicate_page_read():
         transport=swoop.TransportConfig(response_observer=events.append))
     assert response.reads==client.gets==1 and events[0].body==response.body
     assert events[0].operation=='explore'
+
+
+@pytest.mark.parametrize('observe', [False, True])
+@pytest.mark.parametrize('operation', ['explore', 'hotels', 'hotel_prices', 'hotel_reviews'])
+def test_required_rejected_bootstrap_read_failure_never_dispatches_rpc(monkeypatch, observe, operation):
+    from swoop import _hotels
+    events = []
+    response = Response(503, TimeoutError('synthetic required bootstrap read'))
+    client = Client(response)
+    transport = swoop.TransportConfig(response_observer=events.append if observe else None)
+    if operation == 'explore':
+        call = lambda: _get_browser_params(client, 'https://example.test', key='required-bootstrap',
+            force_refresh=True, transport=transport)
+    else:
+        monkeypatch.setattr(_hotels, '_get_client', lambda *_: client)
+        if operation == 'hotels':
+            call = lambda: _hotels.fetch_hotels('Panama', check_in='2026-11-15', check_out='2026-11-16', transport=transport)
+        elif operation == 'hotel_prices':
+            call = lambda: _hotels.fetch_hotel_prices('synthetic-token', check_in='2026-11-15', check_out='2026-11-16', transport=transport)
+        else:
+            call = lambda: _hotels.fetch_hotel_reviews('synthetic-token', transport=transport)
+    with pytest.raises(TimeoutError):
+        call()
+    assert client.gets == response.reads == 1 and client.posts == 0
+    assert len(events) == int(observe)
+    if observe:
+        assert events[0].body is None and events[0].body_unavailable
