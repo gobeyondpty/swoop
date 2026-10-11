@@ -27,6 +27,7 @@ __version__ = "0.7.0"
 from .decoder import (
     AmenityFlags,
     BookingOption,
+    BookingSegmentDetails,
     CarbonEmissions,
     Codeshare,
     Segment,
@@ -1626,6 +1627,7 @@ __all__ = [
     "Itinerary",
     "Segment",
     "BookingOption",
+    "BookingSegmentDetails",
     "Codeshare",
     "Layover",
     "CarbonEmissions",
