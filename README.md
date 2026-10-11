@@ -460,6 +460,14 @@ Price a selected trip row by opaque selector and return `PriceResult | None`.
 
 Low-level single-pass search escape hatch. Returns `RawSearchResult` with raw `best` and `other` itinerary buckets from one RPC pass.
 
+`origin` and `destination` also accept nonempty lists of distinct IATA airport
+codes, for example `search_raw("JFK", ["ORD", "DFW", "AUS"], "2026-10-26",
+max_stops=0, airlines=["AA"])`. Alternatives share one native shopping request;
+each result's segments retain their actual departure and arrival airports.
+Google may select fewer results for a broad query, so verify the flights you
+need are present. This low-level feature does not change the high-level
+`search()` / `search_legs()` trip or selector API.
+
 ### `check_price(flight_number, *, origin, destination, date, **kwargs)`
 
 Look up the current bookable fare for a specific flight. Optimized for the "what does flight X cost?" use case.
