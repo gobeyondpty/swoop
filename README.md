@@ -489,6 +489,17 @@ Returns `PriceResult | None`. `PriceResult` has `price`, `currency`, `fare_brand
 
 Get fare options for a specific itinerary. Pass an `Itinerary` object directly, or a booking token string with explicit `origin`, `destination`, `date`, and `selected_legs`. Returns `list[BookingOption]` with `price`, `brand_label`, `brand_code`, `is_basic`, `fare_family`, `rebookability_signal`, plus seller fields `seller_name`, `seller_code`, `booking_url`, `logo_url`, and `is_airline_direct` for routing users to the actual booking page.
 
+Each option's `segment_details` contains ordered `BookingSegmentDetails` for all
+connecting flights when Google supplies matching segment descriptors and facts.
+Details include exact airports, offset local departure/arrival ISO datetimes,
+carrier/flight number, aircraft code, actual `cabin_class` (1=economy, 2=premium
+economy, 3=business, 4=first), `amenities`, `seat_type`, `seat_pitch_short`, and
+`legroom`. Mixed-cabin fares retain each segment's actual cabin. Missing facts
+stay `None` or empty; ambiguous identities or mismatched counts yield an empty
+list. Amenities expose Google's Wi-Fi code without claiming that access is free
+or included in the fare. The existing internal singular `_context_*` fields
+keep their previous behavior.
+
 ### `set_country(country_code)`
 
 Set the default country code for all subsequent requests. Controls point of sale, currency, and available fares. Pass `None` to clear.
