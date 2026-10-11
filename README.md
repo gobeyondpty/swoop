@@ -528,6 +528,10 @@ each result's segments retain their actual departure and arrival airports.
 Google may select fewer results for a broad query, so verify the flights you
 need are present. This low-level feature does not change the high-level
 `search()` / `search_legs()` trip or selector API.
+If the unsigned RPC is rejected, the public-page fallback cannot encode multiple
+airport alternatives; that request raises `SwoopUpstreamError` instead of
+silently searching only the first airport. Singleton airport lists preserve the
+same route and filters in the fallback.
 
 ### `check_price(flight_number, *, origin, destination, date, **kwargs)`
 
