@@ -20,10 +20,12 @@ def rejected_exit(monkeypatch):
     payload = json.loads((Path(__file__).parent / "fixtures/responses/shopping_oneway.json").read_text())
     class Client:
         gets = []
+        posts = []
         status = 200
         html = "<script>AF_initDataCallback({key: 'ds:1', hash:'1', data:" + json.dumps(payload) + ", sideChannel: {}});</script>"
         rejection = ['wrb.fr', None, None, None, None, [13]]
         def post(self, *args, **kwargs):
+            self.posts.append((args, kwargs))
             return SimpleNamespace(status_code=200, text=json.dumps([self.rejection]))
         def get(self, url, **kwargs):
             self.gets.append((url, kwargs))
@@ -78,6 +80,35 @@ def test_roundtrip_encodes_both_dates(rejected_exit):
     info = PB.Info.FromString(base64.b64decode(params['tfs'][0]))
     assert info.trip == PB.Trip.ROUND_TRIP
     assert [leg.date for leg in info.data] == ['2026-11-15', '2026-11-22']
+
+
+@pytest.mark.parametrize('origin,destination', [
+    (['JFK', 'LGA'], 'LAX'), ('JFK', ['LAX', 'SFO']),
+    (['JFK', 'LGA'], ['LAX', 'SFO']),
+])
+def test_multi_airport_rpc_rejection_never_collapses_to_page_route(rejected_exit, origin, destination):
+    with pytest.raises(SwoopUpstreamError) as exc:
+        swoop.search_raw(origin, destination, '2026-11-15', max_stops=0)
+    assert exc.value.grpc_code == 13 and exc.value.type_url is None
+    assert len(rejected_exit.posts) == 1
+    assert not rejected_exit.gets
+
+
+def test_singleton_airport_lists_preserve_the_page_intent(rejected_exit):
+    origins, destinations = ['JFK'], ['LAX']
+    result = swoop.search_raw(origins, destinations, '2026-11-15', cabin='business',
+                              passengers=swoop.Passengers(adults=2), max_stops=0,
+                              airlines=['AA'], return_date='2026-11-22')
+    assert result.best or result.other
+    assert len(rejected_exit.posts) == len(rejected_exit.gets) == 1
+    params = parse_qs(urlparse(rejected_exit.gets[0][0]).query)
+    info = PB.Info.FromString(base64.b64decode(params['tfs'][0]))
+    assert [(leg.from_flight.airport, leg.to_flight.airport, leg.date) for leg in info.data] == [
+        ('JFK', 'LAX', '2026-11-15'), ('LAX', 'JFK', '2026-11-22')]
+    assert info.seat == PB.Seat.BUSINESS
+    assert list(info.passengers) == [PB.Passenger.ADULT] * 2
+    assert all(leg.HasField('max_stops') and leg.max_stops == 0 and list(leg.airlines) == ['AA'] for leg in info.data)
+    assert origins == ['JFK'] and destinations == ['LAX']
 
 
 @pytest.mark.parametrize('leg_changes', [
