@@ -31,6 +31,7 @@ _SEGMENT_FIELDS = (
 _CONTEXT_FIELDS = (
     "query_legs", "selected_legs", "cabin", "passengers", "include_basic_economy",
     "sort", "exclude_separate_tickets", "show_all_results", "booking_token_hint",
+    "country",
 )
 
 
@@ -39,6 +40,15 @@ def _context_digest(payload: dict[str, Any]) -> str:
     if isinstance(context["passengers"], Passengers):
         context["passengers"] = asdict(context["passengers"])
     return hashlib.sha256(json.dumps(context, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def _country(value: Any) -> Optional[str]:
+    return value.upper() if isinstance(value, str) and re.fullmatch(r"[A-Za-z]{2}", value) else None
+
+
+def _require_budget(deadline: Optional[float]) -> None:
+    if deadline is not None and deadline - time.monotonic() <= 0:
+        raise SwoopTransportError("Google Flights pricing budget exhausted")
 
 
 def _clock(segment: Segment, departure: bool) -> str:
@@ -173,7 +183,8 @@ def _snapshot_itineraries(payload: dict[str, Any], hint: dict[str, Any]) -> list
 
 def make_pricing_hint(payload: dict[str, Any], itineraries: list[Itinerary]) -> Optional[dict[str, Any]]:
     """Keep only the selected flights, never raw responses, fares or candidates."""
-    if payload.get("exclude_separate_tickets") is not True or not payload.get("booking_token_hint"):
+    if (payload.get("exclude_separate_tickets") is not True or not payload.get("booking_token_hint")
+            or _country(payload.get("country")) is None):
         return None
     try:
         _validate_context(payload)
@@ -227,6 +238,8 @@ def try_hint_price(payload: dict[str, Any], *, transport: TransportConfig,
     hint = payload.get("pricing_hint")
     try:
         if (payload.get("exclude_separate_tickets") is not True or not isinstance(hint, dict)
+                or _country(payload.get("country")) is None
+                or _country(transport.country) != _country(payload.get("country"))
                 or type(hint.get("created_at")) is not int
                 or not 0 <= time.time() - hint["created_at"] <= MAX_HINT_AGE_SECONDS
                 or len(json.dumps(hint, separators=(",", ":")).encode()) > MAX_HINT_BYTES
@@ -258,14 +271,16 @@ def try_hint_price(payload: dict[str, Any], *, transport: TransportConfig,
         if exc.status_code != 410:  # GONE, rather than an outage or rate limit
             raise
         return None, 1
+    _require_budget(deadline)
     options = matching_booking_options(options, itineraries)
     choices = eligible(options, payload["include_basic_economy"], cabin=payload["cabin"])
+    _require_budget(deadline)
     if not choices:
         return None, 1
     best = min(choices, key=lambda option: option.price)
     final = itineraries[-1]
     final.direct_price, final.booking_token = best.price, token
-    return PriceResult(
+    result = PriceResult(
         price=best.price, currency=final.currency,
         fare_brand=best.brand_label or best.brand_code or None, is_basic_economy=best.is_basic,
         is_estimate=False, booking_options=options, itinerary=final, rpc_calls=1,
@@ -273,4 +288,6 @@ def try_hint_price(payload: dict[str, Any], *, transport: TransportConfig,
             flight_summary=f"{itinerary.segments[0].airline} {itinerary.segments[0].flight_number}",
             itinerary=itinerary, selection="explicit")
             for leg, itinerary in zip(payload["query_legs"], itineraries)],
-    ), 1
+    )
+    _require_budget(deadline)
+    return result, 1

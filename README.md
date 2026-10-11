@@ -523,6 +523,9 @@ uses the retained booking token in one booking RPC, without replaying a shopping
 request for each journey. The current response must match every flight in order,
 including both local departure and arrival times; passenger, cabin, and fare
 filters are preserved. These snapshots contain no cached fares or raw responses.
+The original and current explicit country settings must also match. A country
+set with `set_country` is captured for the search; unknown or changed countries
+use replay so a previous currency is never applied to a different point of sale.
 The returned booking options include their current segment facts; the itinerary
 contains the selected flights and duration, while optional shopping-only display
 metadata is not re-fetched on this path.
@@ -535,6 +538,8 @@ marked `is_estimate=True` when no exact booking option can be verified. Set
 `time_budget` to share one deadline across the token attempt, replay, and fresh
 booking lookup; bounded selector pricing disables internal HTTP retries so they
 cannot multiply that budget.
+Responses and completed manifest validation are checked against the deadline
+before a price can be returned.
 
 ### `search_raw(origin, destination, date, **kwargs)`
 

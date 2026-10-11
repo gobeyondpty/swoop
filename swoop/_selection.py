@@ -18,6 +18,7 @@ from ._pricing_hint import make_pricing_hint, matching_booking_options, try_hint
 from .rpc import (
     SORT_DEPARTURE_TIME,
     _build_selected_legs,
+    _effective_country,
     _normalize_rpc_leg,
     _search_from_legs,
     get_trip_booking_results,
@@ -81,6 +82,7 @@ def encode_trip_selector(
     sort: int = SORT_DEPARTURE_TIME,
     exclude_separate_tickets: bool = False,
     show_all_results: bool = True,
+    country: Optional[str] = None,
 ) -> str:
     payload = {
         "v": 1,
@@ -98,6 +100,7 @@ def encode_trip_selector(
         "show_all_results": show_all_results,
         "exclude_separate_tickets": exclude_separate_tickets,
         "booking_token_hint": itineraries[-1].booking_token or None,
+        "country": country.upper() if isinstance(country, str) else None,
     }
     hint = make_pricing_hint(payload, itineraries)
     if hint is not None:
@@ -200,6 +203,7 @@ def _build_trip_option(
     sort: int = SORT_DEPARTURE_TIME,
     exclude_separate_tickets: bool = False,
     show_all_results: bool = True,
+    country: Optional[str] = None,
 ) -> TripOption:
     return TripOption(
         selector=encode_trip_selector(
@@ -211,6 +215,7 @@ def _build_trip_option(
             sort=sort,
             show_all_results=show_all_results,
             exclude_separate_tickets=exclude_separate_tickets,
+            country=country,
         ),
         price=itineraries[-1].price,
         currency=itineraries[-1].currency,
@@ -356,6 +361,7 @@ def search_trip_options(
     exclude_separate_tickets: bool = False,
     show_all_results: bool = True,
 ) -> SearchResult:
+    transport = replace(transport, country=_effective_country(transport.country))
     coverage = _Coverage(show_all_results)
     if not request_legs:
         return coverage.result
@@ -389,7 +395,7 @@ def search_trip_options(
         return _build_trip_option(request_legs, prefix, cabin=cabin, passengers=passengers,
             include_basic_economy=include_basic_economy, sort=sort,
             show_all_results=show_all_results,
-            exclude_separate_tickets=exclude_separate_tickets)
+            exclude_separate_tickets=exclude_separate_tickets, country=transport.country)
 
     if not staged_search:
         coverage.result.results = [option([itinerary]) for itinerary in first_candidates]
@@ -549,6 +555,7 @@ def search_next_leg(
     final-bound result has ``is_resolved=True`` and can be exactly priced.
     """
     deadline = _deadline(time_budget if time_budget is not None else TIME_BUDGET_SECONDS)
+    transport = replace(transport, country=_effective_country(transport.country))
     payload = decode_trip_selector(selector)
     coverage = _Coverage(payload["show_all_results"])
     payload, legs, prefix, _ = resolve_trip_selector(selector, transport=transport,
@@ -568,7 +575,7 @@ def search_next_leg(
         cabin=payload["cabin"], passengers=payload["passengers"],
         include_basic_economy=payload["include_basic_economy"],
         sort=payload.get("sort", SORT_DEPARTURE_TIME), show_all_results=payload["show_all_results"],
-        exclude_separate_tickets=payload["exclude_separate_tickets"])
+        exclude_separate_tickets=payload["exclude_separate_tickets"], country=transport.country)
         for candidate in _iter_raw_itineraries(raw)]
     coverage.result.price_range = raw.price_range if raw else None
     return coverage.result
@@ -632,6 +639,7 @@ def price_selected_trip(
                 raise
             logger.debug("Trip booking lookup failed: %s", exc)
 
+    _budget_transport(transport, deadline)
     if strict_booking_manifest:
         booking_options = matching_booking_options(booking_options, itineraries)
     if booking_options:
@@ -642,6 +650,7 @@ def price_selected_trip(
         )
         if eligible:
             best_option = min(eligible, key=lambda option: option.price)
+            _budget_transport(transport, deadline)
             return PriceResult(
                 price=best_option.price,
                 currency=final_itinerary.currency,
@@ -654,6 +663,7 @@ def price_selected_trip(
                 rpc_calls=rpc_calls,
             )
 
+    _budget_transport(transport, deadline)
     if base_price is None or base_price <= 0:
         return None
 
@@ -731,6 +741,7 @@ def price_trip_selector(
     time_budget: Optional[float] = None,
 ) -> Optional[PriceResult]:
     deadline = _deadline(time_budget)
+    transport = replace(transport, country=_effective_country(transport.country))
     if deadline is not None:
         # A per-attempt HTTP timeout cannot bound several internal retries.
         # Selector pricing owns its one retained-token fallback and shares the

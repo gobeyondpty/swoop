@@ -416,9 +416,14 @@ def _get_client(proxy: Optional[str] = None, impersonate: Optional[str] = None) 
         return _clients[key]
 
 
+def _effective_country(country: Optional[str]) -> Optional[str]:
+    """Read the explicit request override or configured default point of sale."""
+    return country if country is not None else _default_country
+
+
 def _apply_country(url: str, country: Optional[str]) -> str:
     """Append ``?gl=XX`` to the URL if a country is set."""
-    effective = country if country is not None else _default_country
+    effective = _effective_country(country)
     if effective:
         sep = "&" if "?" in url else "?"
         return f"{url}{sep}gl={effective.upper()}"

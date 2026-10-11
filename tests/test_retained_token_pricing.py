@@ -10,6 +10,7 @@ import pytest
 
 import swoop._pricing_hint as hints
 import swoop._selection as selection
+import swoop.rpc as rpc
 from swoop.builders import ItinerarySummary
 from swoop.decoder import BookingOption, BookingSegmentDetails, Codeshare
 from swoop.exceptions import SwoopHTTPError, SwoopRateLimitError, SwoopTransportError, SwoopUpstreamError
@@ -17,7 +18,12 @@ from swoop.models import Passengers, TransportConfig
 from tests.factories import make_raw_result, make_simple_itinerary
 
 
-def _source(count=1):
+@pytest.fixture(autouse=True)
+def known_default_country(monkeypatch):
+    monkeypatch.setattr(rpc, "_default_country", "US")
+
+
+def _source(count=1, *, country="US"):
     routes = [("JFK", "LAX", "2026-11-15"), ("LAX", "JFK", "2026-11-22"),
               ("JFK", "BOS", "2026-11-23")][:count]
     legs = [selection._normalize_rpc_leg(origin, destination, date, airlines=["DL"],
@@ -29,7 +35,7 @@ def _source(count=1):
         trip.price_info = ItinerarySummary(flights="", price=41500, currency="USD")
     selector = selection.encode_trip_selector(request_legs=legs, itineraries=trips,
         cabin="economy", passengers=Passengers(adults=2, children=1),
-        include_basic_economy=False, exclude_separate_tickets=True)
+        include_basic_economy=False, exclude_separate_tickets=True, country=country)
     return selector, legs, trips
 
 
@@ -111,7 +117,7 @@ def test_sanitized_connecting_response_prices_through_real_rpc_decoder(monkeypat
     trip.price_info = ItinerarySummary(flights="", price=29900, currency="USD")
     selector = selection.encode_trip_selector(
         request_legs=[selection._normalize_rpc_leg("JFK", "PTY", "2026-10-26", airlines=["AA"])],
-        itineraries=[trip], cabin="first", include_basic_economy=False, exclude_separate_tickets=True)
+        itineraries=[trip], cabin="first", include_basic_economy=False, exclude_separate_tickets=True, country="US")
     wire = encode_rpc_outer([None, [[raw_option()]]])
     requests = []
     def post(url, **kwargs):
@@ -284,7 +290,7 @@ def test_held_codeshare_alias_may_match_but_unheld_alias_may_not(monkeypatch):
     _, legs, trips = _source()
     trips[0].segments[0].codeshares = [Codeshare(airline_code="AF", flight_number="0100")]
     selector = selection.encode_trip_selector(request_legs=legs, itineraries=trips, cabin="economy",
-        include_basic_economy=False, exclude_separate_tickets=True)
+        include_basic_economy=False, exclude_separate_tickets=True, country="US")
     option = _option(trips)
     option.segment_details[0].carrier_code = "AF"
     option.segment_details[0].flight_number = "100"
@@ -331,5 +337,83 @@ def test_exhausted_hint_budget_prevents_replay(monkeypatch):
     def book(*_args, **_kwargs): elapsed[0] += 8; return []
     monkeypatch.setattr(selection, "get_trip_booking_results", book)
     monkeypatch.setattr(selection, "_search_from_legs", lambda *_a, **_k: pytest.fail("deadline exhausted"))
+    with pytest.raises(SwoopTransportError):
+        selection.price_trip_selector(selector, time_budget=8)
+
+
+@pytest.mark.parametrize("original,current", [("us", "US"), ("US", "us")])
+def test_same_country_is_normalized_and_can_use_direct_pricing(monkeypatch, original, current):
+    selector, _, trips = _source(country=original)
+    assert selection.decode_trip_selector(selector)["country"] == "US"
+    monkeypatch.setattr(selection, "get_trip_booking_results", lambda *_a, **_k: [_option(trips)])
+    monkeypatch.setattr(selection, "_search_from_legs", lambda *_a, **_k: pytest.fail("normalized country replayed"))
+    assert selection.price_trip_selector(selector, transport=TransportConfig(country=current)).rpc_calls == 1
+
+
+@pytest.mark.parametrize("original,current", [(None, "US"), ("US", None), ("US", "JP"), ("", "US")])
+def test_unknown_or_changed_country_replays_and_uses_current_currency(monkeypatch, original, current):
+    selector, _, trips = _source(country=original)
+    monkeypatch.setattr(rpc, "_default_country", None)
+    calls, tokens = [], []
+    def fetch(_legs, **kwargs):
+        calls.append(kwargs["transport"].country)
+        fresh = deepcopy(trips[0])
+        fresh.booking_token = "fresh-token"
+        fresh.price_info = ItinerarySummary(flights="", price=40000, currency="JPY")
+        return make_raw_result(fresh)
+    monkeypatch.setattr(selection, "_search_from_legs", fetch)
+    monkeypatch.setattr(selection, "get_trip_booking_results", lambda token, *_a, **_k: tokens.append(token) or [_option(trips)])
+    result = selection.price_trip_selector(selector, transport=TransportConfig(country=current))
+    assert result.currency == "JPY" and result.price == 375 and result.rpc_calls == 2
+    assert calls == [current] and tokens == ["fresh-token"]
+
+
+def test_real_search_mints_country_binding_from_captured_transport(monkeypatch):
+    _, legs, trips = _source()
+    captured = []
+    def fetch(_legs, **kwargs):
+        captured.append(kwargs["transport"].country)
+        # Global config changes cannot rewrite the country used for this result.
+        monkeypatch.setattr(rpc, "_default_country", "JP")
+        return make_raw_result(trips[0])
+    monkeypatch.setattr(selection, "_search_from_legs", fetch)
+    result = selection.search_trip_options(legs, exclude_separate_tickets=True)
+    payload = selection.decode_trip_selector(result.results[0].selector)
+    assert captured == ["US"] and payload["country"] == "US" and payload["pricing_hint"]
+
+
+@pytest.mark.parametrize("phase", ["provider", "manifest-validation"])
+def test_late_success_is_rejected_after_provider_and_manifest_validation(monkeypatch, phase):
+    selector, _, trips = _source()
+    elapsed = [0.0]
+    monkeypatch.setattr(selection.time, "monotonic", lambda: elapsed[0])
+    def book(*_a, **_k):
+        if phase == "provider": elapsed[0] += 9
+        return [_option(trips)]
+    original_match = hints.matching_booking_options
+    def match(*args):
+        result = original_match(*args)
+        if phase == "manifest-validation": elapsed[0] += 9
+        return result
+    monkeypatch.setattr(selection, "get_trip_booking_results", book)
+    monkeypatch.setattr(hints, "matching_booking_options", match)
+    monkeypatch.setattr(selection, "_search_from_legs", lambda *_a, **_k: pytest.fail("late success replayed"))
+    with pytest.raises(SwoopTransportError):
+        selection.price_trip_selector(selector, time_budget=8)
+
+
+def test_late_success_after_replay_is_also_rejected(monkeypatch):
+    selector, _, trips = _source()
+    elapsed = [0.0]
+    monkeypatch.setattr(selection.time, "monotonic", lambda: elapsed[0])
+    def fetch(*_a, **_k):
+        elapsed[0] += 1
+        trip = deepcopy(trips[0]); trip.booking_token = "fresh-token"
+        return make_raw_result(trip)
+    def book(token, *_a, **_k):
+        elapsed[0] += 1 if token == "retained-token" else 7
+        return [] if token == "retained-token" else [_option(trips)]
+    monkeypatch.setattr(selection, "get_trip_booking_results", book)
+    monkeypatch.setattr(selection, "_search_from_legs", fetch)
     with pytest.raises(SwoopTransportError):
         selection.price_trip_selector(selector, time_budget=8)
