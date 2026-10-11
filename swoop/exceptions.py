@@ -40,8 +40,14 @@ the known codes.
 """
 
 
+from typing import Optional
+from .diagnostics import TransportDiagnostics
+
+
 class SwoopError(Exception):
     """Base exception for all swoop errors."""
+
+    diagnostics: Optional[TransportDiagnostics] = None
 
 
 class SwoopTransportError(SwoopError):

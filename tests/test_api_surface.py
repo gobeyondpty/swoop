@@ -89,6 +89,11 @@ class TestFrozenExports:
         "parse_flight_number",
         "itinerary_matches_flight",
         # Types
+        "DiagnosticsRecorder",
+        "HTTPAttempt",
+        "QueryBounds",
+        "QueryDiagnostics",
+        "TransportDiagnostics",
         "CabinClass",
         "CalendarPrice",
         "Deal",
@@ -143,7 +148,6 @@ class TestFrozenExports:
         "STOPS_ONE_OR_FEWER",
         "STOPS_TWO_OR_FEWER",
     }
-
     def test_all_matches_expected(self):
         actual = set(swoop.__all__)
         assert actual == self.EXPECTED_ALL
@@ -587,7 +591,7 @@ class TestFrozenDefaults:
 
     def test_transport_config_fields(self):
         from dataclasses import fields as dc_fields
-        expected = {"timeout", "retries", "country", "proxy", "impersonate"}
+        expected = {"timeout", "retries", "country", "proxy", "impersonate", "diagnostics", "_diagnostics_query_id"}
         actual = {f.name for f in dc_fields(TransportConfig)}
         assert actual == expected
 
@@ -673,3 +677,18 @@ class TestConstants:
             "business": 3,
             "first": 4,
         }
+
+
+def test_frozen_diagnostics_snapshot_fields():
+    expected = {
+        swoop.HTTPAttempt: {"query_id", "operation", "transport", "method", "retry_index",
+            "status_code", "network_ms", "response_bytes", "error_type"},
+        swoop.QueryBounds: {"origin_airports", "destination_airports", "date"},
+        swoop.QueryDiagnostics: {"query_id", "operation", "bounds", "bounds_available", "cabin",
+            "outcome", "raw_result_count", "decoded_result_count", "result_scope", "decode_ms", "error_type"},
+        swoop.TransportDiagnostics: {"http_attempts", "rpc_attempts", "page_attempts", "retry_attempts",
+            "elapsed_ms", "network_ms", "decode_ms", "retry_wait_ms", "response_bytes",
+            "responses_with_unknown_bytes", "attempts", "queries", "omitted_attempts", "omitted_queries"},
+    }
+    for model, names in expected.items():
+        assert {field.name for field in fields(model)} == names
