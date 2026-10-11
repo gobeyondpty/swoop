@@ -269,20 +269,10 @@ def _search_from_legs(
         # gets one alternate-transport attempt; detailed outages still raise.
         if exc.grpc_code != 13 or exc.type_url is not None:
             raise
-        # The page's TFS schema supports one airport per endpoint. A fallback
-        # must never silently narrow a native alternative-airport request.
-        if any(isinstance(leg.get(key), list) and len(leg[key]) != 1
-               for leg in legs for key in ("origin", "destination")):
-            raise
-        page_legs = [
-            {**leg, **{key: leg[key][0] if isinstance(leg[key], list) else leg[key]
-                       for key in ("origin", "destination")}}
-            for leg in legs
-        ]
         from ._search_page import fetch_search_page
 
         result = fetch_search_page(
-            _get_client(transport.proxy, transport.impersonate), page_legs,
+            _get_client(transport.proxy, transport.impersonate), legs,
             cabin=cabin, passengers=passengers, sort=sort,
             exclude_basic_economy=exclude_basic_economy, transport=transport,
             exclude_separate_tickets=exclude_separate_tickets,

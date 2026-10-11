@@ -39,6 +39,46 @@ and basic-economy exclusion. The existing protobuf's field 25 does preserve
 basic exclusion in our live check (31 flights/minimum USD 239 when included,
 30/minimum USD 294 when excluded). Sort order is applied to returned rows.
 
+Airport alternatives were verified on 2026-10-10 Panama time (2026-10-11 UTC)
+for a one-way, nonstop search on **2026-10-26**, JFK/EWR to LAX/BUR. Adding EWR
+and BUR in Google's own airport picker produced a TFS URL with repeated
+`Airport` messages at `FlightData` fields **13** (origins) and **14**
+(destinations). This is one search leg with endpoint alternatives. No extra
+legs or per-airport requests are needed. The sanitized actual URL parameter,
+response airport metadata, and representative flight facts are archived in
+`tests/fixtures/tfs/shopping_page_airport_alternatives.json`.
+
+A plain HTTP GET using that Google-generated TFS returned 42 rows and echoed
+both origin airports and both destination airports in the page's route
+metadata. A second GET using Swoop's existing minimal `Airport` message
+(field 2 only, leaving the Google UI's field 1 unset) also returned 42 rows
+and the same endpoint metadata. Both JFK and EWR appear as actual departure
+airports in returned flights. No BUR nonstop row was observed on that date;
+preserving an alternative in the request does not promise returned coverage
+for that airport. These probes searched metadata only; no booking or pricing
+selection was made.
+
+The implemented fallback was also probed with the same date and airport
+alternatives, business cabin, two adults, UA, nonstop, basic-economy exclusion,
+and separate-ticket exclusion. One page GET with the configured 17-second
+timeout returned 10 UA rows with actual EWR/LAX endpoints and the requested
+departure date. All encoded filters are covered by offline regressions;
+the live result is an acceptance observation, not a completeness guarantee.
+
+The fallback now preserves every explicitly requested airport alternative in
+one page GET on the existing client. It keeps the `limited` result scope and
+does not expand a caller's route into additional requests. The high-level
+`SearchLeg` API continues to take singular airports; alternatives are exposed
+by `search_raw()`. Singleton one-way and roundtrip TFS bytes, including all
+cabins, mixed passenger types, carrier/stops filters, basic-economy and
+separate-ticket flags, are pinned against the unmodified runtime in
+`tests/fixtures/tfs/tfs_singleton_baseline.json`.
+
+The upstream RPC proposals [PR #17](https://github.com/saraswatayu/swoop/pull/17)
+and [PR #32](https://github.com/saraswatayu/swoop/pull/32) describe RPC airport
+lists; PR #32 explicitly rejects alternatives on its protobuf path. The
+Google-produced TFS capture above establishes the independent page encoding.
+
 This is not full transport parity: selected itineraries, multi-city, and
 time-window filters remain explicit errors on a rejected exit. Page searches
 may expose fewer rows or passenger/cabin combinations than browser-driven

@@ -1,0 +1,98 @@
+[
+  {
+    "seat": 1,
+    "trip": 1,
+    "filters": false,
+    "tfs": "GhoSCjIwMjYtMTAtMjZqBRIDSkZLcgUSA0xBWBoaEgoyMDI2LTExLTAyagUSA0xBWHIFEgNKRktCAQFIAZgBAQ=="
+  },
+  {
+    "seat": 1,
+    "trip": 1,
+    "filters": true,
+    "tfs": "GiQSCjIwMjYtMTAtMjYoADICQUEyAkRMagUSA0pGS3IFEgNMQVgaJBIKMjAyNi0xMS0wMigAMgJBQTICRExqBRIDTEFYcgUSA0pGS0IFAQECAwRIAYgBAZgBAcgBAQ=="
+  },
+  {
+    "seat": 1,
+    "trip": 2,
+    "filters": false,
+    "tfs": "GhoSCjIwMjYtMTAtMjZqBRIDSkZLcgUSA0xBWEIBAUgBmAEC"
+  },
+  {
+    "seat": 1,
+    "trip": 2,
+    "filters": true,
+    "tfs": "GiQSCjIwMjYtMTAtMjYoADICQUEyAkRMagUSA0pGS3IFEgNMQVhCBQEBAgMESAGIAQGYAQLIAQE="
+  },
+  {
+    "seat": 2,
+    "trip": 1,
+    "filters": false,
+    "tfs": "GhoSCjIwMjYtMTAtMjZqBRIDSkZLcgUSA0xBWBoaEgoyMDI2LTExLTAyagUSA0xBWHIFEgNKRktCAQFIApgBAQ=="
+  },
+  {
+    "seat": 2,
+    "trip": 1,
+    "filters": true,
+    "tfs": "GiQSCjIwMjYtMTAtMjYoADICQUEyAkRMagUSA0pGS3IFEgNMQVgaJBIKMjAyNi0xMS0wMigAMgJBQTICRExqBRIDTEFYcgUSA0pGS0IFAQECAwRIAogBAZgBAcgBAQ=="
+  },
+  {
+    "seat": 2,
+    "trip": 2,
+    "filters": false,
+    "tfs": "GhoSCjIwMjYtMTAtMjZqBRIDSkZLcgUSA0xBWEIBAUgCmAEC"
+  },
+  {
+    "seat": 2,
+    "trip": 2,
+    "filters": true,
+    "tfs": "GiQSCjIwMjYtMTAtMjYoADICQUEyAkRMagUSA0pGS3IFEgNMQVhCBQEBAgMESAKIAQGYAQLIAQE="
+  },
+  {
+    "seat": 3,
+    "trip": 1,
+    "filters": false,
+    "tfs": "GhoSCjIwMjYtMTAtMjZqBRIDSkZLcgUSA0xBWBoaEgoyMDI2LTExLTAyagUSA0xBWHIFEgNKRktCAQFIA5gBAQ=="
+  },
+  {
+    "seat": 3,
+    "trip": 1,
+    "filters": true,
+    "tfs": "GiQSCjIwMjYtMTAtMjYoADICQUEyAkRMagUSA0pGS3IFEgNMQVgaJBIKMjAyNi0xMS0wMigAMgJBQTICRExqBRIDTEFYcgUSA0pGS0IFAQECAwRIA4gBAZgBAcgBAQ=="
+  },
+  {
+    "seat": 3,
+    "trip": 2,
+    "filters": false,
+    "tfs": "GhoSCjIwMjYtMTAtMjZqBRIDSkZLcgUSA0xBWEIBAUgDmAEC"
+  },
+  {
+    "seat": 3,
+    "trip": 2,
+    "filters": true,
+    "tfs": "GiQSCjIwMjYtMTAtMjYoADICQUEyAkRMagUSA0pGS3IFEgNMQVhCBQEBAgMESAOIAQGYAQLIAQE="
+  },
+  {
+    "seat": 4,
+    "trip": 1,
+    "filters": false,
+    "tfs": "GhoSCjIwMjYtMTAtMjZqBRIDSkZLcgUSA0xBWBoaEgoyMDI2LTExLTAyagUSA0xBWHIFEgNKRktCAQFIBJgBAQ=="
+  },
+  {
+    "seat": 4,
+    "trip": 1,
+    "filters": true,
+    "tfs": "GiQSCjIwMjYtMTAtMjYoADICQUEyAkRMagUSA0pGS3IFEgNMQVgaJBIKMjAyNi0xMS0wMigAMgJBQTICRExqBRIDTEFYcgUSA0pGS0IFAQECAwRIBIgBAZgBAcgBAQ=="
+  },
+  {
+    "seat": 4,
+    "trip": 2,
+    "filters": false,
+    "tfs": "GhoSCjIwMjYtMTAtMjZqBRIDSkZLcgUSA0xBWEIBAUgEmAEC"
+  },
+  {
+    "seat": 4,
+    "trip": 2,
+    "filters": true,
+    "tfs": "GiQSCjIwMjYtMTAtMjYoADICQUEyAkRMagUSA0pGS3IFEgNMQVhCBQEBAgMESASIAQGYAQLIAQE="
+  }
+]

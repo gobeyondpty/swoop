@@ -5,12 +5,13 @@ builder and decoder; do not launch a browser or borrow another exit's session.
 """
 from __future__ import annotations
 
+import base64
 import json
 import re
 from typing import Any
 from urllib.parse import urlencode
 
-from .builders import CABIN_CLASS_MAP, CabinClass, SearchLeg, TFSData, _PBPassengers
+from .builders import CABIN_CLASS_MAP, CabinClass, TFSData, _PBPassengers, _apply_tfs_leg
 from .decoder import RawSearchResult, decode_result
 from .exceptions import SwoopHTTPError, SwoopParseError, SwoopRateLimitError, SwoopUpstreamError
 from .models import Passengers, TransportConfig
@@ -56,10 +57,7 @@ TFS encoding here; reject them rather than return flights ignoring the intent.
                 or legs[0]["destination"] != legs[1]["origin"]))):
         raise SwoopUpstreamError(13)
     tfs = TFSData(
-        flight_data=[SearchLeg(
-            date=leg["date"], from_airport=leg["origin"], to_airport=leg["destination"],
-            max_stops=leg.get("max_stops"), airlines=leg.get("airlines"),
-        ) for leg in legs],
+        flight_data=[],
         seat=CABIN_CLASS_MAP[cabin], trip=2 if len(legs) == 1 else 1,
         passengers=_PBPassengers(
             adults=passengers.adults, children=passengers.children,
@@ -68,7 +66,13 @@ TFS encoding here; reject them rather than return flights ignoring the intent.
         exclude_basic_economy=exclude_basic_economy,
         exclude_separate_tickets=exclude_separate_tickets,
     )
-    params = {"tfs": tfs.as_b64().decode(), "hl": "en"}
+    info = tfs.pb()
+    for leg in legs:
+        _apply_tfs_leg(
+            info, date=leg["date"], origin=leg["origin"], destination=leg["destination"],
+            max_stops=leg.get("max_stops"), airlines=leg.get("airlines"),
+        )
+    params = {"tfs": base64.b64encode(info.SerializeToString()).decode(), "hl": "en"}
     if transport.country:
         params["gl"] = transport.country.upper()
     response = client.get(
