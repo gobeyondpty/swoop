@@ -360,18 +360,34 @@ class PriceInsights:
     populated on the page-transport fallback (and on any response that happens
     to carry it) and otherwise absent.
 
-    ``price_level`` is Google's raw indicator, exposed uninterpreted: observed
-    values are 1 (low), 3 (high) and 5 (very high), but the scale and its
-    breakpoints are not pinned, so do not read it as a stable enum.
+    Observed live 2026-10-11 (JFK->LAX 2026-11-15, economy/business/first):
+
+    * The block is **per search cabin**: economy and business returned the same
+      ~61 daily points but different values on every field, and premium economy
+      returned no block at all on that route. Read it for the cabin you asked
+      for, not as a route-wide statistic.
+    * ``history`` is one point per day ending today (61 points over the trailing
+      60 days), directly plottable.
+    * ``typical_price`` tracks the **current cheapest fare**, not a historical
+      average: it equalled both the page's cheapest row and the last history
+      point (229 economy, 805 business).
+    * ``lowest_seen`` / ``highest_seen`` are **not** the history's min/max; they
+      reflect a longer tracking window than the graph (economy 90/270 against a
+      178-249 series), so the band can sit outside the plotted range.
+
+    ``price_level`` is Google's raw indicator, exposed uninterpreted: 1, 3, 4 and
+    5 were all observed, and the scale and its breakpoints are not pinned, so do
+    not read it as a stable enum. ``data[5][6]`` is the cabin code
+    (1 economy / 3 business / 4 first observed) and is intentionally not exposed.
     """
-    price_level: Optional[int] = None       # [0] raw level indicator (1/3/5 observed; scale unpinned)
-    typical_price: Optional[int] = None     # [1][1] current/typical price
-    low_price: Optional[int] = None         # [2][1] lowest fare for the route
-    price_difference: Optional[int] = None  # [3][1] delta vs typical (negative = cheaper)
-    lowest_seen: Optional[int] = None       # [4][1] lowest price seen in the tracking window
-    highest_seen: Optional[int] = None      # [5][1] highest price seen in the tracking window
+    price_level: Optional[int] = None       # [0] raw level indicator (1/3/4/5 observed; scale unpinned)
+    typical_price: Optional[int] = None     # [1][1] current cheapest fare (tracks the live best price)
+    low_price: Optional[int] = None         # [2][1] usual/low fare for the route
+    price_difference: Optional[int] = None  # [3][1] delta vs the usual band (negative = cheaper)
+    lowest_seen: Optional[int] = None       # [4][1] lowest over the tracking window (may predate the 60-day graph)
+    highest_seen: Optional[int] = None      # [5][1] highest over the tracking window (may predate the 60-day graph)
     destination_city: Optional[str] = None  # [12] destination city name
-    history: List[PriceInsightPoint] = field(default_factory=list)  # [10][0] [[ts_ms, price], ...]
+    history: List[PriceInsightPoint] = field(default_factory=list)  # [10][0] [[ts_ms, price], ...], one point/day
 
 
 @dataclass

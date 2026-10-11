@@ -66,13 +66,13 @@ This is the data behind Google Flights' "Price insights" panel. Not currently ac
 
 | Index | Type | Meaning | Example |
 |-------|------|---------|---------|
-| **[0]** | int | **Price level indicator** — observed values: 1 (low), 3 (high), 5 (very high). Scale and exact breakpoints TBD | 3 |
+| **[0]** | int | **Price level indicator** — observed values 1, 3, 4, 5 (varies by cabin: 4 economy / 3 business / 3 first on one route). Scale and breakpoints unpinned | 3 |
 | **[1]** | [null, int] | **Current/typical price** (USD) | [null, 321] |
 | **[2]** | [null, int] | **Low price** for this route (USD) | [null, 264] |
 | **[3]** | [null, int] | **Price difference** from typical (negative = cheaper) | [null, -57] |
 | **[4]** | [null, int] | **Lowest price seen** in tracking window | [null, 225] |
 | **[5]** | [null, int] | **Highest price seen** in tracking window | [null, 395] |
-| **[6]** | int | **Flag** — always 1 in observed data | 1 |
+| **[6]** | int | **Cabin code** — 1 economy / 3 business / 4 first (observed live 2026-10-11); earlier "always 1" was an economy-only sample | 1 |
 | **[7]** | [int, [null, int]] | **Time period metadata** — first value may be months of history, second is delta or threshold | [5, [null, 35]] |
 | **[8-9]** | null | Unused | — |
 | **[10]** | Array | **Price history graph** — `[0]` contains array of `[timestamp_ms, price_usd]` pairs. Typically ~60 data points covering ~60 days | See below |
