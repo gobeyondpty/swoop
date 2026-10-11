@@ -16,6 +16,7 @@ from .decoder import RawSearchResult, decode_result
 from .exceptions import SwoopError, SwoopHTTPError, SwoopParseError, SwoopRateLimitError, SwoopTransportError, SwoopUpstreamError
 from ._transport_budget import remaining_timeout, transport_deadline
 from .models import Passengers, TransportConfig
+from .response_observer import read_response_body
 from .diagnostics import measure_decode, measure_http
 
 _DATA_START = re.compile(
@@ -88,7 +89,8 @@ TFS encoding here; reject them rather than return flights ignoring the intent.
                 timeout=timeout,
             )
             measurement.status_code = response.status_code
-            text = response.text if response.status_code == 200 else ""
+            text = read_response_body(response, transport, operation="shopping", phase="page",
+                method="GET") if response.status_code == 200 or transport.response_observer else ""
             if response.status_code == 200:
                 measurement.body(text)
                 remaining_timeout(deadline)

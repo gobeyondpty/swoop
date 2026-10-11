@@ -724,3 +724,18 @@ Amenity flags are scoped to that segment's cabin. An absent Wi-Fi tier means
 unknown availability; it does not establish that Wi-Fi is unavailable or included
 in a fare. The raw tier should not be used to promise a free service without
 checking the applicable carrier/fare terms.
+
+### Optional raw response observation
+
+`TransportConfig(response_observer=callback)` calls a caller-owned callback with
+`ResponseBody` before decoding each actual RPC/page response. It includes a finite
+operation/transport label, HTTP status, retry index and decoded response text;
+there are no request URLs, headers or credentials in the metadata. Successful,
+malformed, rejected and unreadable responses are observable without an extra
+request. A failed body read produces `body=None, body_unavailable=True`; a failing
+callback cannot change the provider outcome. HTTP rejection bodies are read only
+when observation is enabled. Existing flight timeout checks still cover this work.
+
+The SDK does not retain the event or add it to results, exceptions or caches.
+Callers must bound their retention, keep raw data private and redact at their
+storage boundary. `DiagnosticsRecorder` remains body-free.

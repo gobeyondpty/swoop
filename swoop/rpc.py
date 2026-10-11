@@ -42,6 +42,7 @@ from .exceptions import (
     SwoopUpstreamError,
 )
 from .models import CalendarDay, CalendarResult, Passengers, TransportConfig
+from .response_observer import read_response_body, response_operation
 from ._transport_budget import remaining_timeout, transport_deadline
 from .diagnostics import measure_decode, measure_http, measure_retry_wait, observe_query, rpc_operation
 
@@ -480,7 +481,8 @@ def _post_with_retry(
                 status_code = res.status_code
                 measurement.status_code = status_code
                 # Cache a deferred body read inside the typed transport boundary.
-                text = res.text if status_code == 200 else ""
+                text = read_response_body(res, transport, operation=response_operation(url), phase="rpc",
+                    method="POST", retry_index=attempt) if status_code == 200 or transport.response_observer else ""
                 if status_code == 200:
                     measurement.body(text)
                     remaining_timeout(deadline)

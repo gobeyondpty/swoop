@@ -110,6 +110,7 @@ class TestFrozenExports:
         "HotelSearchResult",
         "Passengers",
         "TransportConfig",
+        "ResponseBody",
         "CalendarDay",
         "CalendarResult",
         "PriceResult",
@@ -591,7 +592,7 @@ class TestFrozenDefaults:
 
     def test_transport_config_fields(self):
         from dataclasses import fields as dc_fields
-        expected = {"timeout", "retries", "country", "proxy", "impersonate", "diagnostics", "_diagnostics_query_id"}
+        expected = {"timeout", "retries", "country", "proxy", "impersonate", "diagnostics", "response_observer", "_diagnostics_query_id"}
         actual = {f.name for f in dc_fields(TransportConfig)}
         assert actual == expected
 

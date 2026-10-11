@@ -25,6 +25,7 @@ from __future__ import annotations
 __version__ = "0.7.0"
 
 from .diagnostics import DiagnosticsRecorder, HTTPAttempt, QueryBounds, QueryDiagnostics, TransportDiagnostics
+from .response_observer import ResponseBody
 
 from .decoder import (
     AmenityFlags,
@@ -1617,6 +1618,7 @@ __all__ = [
     "HotelSearchResult",
     "Passengers",
     "TransportConfig",
+    "ResponseBody",
     "CalendarDay",
     "CalendarResult",
     "PriceResult",

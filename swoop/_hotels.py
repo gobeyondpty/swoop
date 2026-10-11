@@ -26,6 +26,7 @@ from .models import (
     TransportConfig,
 )
 from .rpc import _apply_country, _get_client
+from .response_observer import read_response_body
 
 logger = logging.getLogger(__name__)
 
@@ -451,8 +452,10 @@ def _post_travel_rpc(
 
     for attempt in range(1 + transport.retries):
         res = client.post(url, content=body, headers=headers, timeout=transport.timeout)
+        text = read_response_body(res, transport, operation="hotels", phase="rpc",
+            method="POST", retry_index=attempt) if res.status_code == 200 or transport.response_observer else ""
         if res.status_code == 200:
-            return _parse_batchexecute_response(res.text, rpc_id=rpc_id)
+            return _parse_batchexecute_response(text, rpc_id=rpc_id)
         if res.status_code == 429 and attempt < transport.retries:
             delay = (2 ** attempt) + random.uniform(0, 1)
             logger.info(
@@ -1338,9 +1341,10 @@ def fetch_hotels(
         headers={"accept": "text/html", "accept-language": "en-US,en;q=0.9"},
         timeout=transport.timeout,
     )
-    browser_params = _extract_browser_params(page_res.text)
+    page_text = read_response_body(page_res, transport, operation="hotels", phase="page", method="GET")
+    browser_params = _extract_browser_params(page_text)
     page_result = _parse_hotels_page_html(
-        page_res.text,
+        page_text,
         query=query,
         check_in=check_in,
         check_out=check_out,
@@ -1619,7 +1623,8 @@ def fetch_hotel_prices(
         headers={"accept": "text/html", "accept-language": "en-US,en;q=0.9"},
         timeout=transport.timeout,
     )
-    browser_params = _extract_browser_params(page_res.text)
+    page_text = read_response_body(page_res, transport, operation="hotels", phase="page", method="GET")
+    browser_params = _extract_browser_params(page_text)
     universal_data = _post_travel_rpc(
         client,
         UNIVERSAL_SEARCH_RPC,
@@ -1685,12 +1690,13 @@ def fetch_hotel_reviews(
         headers={"accept": "text/html", "accept-language": "en-US,en;q=0.9"},
         timeout=transport.timeout,
     )
+    page_text = read_response_body(page_res, transport, operation="hotels", phase="page", method="GET")
     data = _post_travel_rpc(
         client,
         HOTEL_REVIEWS_RPC,
         _build_reviews_payload(hotel_token),
         page_url=page_url,
-        browser_params=_extract_browser_params(page_res.text),
+        browser_params=_extract_browser_params(page_text),
         transport=transport,
     )
     return parse_hotel_reviews_payload(data, hotel_token=hotel_token)
