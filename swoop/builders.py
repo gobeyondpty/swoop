@@ -44,6 +44,10 @@ def _normalize_airlines(airlines: Optional[List[str]]) -> Optional[List[str]]:
     return normalized
 
 
+def _upper_endpoint(value: str | List[str]) -> str | List[str]:
+    return value.upper() if isinstance(value, str) else [code.upper() for code in value]
+
+
 def _apply_tfs_leg(
     info: PB.Info, *, date: str, origin: str | list[str],
     destination: str | list[str], max_stops: Optional[int] = None,
@@ -75,8 +79,9 @@ class SearchLeg:
 
     Args:
         date: Departure date (YYYY-MM-DD).
-        from_airport: Origin IATA code.
-        to_airport: Destination IATA code.
+        from_airport: Origin IATA code, or a list of alternative airports (a
+            metro area) sent together in one native Google shopping pass.
+        to_airport: Destination IATA code, or a list of alternative airports.
         max_stops: Maximum number of stops. None = any.
         airlines: Filter to these airline IATA codes.
     """
@@ -87,14 +92,14 @@ class SearchLeg:
         self,
         *,
         date: str,
-        from_airport: str,
-        to_airport: str,
+        from_airport: str | List[str],
+        to_airport: str | List[str],
         max_stops: Optional[int] = None,
         airlines: Optional[List[str]] = None,
     ):
         self.date = date
-        self.from_airport = from_airport.upper()
-        self.to_airport = to_airport.upper()
+        self.from_airport = _upper_endpoint(from_airport)
+        self.to_airport = _upper_endpoint(to_airport)
         self.max_stops = max_stops
 
         self.airlines = _normalize_airlines(airlines)

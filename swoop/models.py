@@ -40,7 +40,11 @@ class TransportConfig:
 
 @dataclass
 class TripLeg:
-    """A single requested leg paired with its resolved itinerary."""
+    """A single requested leg paired with its resolved itinerary.
+
+    ``origin``/``destination`` echo a single requested airport; a leg requested
+    with alternative airports resolves them to the itinerary's real airports.
+    """
 
     origin: str
     destination: str

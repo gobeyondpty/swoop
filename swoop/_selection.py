@@ -19,6 +19,7 @@ from .rpc import (
     SORT_DEPARTURE_TIME,
     _build_selected_legs,
     _effective_country,
+    _normalize_raw_airports,
     _normalize_rpc_leg,
     _search_from_legs,
     get_trip_booking_results,
@@ -148,6 +149,16 @@ def decode_trip_selector(selector: str) -> dict[str, Any]:
     return payload
 
 
+def _at_endpoint(airport: Any, endpoint: str | list[str]) -> bool:
+    """An airport satisfies a requested endpoint when it is that airport or one of its alternatives."""
+    return airport == endpoint if isinstance(endpoint, str) else airport in endpoint
+
+
+def _resolved_endpoint(requested: str | list[str], actual: str) -> str:
+    """A single requested airport is echoed; an alternative set resolves to the itinerary's real airport."""
+    return requested if isinstance(requested, str) else str(actual)
+
+
 def _resolved_leg_from_itinerary(
     itinerary: Itinerary,
     *,
@@ -184,8 +195,8 @@ def _trip_legs_from_itineraries(
 ) -> list[TripLeg]:
     return [
         TripLeg(
-            origin=str(request_legs[index]["origin"]),
-            destination=str(request_legs[index]["destination"]),
+            origin=_resolved_endpoint(request_legs[index]["origin"], itinerary.departure_airport_code),
+            destination=_resolved_endpoint(request_legs[index]["destination"], itinerary.arrival_airport_code),
             date=str(request_legs[index]["date"]),
             itinerary=_clone_leg_itinerary(itinerary),
         )
@@ -490,14 +501,15 @@ def resolve_trip_selector(
     try:
         validate_cabin(payload["cabin"])
         for index, leg in enumerate(request_legs):
-            validate_iata_code(leg["origin"], "origin")
-            validate_iata_code(leg["destination"], "destination")
+            _normalize_raw_airports(leg["origin"], "origin")
+            _normalize_raw_airports(leg["destination"], "destination")
             validate_date(leg["date"], "date")
             if index < len(selected_legs):
                 flights = selected_legs[index]
                 if not all(isinstance(flight, list) and len(flight) == 6 for flight in flights):
                     raise ValueError("invalid selected segments")
-                if flights[0][0] != leg["origin"] or flights[-1][2] != leg["destination"] or flights[0][1] != leg["date"]:
+                if (not _at_endpoint(flights[0][0], leg["origin"]) or not _at_endpoint(flights[-1][2], leg["destination"])
+                        or flights[0][1] != leg["date"]):
                     raise ValueError("selected segments do not match requested bounds")
                 for flight_index, flight in enumerate(flights):
                     validate_iata_code(flight[0], "selected origin")
@@ -604,8 +616,8 @@ def price_selected_trip(
     resolved_legs = [
         _resolved_leg_from_itinerary(
             itinerary,
-            origin=str(request_legs[index]["origin"]),
-            destination=str(request_legs[index]["destination"]),
+            origin=_resolved_endpoint(request_legs[index]["origin"], itinerary.departure_airport_code),
+            destination=_resolved_endpoint(request_legs[index]["destination"], itinerary.arrival_airport_code),
             date=str(request_legs[index]["date"]),
             selection=selections[index],
         )

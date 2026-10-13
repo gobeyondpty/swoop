@@ -118,7 +118,7 @@ from ._validate import (
     validate_search_params,
     validate_time_range,
 )
-from .rpc import _normalize_rpc_leg
+from .rpc import _normalize_raw_airports, _normalize_rpc_leg
 
 logger = logging.getLogger(__name__)
 
@@ -156,8 +156,8 @@ def _validate_leg_search_inputs(
     validate_adults(passengers.adults)
 
     for idx, leg in enumerate(legs):
-        validate_iata_code(leg.from_airport, f"legs[{idx}].from_airport")
-        validate_iata_code(leg.to_airport, f"legs[{idx}].to_airport")
+        _normalize_raw_airports(leg.from_airport, f"legs[{idx}].from_airport")
+        _normalize_raw_airports(leg.to_airport, f"legs[{idx}].to_airport")
         validate_date(leg.date, f"legs[{idx}].date")
 
     if leg_time_windows:

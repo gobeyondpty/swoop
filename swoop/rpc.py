@@ -544,6 +544,9 @@ def _http_post(
     return _post_with_retry(client, url, content, headers, transport=transport, _deadline=deadline)
 
 
+MAX_AIRPORT_ALTERNATIVES = 10
+
+
 def _normalize_raw_airports(value: str | list[str], name: str) -> str | list[str]:
     """Validate explicit airport alternatives without changing legacy strings."""
     if isinstance(value, str):
@@ -556,6 +559,9 @@ def _normalize_raw_airports(value: str | list[str], name: str) -> str | list[str
         validate_iata_code(code, name)
     if len(set(value)) != len(value):
         raise ValueError(f"{name} airport alternatives must not contain duplicates")
+    if len(value) > MAX_AIRPORT_ALTERNATIVES:
+        # Live 2026-10-13: 10 alternatives on one side are accepted, 11 answer gRPC 3 INVALID_ARGUMENT.
+        raise ValueError(f"{name} accepts at most {MAX_AIRPORT_ALTERNATIVES} airport alternatives")
     return list(value)
 
 
