@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update dependency minimums to primp 2.0.1, protobuf 7.36.2, Click 8.5.0,
+  Rich 15.0.0, Babel 2.18.0, and Hatchling 1.32.4.
+- Update the validation extra to airportsdata 20260905 on Python 3.11+;
+  pin Python 3.10 to its last compatible release, 2026.6.24, whose dotted
+  version otherwise sorts below older date-based releases.
+
 ### Added
 
 - `calendar()` / `get_calendar()` return `CalendarResult` and `CalendarDay`
