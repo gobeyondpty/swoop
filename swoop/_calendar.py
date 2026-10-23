@@ -11,6 +11,7 @@ from typing import Any, Optional
 from .builders import CabinClass
 from .decoder import _decode_price_info, _safe_get, raise_if_error_envelope
 from .exceptions import SwoopParseError
+from .diagnostics import measure_decode
 from .models import CalendarDay, CalendarResult, Passengers, TransportConfig
 from .rpc import (
     _build_filters_from_legs,
@@ -219,7 +220,8 @@ def _fetch_calendar(
         content=("f.req=" + _encode_f_req_payload(payload)).encode(),
         transport=transport,
     )
-    return _parse_calendar_days(response.text, endpoint=method)
+    with measure_decode(transport):
+        return _parse_calendar_days(response.text, endpoint=method)
 
 
 def calendar_prices(

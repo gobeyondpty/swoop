@@ -295,3 +295,22 @@ def test_stream_metadata_before_price_cells():
     frames = cal._calendar_frames((FIXTURES / "grid_rt.json").read_text())
     frames.insert(0, ["wrb.fr", None, json.dumps([[None, []], None])])
     assert len(cal._parse_calendar_prices(json.dumps(frames))) == 4
+
+
+@pytest.mark.parametrize("method", ["GetCalendarGrid", "GetCalendarPicker", "GetCalendarGraph"])
+def test_consolidated_calendars_preserve_decode_diagnostics_and_operation_labels(monkeypatch, method):
+    import swoop.diagnostics as diagnostics
+    from swoop.response_observer import response_operation
+    clock = [0.0]
+    monkeypatch.setattr(diagnostics, "perf_counter", lambda: clock[0])
+    monkeypatch.setattr(cal, "_http_post", lambda *_a, **_kw: SimpleNamespace(text="synthetic"))
+    def parse(*_args, **_kwargs):
+        clock[0] += 0.025
+        return []
+    monkeypatch.setattr(cal, "_parse_calendar_days", parse)
+    recorder = swoop.DiagnosticsRecorder()
+    cal._fetch_calendar(method, "JFK", "LAX", "2026-12-03", "2026-12-04",
+        transport=swoop.TransportConfig(diagnostics=recorder))
+    assert recorder.snapshot().decode_ms == pytest.approx(25)
+    url = cal._RPC_ROOT + method + "?gl=US"
+    assert diagnostics.rpc_operation(url) == response_operation(url) == "calendar"

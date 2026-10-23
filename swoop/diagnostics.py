@@ -250,7 +250,7 @@ def rpc_operation(url: str) -> Literal["shopping", "booking", "calendar", "other
         return "shopping"
     if endpoint == "GetBookingResults":
         return "booking"
-    if endpoint == "GetCalendarPicker":
+    if endpoint in ("GetCalendarPicker", "GetCalendarGrid", "GetCalendarGraph"):
         return "calendar"
     return "other"
 

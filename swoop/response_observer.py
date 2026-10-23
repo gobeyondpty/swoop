@@ -25,7 +25,8 @@ class ResponseBody:
 def response_operation(url: str) -> ResponseOperation:
     # Only the finite operation label leaves this function, never the URL.
     operations: dict[str, ResponseOperation] = {"GetShoppingResults": "shopping", "GetBookingResults": "booking",
-        "GetCalendarGraph": "calendar", "GetFlightDealsStreaming": "deals",
+        "GetCalendarGraph": "calendar", "GetCalendarGrid": "calendar",
+        "GetCalendarPicker": "calendar", "GetFlightDealsStreaming": "deals",
         "GetExploreDestinations": "explore"}
     return operations.get(url.split("?")[0].rsplit("/", 1)[-1], "other")
 
