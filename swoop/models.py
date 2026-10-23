@@ -32,8 +32,10 @@ class TransportConfig:
     currency: Optional[str] = None
 
     def __post_init__(self) -> None:
+        if self.country is not None and not isinstance(self.country, str):
+            raise ValueError("country must be a string when provided")
         if self.currency is not None:
-            if len(self.currency) != 3 or not self.currency.isascii() or not self.currency.isalpha():
+            if not isinstance(self.currency, str) or len(self.currency) != 3 or not self.currency.isascii() or not self.currency.isalpha():
                 raise ValueError("currency must be a three-letter ISO 4217 code")
             self.currency = self.currency.upper()
 
