@@ -11,7 +11,7 @@ from typing import Any, Optional
 
 from .builders import CabinClass
 from ._pricing import _validate_pricing, _validate_routing
-from ._validate import parse_flight_number, validate_cabin, validate_date, validate_iata_code, validate_adults
+from ._validate import parse_flight_number, validate_cabin, validate_date, validate_iata_code, validate_adults, validate_time_range
 from .decoder import Itinerary, RawSearchResult, itinerary_matches_flight
 from .exceptions import SwoopError, SwoopTransportError, SwoopUpstreamError
 from .models import Passengers, PriceResult, ResolvedLeg, SearchResult, TransportConfig, TripLeg, TripOption
@@ -550,6 +550,12 @@ def resolve_trip_selector(
         _validate_pricing(payload.get("carry_on_bags", 0), payload.get("checked_bags", 0), payload.get("max_price"))
         validate_cabin(payload["cabin"])
         validate_adults(payload["passengers"].adults)
+        party = payload["passengers"]
+        if any(type(count) is not int or count < 0 for count in (
+                party.adults, party.children, party.infants_in_seat, party.infants_on_lap)):
+            raise ValueError("invalid selector passenger counts")
+        if type(payload.get("sort", SORT_DEPARTURE_TIME)) is not int:
+            raise ValueError("invalid selector sort")
         for index, leg in enumerate(request_legs):
             _validate_routing(leg.get("max_duration"), leg.get("connecting_airports"),
                               leg.get("exclude_connecting_airports"), leg.get("min_layover_duration"),
@@ -557,6 +563,16 @@ def resolve_trip_selector(
             _normalize_raw_airports(leg["origin"], "origin")
             _normalize_raw_airports(leg["destination"], "destination")
             validate_date(leg["date"], "date")
+            stops = leg.get("max_stops")
+            if stops is not None and (type(stops) is not int or stops < 0):
+                raise ValueError("invalid selector stop filter")
+            airlines = leg.get("airlines")
+            if airlines is not None and (not isinstance(airlines, list)
+                    or not all(isinstance(code, str) for code in airlines)):
+                raise ValueError("invalid selector airline filter")
+            for field, minimum, maximum in (("earliest_departure", 0, 23), ("latest_departure", 1, 24),
+                    ("earliest_arrival", 0, 23), ("latest_arrival", 1, 24)):
+                validate_time_range(leg.get(field), field, minimum, maximum)
             if index < len(selected_legs):
                 flights = selected_legs[index]
                 if not all(isinstance(flight, list) and len(flight) == 6 for flight in flights):
@@ -568,6 +584,8 @@ def resolve_trip_selector(
                     validate_iata_code(flight[0], "selected origin")
                     validate_iata_code(flight[2], "selected destination")
                     validate_date(flight[1], "selected date")
+                    if not isinstance(flight[4], str) or not isinstance(flight[5], str):
+                        raise ValueError("invalid selected flight identity")
                     parse_flight_number(f"{flight[4]}{flight[5]}")
                     if flight_index and flights[flight_index - 1][2] != flight[0]:
                         raise ValueError("selected segments are disconnected")
