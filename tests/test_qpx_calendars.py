@@ -295,3 +295,44 @@ def test_stream_metadata_before_price_cells():
     frames = cal._calendar_frames((FIXTURES / "grid_rt.json").read_text())
     frames.insert(0, ["wrb.fr", None, json.dumps([[None, []], None])])
     assert len(cal._parse_calendar_prices(json.dumps(frames))) == 4
+
+
+@pytest.mark.parametrize("name", ["calendar_prices", "get_calendar", "get_price_graph"])
+@pytest.mark.parametrize("kwargs", [
+    {"earliest_departure": -1}, {"earliest_departure": 24}, {"earliest_departure": "9"},
+    {"latest_departure": 0}, {"latest_departure": 25},
+    {"earliest_arrival": -1}, {"earliest_arrival": 24},
+    {"latest_arrival": 0}, {"latest_arrival": 25}, {"latest_arrival": []},
+    {"return_earliest_departure": -1}, {"return_latest_departure": 25},
+    {"earliest_departure": 9, "latest_departure": 9},
+    {"earliest_departure": 18, "latest_departure": 9},
+    {"earliest_arrival": 9, "latest_arrival": 9},
+    {"earliest_arrival": 18, "latest_arrival": 9},
+    {"return_earliest_departure": 9, "return_latest_departure": 9},
+    {"return_earliest_departure": 18, "return_latest_departure": 9},
+])
+def test_calendar_time_validation_precedes_rpc(calendar_wire, name, kwargs):
+    with pytest.raises(ValueError):
+        getattr(swoop, name)("JFK", "LAX", "2026-12-03", "2026-12-04", **kwargs)
+    assert calendar_wire == []
+
+
+@pytest.mark.parametrize("name", ["calendar_prices", "get_calendar", "get_price_graph"])
+def test_calendar_outbound_window_does_not_restrict_the_return(calendar_wire, name):
+    stay = {"return_start": "2026-12-08", "return_end": "2026-12-09"} if name == "calendar_prices" else {"min_stay": 5}
+    getattr(swoop, name)("JFK", "LAX", "2026-12-03", "2026-12-04",
+        earliest_departure=9, latest_departure=18, earliest_arrival=12, latest_arrival=24, **stay)
+    legs = calendar_wire[-1][1][1][13]
+    assert legs[0][2] == [9, 18, 12, 24]
+    assert legs[1][2] is None
+
+
+@pytest.mark.parametrize("name", ["calendar_prices", "get_calendar", "get_price_graph"])
+def test_calendar_return_has_its_own_departure_window(calendar_wire, name):
+    stay = {"return_start": "2026-12-08", "return_end": "2026-12-09"} if name == "calendar_prices" else {"min_stay": 5}
+    getattr(swoop, name)("JFK", "LAX", "2026-12-03", "2026-12-04",
+        earliest_departure=0, latest_departure=24, earliest_arrival=0, latest_arrival=24,
+        return_earliest_departure=10, return_latest_departure=20, **stay)
+    legs = calendar_wire[-1][1][1][13]
+    assert legs[0][2] == [0, 24, 0, 24]
+    assert legs[1][2] == [10, 20, None, None]

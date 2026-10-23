@@ -641,6 +641,8 @@ class TestCalendarSurface:
             "latest_departure",
             "earliest_arrival",
             "latest_arrival",
+            "return_earliest_departure",
+            "return_latest_departure",
             "transport",
         ]
         assert list(inspect.signature(swoop.calendar_prices).parameters) == [
