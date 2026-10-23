@@ -37,6 +37,8 @@ from .decoder import (
     Itinerary,
     Layover,
     PriceRange,
+    PriceInsightPoint,
+    PriceInsights,
     QualitySignals,
     RawSearchResult,
     itinerary_matches_flight,
@@ -1735,6 +1737,8 @@ __all__ = [
     "Layover",
     "CarbonEmissions",
     "PriceRange",
+    "PriceInsightPoint",
+    "PriceInsights",
     "AmenityFlags",
     "QualitySignals",
     # Exceptions

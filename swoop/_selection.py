@@ -443,6 +443,7 @@ def search_trip_options(
     if not staged_search:
         coverage.result.results = [option([itinerary]) for itinerary in first_candidates]
         coverage.result.price_range = first_pass.price_range if first_pass else None
+        coverage.result.price_insights = first_pass.price_insights if first_pass else None
         return coverage.result
 
     if len(first_candidates) > beam_width:

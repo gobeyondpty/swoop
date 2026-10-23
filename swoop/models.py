@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from typing import Callable, Literal, Optional
 
 from ._regions import Region
-from .decoder import BookingOption, Itinerary, PriceRange, _flight_summary_repr
+from .decoder import BookingOption, Itinerary, PriceInsights, PriceRange, _flight_summary_repr
 from .diagnostics import DiagnosticsRecorder
 from .response_observer import ResponseBody
 
@@ -106,6 +106,7 @@ class SearchResult:
 
     results: list[TripOption] = field(default_factory=list)
     price_range: Optional[PriceRange] = None
+    price_insights: Optional[PriceInsights] = None
     is_complete: bool = True
     # Completeness is relative to the requested provider list, never all market
     # inventory. A shortened or fallback list is explicitly labelled.
@@ -133,6 +134,8 @@ class SearchResult:
                 parts.append(f"price_range={lo}-?")
             else:
                 parts.append(f"price_range=?-{hi}")
+        if self.price_insights and self.price_insights.typical_price is not None:
+            parts.append(f"typical_price={self.price_insights.typical_price}")
         if not self.is_complete:
             parts.append("incomplete")
         return f"SearchResult({', '.join(parts)})"
