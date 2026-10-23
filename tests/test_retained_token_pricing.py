@@ -350,7 +350,7 @@ def test_same_country_is_normalized_and_can_use_direct_pricing(monkeypatch, orig
     assert selection.price_trip_selector(selector, transport=TransportConfig(country=current)).rpc_calls == 1
 
 
-@pytest.mark.parametrize("original,current", [(None, "US"), ("US", None), ("US", "JP"), ("", "US")])
+@pytest.mark.parametrize("original,current", [(None, "US"), ("US", "JP"), ("", "US")])
 def test_unknown_or_changed_country_replays_and_uses_current_currency(monkeypatch, original, current):
     selector, _, trips = _source(country=original)
     monkeypatch.setattr(rpc, "_default_country", None)
@@ -417,3 +417,51 @@ def test_late_success_after_replay_is_also_rejected(monkeypatch):
     monkeypatch.setattr(selection, "_search_from_legs", fetch)
     with pytest.raises(SwoopTransportError):
         selection.price_trip_selector(selector, time_budget=8)
+
+
+def test_default_transport_restores_selector_point_of_sale(monkeypatch):
+    selector, _, trips = _source(country="US")
+    monkeypatch.setattr(rpc, "_default_country", "JP")
+    countries = []
+    def book(*_args, **kwargs):
+        countries.append(kwargs["transport"].country)
+        return [_option(trips)]
+    monkeypatch.setattr(selection, "get_trip_booking_results", book)
+    monkeypatch.setattr(selection, "_search_from_legs", lambda *_a, **_k: pytest.fail("saved POS replayed"))
+    assert selection.price_trip_selector(selector).rpc_calls == 1
+    assert countries == ["US"]
+
+
+def test_retained_booking_preserves_qpx_filters_and_currency(monkeypatch):
+    _, legs, trips = _source()
+    legs[0].update(max_duration=600, connecting_airports=["ATL"], min_layover_duration=45)
+    trips[0].price_info = ItinerarySummary(flights="", price=41500, currency="JPY")
+    selector = selection.encode_trip_selector(request_legs=legs, itineraries=trips,
+        cabin="economy", include_basic_economy=False, exclude_separate_tickets=True,
+        transport=TransportConfig(country="US", currency="JPY"),
+        carry_on_bags=1, checked_bags=2, max_price=400)
+    requests = []
+    def book(_token, query, **kwargs):
+        requests.append((query, kwargs))
+        return [_option(trips, 375), _option(trips, 420)]
+    monkeypatch.setattr(selection, "get_trip_booking_results", book)
+    monkeypatch.setattr(selection, "_search_from_legs", lambda *_a, **_k: pytest.fail("fresh QPX selection replayed"))
+    result = selection.price_trip_selector(selector)
+    assert result.currency == "JPY" and result.price == 375 and result.rpc_calls == 1
+    query, kwargs = requests[0]
+    assert query[0]["max_duration"] == 600 and query[0]["connecting_airports"] == ["ATL"]
+    assert kwargs["carry_on_bags"] == 1 and kwargs["checked_bags"] == 2 and kwargs["max_price"] == 400
+    assert (kwargs["transport"].country, kwargs["transport"].currency) == ("US", "JPY")
+
+
+@pytest.mark.parametrize("field,value", [("carry_on_bags", 1), ("checked_bags", 2), ("max_price", 500), ("currency", "JPY")])
+def test_changed_qpx_context_replays_instead_of_reusing_retained_token(monkeypatch, field, value):
+    selector, _, trips = _source()
+    payload = selection.decode_trip_selector(selector)
+    payload[field] = value
+    selector = _encode(payload)
+    calls = _replay(monkeypatch, trips)
+    tokens = []
+    monkeypatch.setattr(selection, "get_trip_booking_results", lambda token, *_a, **_k: tokens.append(token) or [_option(trips)])
+    assert selection.price_trip_selector(selector) is not None
+    assert len(calls) == 1 and tokens == ["fresh-token"]

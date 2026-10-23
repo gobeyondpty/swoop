@@ -88,6 +88,12 @@ class TestFrozenExports:
         "set_proxy",
         "parse_flight_number",
         "itinerary_matches_flight",
+        "calendar_prices",
+        "get_calendar",
+        "get_price_graph",
+        "CalendarPrice",
+        "CalendarDay",
+        "CalendarResult",
         # Types
         "DiagnosticsRecorder",
         "HTTPAttempt",
@@ -456,6 +462,16 @@ class TestSearchSignature:
             "transport",
             "max_results", "beam_width", "time_budget", "expand_legs", "exclude_separate_tickets", "show_all_results",
         ]
+        expected += [
+            "carry_on_bags",
+            "checked_bags",
+            "max_price",
+            "max_duration",
+            "connecting_airports",
+            "exclude_connecting_airports",
+            "min_layover_duration",
+            "max_layover_duration",
+        ]
         assert param_names == expected
 
     def test_search_raw_params(self):
@@ -472,6 +488,16 @@ class TestSearchSignature:
             "transport",
             "exclude_basic_economy", "exclude_separate_tickets", "show_all_results",
         ]
+        expected += [
+            "carry_on_bags",
+            "checked_bags",
+            "max_price",
+            "max_duration",
+            "connecting_airports",
+            "exclude_connecting_airports",
+            "min_layover_duration",
+            "max_layover_duration",
+        ]
         assert param_names == expected
 
     def test_check_price_params(self):
@@ -484,6 +510,16 @@ class TestSearchSignature:
             "max_stops", "include_basic_economy",
             "exclude_separate_tickets", "transport",
         ]
+        expected += [
+            "carry_on_bags",
+            "checked_bags",
+            "max_price",
+            "max_duration",
+            "connecting_airports",
+            "exclude_connecting_airports",
+            "min_layover_duration",
+            "max_layover_duration",
+        ]
         assert param_names == expected
 
     def test_search_legs_params(self):
@@ -495,6 +531,7 @@ class TestSearchSignature:
             "include_basic_economy", "transport",
             "max_results", "beam_width", "time_budget", "expand_legs", "exclude_separate_tickets", "show_all_results",
         ]
+        expected += ["carry_on_bags", "checked_bags", "max_price"]
         assert param_names == expected
 
     def test_price_legs_params(self):
@@ -503,6 +540,16 @@ class TestSearchSignature:
         expected = [
             "legs", "cabin", "passengers",
             "include_basic_economy", "exclude_separate_tickets", "transport",
+        ]
+        expected += [
+            "carry_on_bags",
+            "checked_bags",
+            "max_price",
+            "max_duration",
+            "connecting_airports",
+            "exclude_connecting_airports",
+            "min_layover_duration",
+            "max_layover_duration",
         ]
         assert param_names == expected
 
@@ -589,10 +636,11 @@ class TestFrozenDefaults:
         assert tc.country is None
         assert tc.proxy is None
         assert tc.impersonate is None
+        assert tc.currency is None
 
     def test_transport_config_fields(self):
         from dataclasses import fields as dc_fields
-        expected = {"timeout", "retries", "country", "proxy", "impersonate", "diagnostics", "response_observer", "_diagnostics_query_id"}
+        expected = {"timeout", "retries", "country", "proxy", "impersonate", "diagnostics", "response_observer", "_diagnostics_query_id", "currency"}
         actual = {f.name for f in dc_fields(TransportConfig)}
         assert actual == expected
 
@@ -693,3 +741,76 @@ def test_frozen_diagnostics_snapshot_fields():
     }
     for model, names in expected.items():
         assert {field.name for field in fields(model)} == names
+
+class TestCalendarSurface:
+    def test_calendar_models(self):
+        assert {f.name for f in fields(swoop.CalendarPrice)} == {
+            "departure_date",
+            "return_date",
+            "price",
+            "currency",
+        }
+        assert {f.name for f in fields(swoop.CalendarDay)} == {
+            "departure_date",
+            "return_date",
+            "price",
+            "currency",
+            "selector",
+        }
+        assert {f.name for f in fields(swoop.CalendarResult)} == {"days"}
+
+    def test_routing_fields(self):
+        assert set(SearchLeg.__slots__) == {
+            "date",
+            "from_airport",
+            "to_airport",
+            "max_stops",
+            "airlines",
+            "max_duration",
+            "connecting_airports",
+            "exclude_connecting_airports",
+            "min_layover_duration",
+            "max_layover_duration",
+        }
+
+    def test_calendar_filters(self):
+        shared = [
+            "cabin",
+            "passengers",
+            "max_stops",
+            "airlines",
+            "exclude_basic_economy",
+            "exclude_separate_tickets",
+            "carry_on_bags",
+            "checked_bags",
+            "max_price",
+            "max_duration",
+            "connecting_airports",
+            "exclude_connecting_airports",
+            "min_layover_duration",
+            "max_layover_duration",
+            "earliest_departure",
+            "latest_departure",
+            "earliest_arrival",
+            "latest_arrival",
+            "transport",
+        ]
+        assert list(inspect.signature(swoop.calendar_prices).parameters) == [
+            "origin",
+            "destination",
+            "departure_start",
+            "departure_end",
+            "return_start",
+            "return_end",
+            *shared,
+        ]
+        for fn in [swoop.get_calendar, swoop.get_price_graph]:
+            assert list(inspect.signature(fn).parameters) == [
+                "origin",
+                "destination",
+                "window_start",
+                "window_end",
+                "min_stay",
+                "max_stay",
+                *shared,
+            ]

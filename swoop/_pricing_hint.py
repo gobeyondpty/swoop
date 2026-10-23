@@ -15,6 +15,7 @@ from datetime import datetime
 from typing import Any, Callable, Optional
 
 from .builders import ItinerarySummary
+from ._pricing import _validate_pricing, _validate_routing
 from ._validate import parse_flight_number, validate_cabin, validate_date, validate_iata_code, validate_time_range
 from .decoder import BookingOption, Codeshare, Itinerary, Segment
 from .exceptions import SwoopHTTPError, SwoopTransportError, SwoopUpstreamError
@@ -31,7 +32,7 @@ _SEGMENT_FIELDS = (
 _CONTEXT_FIELDS = (
     "query_legs", "selected_legs", "cabin", "passengers", "include_basic_economy",
     "sort", "exclude_separate_tickets", "show_all_results", "booking_token_hint",
-    "country",
+    "country", "currency", "carry_on_bags", "checked_bags", "max_price",
 )
 
 
@@ -88,6 +89,7 @@ def _validate_party(passengers: Passengers) -> None:
 
 def _validate_context(payload: dict[str, Any]) -> None:
     """Do not bypass the selector's original validation on the short path."""
+    _validate_pricing(payload.get("carry_on_bags", 0), payload.get("checked_bags", 0), payload.get("max_price"))
     validate_cabin(payload["cabin"])
     if not isinstance(payload["include_basic_economy"], bool):
         raise ValueError("invalid selector fare filter")
@@ -97,6 +99,7 @@ def _validate_context(payload: dict[str, Any]) -> None:
     if type(payload["sort"]) is not int:
         raise ValueError("invalid selector sort")
     for leg in payload["query_legs"]:
+        _validate_routing(leg.get("max_duration"), leg.get("connecting_airports"), leg.get("exclude_connecting_airports"), leg.get("min_layover_duration"), leg.get("max_layover_duration"))
         validate_iata_code(leg["origin"], "origin")
         validate_iata_code(leg["destination"], "destination")
         validate_date(leg["date"], "date")
@@ -240,6 +243,7 @@ def try_hint_price(payload: dict[str, Any], *, transport: TransportConfig,
         if (payload.get("exclude_separate_tickets") is not True or not isinstance(hint, dict)
                 or _country(payload.get("country")) is None
                 or _country(transport.country) != _country(payload.get("country"))
+                or transport.currency != payload.get("currency")
                 or type(hint.get("created_at")) is not int
                 or not 0 <= time.time() - hint["created_at"] <= MAX_HINT_AGE_SECONDS
                 or len(json.dumps(hint, separators=(",", ":")).encode()) > MAX_HINT_BYTES
@@ -250,6 +254,8 @@ def try_hint_price(payload: dict[str, Any], *, transport: TransportConfig,
         if not isinstance(token, str) or not token.strip():
             return None, 0
         itineraries = _snapshot_itineraries(payload, hint)
+        if transport.currency is not None and any(i.currency != transport.currency for i in itineraries):
+            return None, 0
         _validate_context(payload)
     except (ValueError, TypeError, KeyError, AttributeError):
         return None, 0
@@ -262,7 +268,8 @@ def try_hint_price(payload: dict[str, Any], *, transport: TransportConfig,
             for leg, flights in zip(payload["query_legs"], payload["selected_legs"])]
     try:
         options = load(token, legs, cabin=payload["cabin"], passengers=payload["passengers"],
-                       exclude_separate_tickets=True, transport=transport)
+                       exclude_separate_tickets=True, transport=transport,
+                       carry_on_bags=payload.get("carry_on_bags", 0), checked_bags=payload.get("checked_bags", 0), max_price=payload.get("max_price"))
     except SwoopUpstreamError as exc:
         if exc.grpc_code != 5:  # NOT_FOUND: the retained selection no longer exists
             raise
@@ -275,6 +282,8 @@ def try_hint_price(payload: dict[str, Any], *, transport: TransportConfig,
     options = matching_booking_options(options, itineraries)
     choices = eligible(options, payload["include_basic_economy"], cabin=payload["cabin"])
     _require_budget(deadline)
+    if payload.get("max_price") is not None:
+        choices = [option for option in choices if option.price <= payload["max_price"]]
     if not choices:
         return None, 1
     best = min(choices, key=lambda option: option.price)

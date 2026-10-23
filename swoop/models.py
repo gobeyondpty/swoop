@@ -26,6 +26,9 @@ class TransportConfig:
 
     ``timeout`` is one total RPC budget, including HTTP 429 backoff and retries.
     Shopping POSTs and their optional page fallback share that same budget.
+
+    HTTP settings. ``country`` selects the point of sale; ``currency``
+    independently selects the display currency (ISO 4217), when provided.
     """
 
     timeout: float = 90
@@ -36,6 +39,14 @@ class TransportConfig:
     diagnostics: Optional[DiagnosticsRecorder] = field(default=None, repr=False, compare=False)
     response_observer: Optional[Callable[[ResponseBody], None]] = field(default=None, repr=False, compare=False)
     _diagnostics_query_id: Optional[int] = field(default=None, repr=False, compare=False)
+
+    currency: Optional[str] = None
+
+    def __post_init__(self) -> None:
+        if self.currency is not None:
+            if len(self.currency) != 3 or not self.currency.isascii() or not self.currency.isalpha():
+                raise ValueError("currency must be a three-letter ISO 4217 code")
+            self.currency = self.currency.upper()
 
 
 @dataclass

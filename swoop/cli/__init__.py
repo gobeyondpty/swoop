@@ -4,6 +4,7 @@ import click
 
 from .. import __version__
 from .commands import (
+    calendar_cmd,
     deals_cmd,
     explore_cmd,
     hotel_prices_cmd,
@@ -32,3 +33,5 @@ main.add_command(explore_cmd)
 main.add_command(hotels_cmd)
 main.add_command(hotel_prices_cmd)
 main.add_command(hotel_reviews_cmd)
+
+main.add_command(calendar_cmd)

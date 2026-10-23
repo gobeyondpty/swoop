@@ -47,6 +47,9 @@ def fetch_search_page(
     transport: TransportConfig,
     exclude_separate_tickets: bool = False,
     _deadline: Optional[float] = None,
+    carry_on_bags: int = 0,
+    checked_bags: int = 0,
+    max_price: int | None = None,
 ) -> RawSearchResult:
     """Make one page request, preserving supported search constraints.
 
@@ -68,6 +71,7 @@ TFS encoding here; reject them rather than return flights ignoring the intent.
             adults=passengers.adults, children=passengers.children,
             infants_in_seat=passengers.infants_in_seat, infants_on_lap=passengers.infants_on_lap,
         ),
+        carry_on_bags=carry_on_bags, checked_bags=checked_bags, max_price=max_price,
         exclude_basic_economy=exclude_basic_economy,
         exclude_separate_tickets=exclude_separate_tickets,
     )
@@ -76,8 +80,13 @@ TFS encoding here; reject them rather than return flights ignoring the intent.
         _apply_tfs_leg(
             info, date=leg["date"], origin=leg["origin"], destination=leg["destination"],
             max_stops=leg.get("max_stops"), airlines=leg.get("airlines"),
+            max_duration=leg.get("max_duration"), connecting_airports=leg.get("connecting_airports"),
+            exclude_connecting_airports=leg.get("exclude_connecting_airports"),
+            min_layover_duration=leg.get("min_layover_duration"), max_layover_duration=leg.get("max_layover_duration"),
         )
     params = {"tfs": base64.b64encode(info.SerializeToString()).decode(), "hl": "en"}
+    if transport.currency:
+        params["curr"] = transport.currency
     if transport.country:
         params["gl"] = transport.country.upper()
     timeout = remaining_timeout(deadline)
