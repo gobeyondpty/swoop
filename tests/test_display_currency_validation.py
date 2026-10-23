@@ -66,3 +66,25 @@ def test_malformed_stops_are_rejected_before_building_a_request(monkeypatch, val
     with pytest.raises(ValueError):
         selection.resolve_trip_selector(selector)
     assert selection.price_trip_selector(selector) is None
+@pytest.mark.parametrize("path,value", [
+    (("passengers", "children"), []), (("passengers", "infants_in_seat"), {}),
+    (("sort",), []), (("sort",), "3"),
+    (("query_legs", 0, "airlines"), [1]), (("query_legs", 0, "airlines"), {"AA": 1}),
+    (("query_legs", 0, "earliest_departure"), {}), (("query_legs", 0, "latest_arrival"), "18"),
+    (("selected_legs", 0, 0, 0), {}), (("selected_legs", 0, 0, 4), []),
+])
+def test_legacy_filter_shapes_cannot_trigger_fallback_builder_errors(monkeypatch, path, value):
+    payload = _selector_payload()
+    target = payload
+    for part in path[:-1]:
+        target = target[part]
+    target[path[-1]] = value
+    _assert_no_rpc(monkeypatch, payload)
+
+
+def _assert_no_rpc(monkeypatch, payload):
+    monkeypatch.setattr(selection, "_search_from_legs", lambda *_a, **_k: pytest.fail("invalid selector reached shopping"))
+    selector = selection.SELECTOR_PREFIX + selection._encode_payload(payload)
+    with pytest.raises(ValueError):
+        selection.resolve_trip_selector(selector)
+    assert selection.price_trip_selector(selector) is None
