@@ -81,6 +81,9 @@ def _run_search(
     timeout, retries,
     country, proxy,
     max_results, beam_width, time_budget,
+    carry_on_bags=0, checked_bags=0, max_price=None,
+    max_duration=None, connecting_airports=(), exclude_connecting_airports=(),
+    min_layover_duration=None, max_layover_duration=None,
 ):
     """Run swoop.search() with the given parameters. Returns the result."""
     import swoop
@@ -110,6 +113,14 @@ def _run_search(
         origin,
         destination,
         date,
+        carry_on_bags=carry_on_bags,
+        checked_bags=checked_bags,
+        max_price=max_price,
+        max_duration=max_duration,
+        connecting_airports=list(connecting_airports or ()) or None,
+        exclude_connecting_airports=list(exclude_connecting_airports or ()) or None,
+        min_layover_duration=min_layover_duration,
+        max_layover_duration=max_layover_duration,
         return_date=return_date,
         cabin=cabin,
         passengers=pax,
@@ -151,6 +162,14 @@ def _run_search_legs(
     max_results,
     beam_width,
     time_budget,
+    carry_on_bags=0,
+    checked_bags=0,
+    max_price=None,
+    max_duration=None,
+    connecting_airports=(),
+    exclude_connecting_airports=(),
+    min_layover_duration=None,
+    max_layover_duration=None,
 ):
     """Run swoop.search_legs() with global CLI filters applied to each leg."""
     import swoop
@@ -166,6 +185,11 @@ def _run_search_legs(
             date=leg_date,
             from_airport=leg_origin,
             to_airport=leg_destination,
+            max_duration=max_duration,
+            connecting_airports=list(connecting_airports or ()) or None,
+            exclude_connecting_airports=list(exclude_connecting_airports or ()) or None,
+            min_layover_duration=min_layover_duration,
+            max_layover_duration=max_layover_duration,
             max_stops=stops,
             airlines=airlines,
         )
@@ -188,6 +212,9 @@ def _run_search_legs(
 
     return swoop.search_legs(
         search_legs,
+        carry_on_bags=carry_on_bags,
+        checked_bags=checked_bags,
+        max_price=max_price,
         cabin=cabin,
         passengers=pax,
         sort=sort_val,
@@ -222,6 +249,67 @@ def _query_legs_from_price_result(result):
         }
         for leg in result.resolved_legs
     ]
+
+
+def _pricing_options(f):
+    """The QPX filters shared by search, exact pricing and calendars."""
+    options = [
+        click.option(
+            "--carry-on-bags",
+            type=click.IntRange(0, 1),
+            default=0,
+            help="Carry-on bags per passenger.",
+        ),
+        click.option(
+            "--checked-bags",
+            type=click.IntRange(0, 2),
+            default=0,
+            help="Checked bags per passenger.",
+        ),
+        click.option(
+            "--max-price",
+            type=click.IntRange(min=0),
+            default=None,
+            help="Price ceiling in display currency major units.",
+        ),
+        click.option(
+            "--max-duration",
+            type=click.IntRange(min=0),
+            default=None,
+            help="Maximum duration per leg, in minutes.",
+        ),
+        click.option(
+            "--connect-via",
+            "connecting_airports",
+            type=IATA_CODE,
+            multiple=True,
+            help="Allowed connecting airport (repeatable; nonstops remain eligible).",
+        ),
+        click.option(
+            "--exclude-connection",
+            "exclude_connecting_airports",
+            type=IATA_CODE,
+            multiple=True,
+            help="Excluded connecting airport (repeatable).",
+        ),
+        click.option(
+            "--min-layover",
+            "min_layover_duration",
+            type=click.IntRange(min=0),
+            default=None,
+            help="Minimum layover in minutes.",
+        ),
+        click.option(
+            "--max-layover",
+            "max_layover_duration",
+            type=click.IntRange(min=0),
+            default=None,
+            help="Maximum layover in minutes.",
+        ),
+    ]
+    for option in reversed(options):
+        f = option(f)
+    return f
 
 
 # Shared search options decorator
@@ -282,6 +370,7 @@ def _output_options(formats: list[str]):
 
 
 @click.command("search")
+@_pricing_options
 @click.argument("origin", type=IATA_CODE, required=False, default=None)
 @click.argument("destination", type=IATA_CODE, required=False, default=None)
 @click.argument("date", type=DATE, required=False, default=None)
@@ -305,6 +394,8 @@ def search_cmd(
     timeout, retries, max_results, beam_width, time_budget,
     limit, show_price_commands,
     output_format, no_color, quiet, verbose,
+    carry_on_bags, checked_bags, max_price, max_duration,
+    connecting_airports, exclude_connecting_airports, min_layover_duration, max_layover_duration,
 ):
     """Search for flights.
 
@@ -377,32 +468,71 @@ def search_cmd(
             if has_leg:
                 result = _run_search_legs(
                     leg,
-                    cabin=cabin, passengers=passengers,
-                    children=children, infants_in_seat=infants_in_seat,
+                    cabin=cabin,
+                    passengers=passengers,
+                    children=children,
+                    infants_in_seat=infants_in_seat,
                     infants_on_lap=infants_on_lap,
-                    sort=sort, nonstop=nonstop, max_stops=max_stops,
-                    airline=airline, include_basic=include_basic,
-                    timeout=timeout, retries=retries,
-                    country=country, proxy=proxy,
-                    max_results=max_results, beam_width=beam_width,
+                    sort=sort,
+                    nonstop=nonstop,
+                    max_stops=max_stops,
+                    airline=airline,
+                    include_basic=include_basic,
+                    carry_on_bags=carry_on_bags,
+                    checked_bags=checked_bags,
+                    max_price=max_price,
+                    max_duration=max_duration,
+                    connecting_airports=list(connecting_airports or ()) or None,
+                    exclude_connecting_airports=list(exclude_connecting_airports or ())
+                    or None,
+                    min_layover_duration=min_layover_duration,
+                    max_layover_duration=max_layover_duration,
+                    timeout=timeout,
+                    retries=retries,
+                    country=country,
+                    proxy=proxy,
+                    max_results=max_results,
+                    beam_width=beam_width,
                     time_budget=time_budget,
                 )
             else:
                 result = _run_search(
-                    origin, destination, date,
-                    return_date=return_date, cabin=cabin, passengers=passengers,
-                    children=children, infants_in_seat=infants_in_seat,
+                    origin,
+                    destination,
+                    date,
+                    return_date=return_date,
+                    cabin=cabin,
+                    passengers=passengers,
+                    children=children,
+                    infants_in_seat=infants_in_seat,
                     infants_on_lap=infants_on_lap,
-                    sort=sort, nonstop=nonstop, max_stops=max_stops,
-                    airline=airline, flight_number=flight_number,
+                    sort=sort,
+                    nonstop=nonstop,
+                    max_stops=max_stops,
+                    airline=airline,
+                    flight_number=flight_number,
                     include_basic=include_basic,
-                    depart_after=depart_after, depart_before=depart_before,
-                    arrive_after=arrive_after, arrive_before=arrive_before,
+                    depart_after=depart_after,
+                    depart_before=depart_before,
+                    arrive_after=arrive_after,
+                    arrive_before=arrive_before,
                     return_depart_after=return_depart_after,
                     return_depart_before=return_depart_before,
-                    timeout=timeout, retries=retries,
-                    country=country, proxy=proxy,
-                    max_results=max_results, beam_width=beam_width,
+                    carry_on_bags=carry_on_bags,
+                    checked_bags=checked_bags,
+                    max_price=max_price,
+                    max_duration=max_duration,
+                    connecting_airports=list(connecting_airports or ()) or None,
+                    exclude_connecting_airports=list(exclude_connecting_airports or ())
+                    or None,
+                    min_layover_duration=min_layover_duration,
+                    max_layover_duration=max_layover_duration,
+                    timeout=timeout,
+                    retries=retries,
+                    country=country,
+                    proxy=proxy,
+                    max_results=max_results,
+                    beam_width=beam_width,
                     time_budget=time_budget,
                 )
         except ValueError as e:
@@ -468,6 +598,7 @@ def search_cmd(
 
 
 @click.command("price")
+@_pricing_options
 @click.argument("origin", type=IATA_CODE, required=False, default=None)
 @click.argument("destination", type=IATA_CODE, required=False, default=None)
 @click.option("--selector", type=str, default=None, help="Opaque itinerary selector from search JSON.")
@@ -497,6 +628,8 @@ def price_cmd(
     country, proxy,
     timeout, retries,
     output_format, no_color, quiet, verbose,
+    carry_on_bags, checked_bags, max_price, max_duration,
+    connecting_airports, exclude_connecting_airports, min_layover_duration, max_layover_duration,
 ):
     """Check the current bookable fare for a chosen itinerary.
 
@@ -545,7 +678,20 @@ def price_cmd(
         return
 
     if has_selector:
-        if max_stops is not None or cabin != "economy" or passengers != 1 or include_basic:
+        if (
+            max_stops is not None
+            or cabin != "economy"
+            or passengers != 1
+            or include_basic
+            or carry_on_bags
+            or checked_bags
+            or max_price is not None
+            or max_duration is not None
+            or connecting_airports
+            or exclude_connecting_airports
+            or min_layover_duration is not None
+            or max_layover_duration is not None
+        ):
             err.print("[red]Error: --selector is self-contained and cannot be combined with pricing overrides.[/red]")
             ctx.exit(2)
             return
@@ -629,6 +775,15 @@ def price_cmd(
                         )
                         for leg_origin, leg_dest, leg_date, leg_flight in leg
                     ],
+                    carry_on_bags=carry_on_bags,
+                    checked_bags=checked_bags,
+                    max_price=max_price,
+                    max_duration=max_duration,
+                    connecting_airports=list(connecting_airports or ()) or None,
+                    exclude_connecting_airports=list(exclude_connecting_airports or ())
+                    or None,
+                    min_layover_duration=min_layover_duration,
+                    max_layover_duration=max_layover_duration,
                     cabin=cabin,
                     passengers=pax,
                     include_basic_economy=include_basic,
@@ -649,8 +804,19 @@ def price_cmd(
                     origin=origin,
                     destination=destination,
                     date=depart[0],
-                    return_flight_number=return_leg[1] if return_leg is not None else None,
+                    return_flight_number=return_leg[1]
+                    if return_leg is not None
+                    else None,
                     return_date=return_leg[0] if return_leg is not None else None,
+                    carry_on_bags=carry_on_bags,
+                    checked_bags=checked_bags,
+                    max_price=max_price,
+                    max_duration=max_duration,
+                    connecting_airports=list(connecting_airports or ()) or None,
+                    exclude_connecting_airports=list(exclude_connecting_airports or ())
+                    or None,
+                    min_layover_duration=min_layover_duration,
+                    max_layover_duration=max_layover_duration,
                     cabin=cabin,
                     passengers=pax,
                     max_stops=max_stops,

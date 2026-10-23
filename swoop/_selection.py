@@ -38,8 +38,9 @@ def _iter_raw_itineraries(result: Optional[RawSearchResult]) -> list[Itinerary]:
 
 def _copy_request_leg(leg: dict[str, Any]) -> dict[str, Any]:
     copied = dict(leg)
-    if copied.get("airlines") is not None:
-        copied["airlines"] = list(copied["airlines"])
+    for key in ("airlines", "connecting_airports", "exclude_connecting_airports"):
+        if copied.get(key) is not None:
+            copied[key] = list(copied[key])
     if copied.get("selected_legs") is not None:
         copied["selected_legs"] = [list(item) for item in copied["selected_legs"]]
     return copied
@@ -56,10 +57,16 @@ def _selector_query_leg(leg: dict[str, Any]) -> dict[str, Any]:
         "latest_departure",
         "earliest_arrival",
         "latest_arrival",
+        "max_duration",
+        "connecting_airports",
+        "exclude_connecting_airports",
+        "min_layover_duration",
+        "max_layover_duration",
     )
     payload = {key: v for key in keys if (v := leg.get(key)) is not None}
-    if payload.get("airlines") is not None:
-        payload["airlines"] = list(payload["airlines"])
+    for key in ("airlines", "connecting_airports", "exclude_connecting_airports"):
+        if payload.get(key) is not None:
+            payload[key] = list(payload[key])
     return payload
 
 
@@ -78,9 +85,15 @@ def encode_trip_selector(
     passengers: Passengers = Passengers(),
     include_basic_economy: bool,
     sort: int = SORT_DEPARTURE_TIME,
+    carry_on_bags: int = 0,
+    checked_bags: int = 0,
+    max_price: Optional[int] = None,
 ) -> str:
     payload = {
         "v": 1,
+        "carry_on_bags": carry_on_bags,
+        "checked_bags": checked_bags,
+        "max_price": max_price,
         "query_legs": [_selector_query_leg(leg) for leg in request_legs],
         "selected_legs": [_build_selected_legs(itinerary) for itinerary in itineraries],
         "cabin": cabin,
@@ -181,9 +194,15 @@ def _build_trip_option(
     passengers: Passengers = Passengers(),
     include_basic_economy: bool,
     sort: int = SORT_DEPARTURE_TIME,
+    carry_on_bags: int = 0,
+    checked_bags: int = 0,
+    max_price: Optional[int] = None,
 ) -> TripOption:
     return TripOption(
         selector=encode_trip_selector(
+            carry_on_bags=carry_on_bags,
+            checked_bags=checked_bags,
+            max_price=max_price,
             request_legs=request_legs,
             itineraries=itineraries,
             cabin=cabin,
@@ -231,6 +250,9 @@ def fetch_trip_booking_options(
     cabin: CabinClass,
     passengers: Passengers = Passengers(),
     transport: TransportConfig = TransportConfig(),
+    carry_on_bags: int = 0,
+    checked_bags: int = 0,
+    max_price: Optional[int] = None,
 ) -> list:
     selected_payloads = _selected_payloads_for_itineraries(itineraries)
     if selected_payloads is None:
@@ -242,6 +264,9 @@ def fetch_trip_booking_options(
     return get_trip_booking_results(
         final_token,
         staged_legs,
+        carry_on_bags=carry_on_bags,
+        checked_bags=checked_bags,
+        max_price=max_price,
         cabin=cabin,
         passengers=passengers,
         transport=transport,
@@ -280,6 +305,9 @@ def search_trip_options(
     max_results: Optional[int] = None,
     beam_width: Optional[int] = None,
     time_budget: Optional[int] = None,
+    carry_on_bags: int = 0,
+    checked_bags: int = 0,
+    max_price: Optional[int] = None,
 ) -> SearchResult:
     if not request_legs:
         return SearchResult()
@@ -291,6 +319,9 @@ def search_trip_options(
     exclude_basic = cabin == "economy" and not include_basic_economy
     first_pass = _search_from_legs(
         request_legs,
+        carry_on_bags=carry_on_bags,
+        checked_bags=checked_bags,
+        max_price=max_price,
         cabin=cabin,
         passengers=passengers,
         sort=sort,
@@ -312,6 +343,9 @@ def search_trip_options(
                 _build_trip_option(
                     request_legs,
                     [itinerary],
+                    carry_on_bags=carry_on_bags,
+                    checked_bags=checked_bags,
+                    max_price=max_price,
                     cabin=cabin,
                     passengers=passengers,
                     include_basic_economy=include_basic_economy,
@@ -351,6 +385,9 @@ def search_trip_options(
             try:
                 stage_result = _search_from_legs(
                     staged_legs,
+                    carry_on_bags=carry_on_bags,
+                    checked_bags=checked_bags,
+                    max_price=max_price,
                     cabin=cabin,
                     passengers=passengers,
                     sort=sort,
@@ -392,6 +429,9 @@ def search_trip_options(
         _build_trip_option(
             request_legs,
             prefix,
+            carry_on_bags=carry_on_bags,
+            checked_bags=checked_bags,
+            max_price=max_price,
             cabin=cabin,
             passengers=passengers,
             include_basic_economy=include_basic_economy,
@@ -436,6 +476,9 @@ def resolve_trip_selector(
         staged_legs = _with_selected_prefix(request_legs, selected_legs[:index])
         stage_result = _search_from_legs(
             staged_legs,
+            carry_on_bags=payload.get("carry_on_bags", 0),
+            checked_bags=payload.get("checked_bags", 0),
+            max_price=payload.get("max_price"),
             cabin=payload["cabin"],
             passengers=payload["passengers"],
             sort=replay_sort,
@@ -467,6 +510,9 @@ def price_selected_trip(
     transport: TransportConfig = TransportConfig(),
     rpc_calls: int = 0,
     selections: Optional[list[str]] = None,
+    carry_on_bags: int = 0,
+    checked_bags: int = 0,
+    max_price: Optional[int] = None,
 ) -> Optional[PriceResult]:
     if not itineraries:
         return None
@@ -494,6 +540,9 @@ def price_selected_trip(
             booking_options = fetch_trip_booking_options(
                 request_legs,
                 itineraries,
+                carry_on_bags=carry_on_bags,
+                checked_bags=checked_bags,
+                max_price=max_price,
                 cabin=cabin,
                 passengers=passengers,
                 transport=transport,
@@ -514,6 +563,8 @@ def price_selected_trip(
             include_basic_economy,
             cabin=cabin,
         )
+        if max_price is not None:
+            eligible = [o for o in eligible if o.price <= max_price]
         if eligible:
             best_option = min(eligible, key=lambda option: option.price)
             return PriceResult(
@@ -528,7 +579,11 @@ def price_selected_trip(
                 rpc_calls=rpc_calls,
             )
 
-    if base_price is None or base_price <= 0:
+    if (
+        base_price is None
+        or base_price <= 0
+        or (max_price is not None and base_price > max_price)
+    ):
         return None
 
     # No eligible booking option (lookup skipped, degraded, or none in cabin):
@@ -552,6 +607,9 @@ def resolve_selected_trip(
     passengers: Passengers = Passengers(),
     transport: TransportConfig = TransportConfig(),
     exclude_basic_economy: bool = False,
+    carry_on_bags: int = 0,
+    checked_bags: int = 0,
+    max_price: Optional[int] = None,
 ) -> tuple[list[Itinerary], list[str], int]:
     resolved: list[Itinerary] = []
     selections: list[str] = []
@@ -564,6 +622,9 @@ def resolve_selected_trip(
         staged_legs = _with_selected_prefix(request_legs, selected_payloads or [])
         stage_result = _search_from_legs(
             staged_legs,
+            carry_on_bags=carry_on_bags,
+            checked_bags=checked_bags,
+            max_price=max_price,
             cabin=cabin,
             passengers=passengers,
             sort=SORT_DEPARTURE_TIME,
@@ -611,6 +672,9 @@ def price_trip_selector(
     return price_selected_trip(
         request_legs,
         itineraries,
+        carry_on_bags=payload.get("carry_on_bags", 0),
+        checked_bags=payload.get("checked_bags", 0),
+        max_price=payload.get("max_price"),
         cabin=payload["cabin"],
         passengers=payload["passengers"],
         include_basic_economy=payload["include_basic_economy"],

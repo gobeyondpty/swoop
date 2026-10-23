@@ -355,6 +355,16 @@ class TestSearchSignature:
             "transport",
             "max_results", "beam_width", "time_budget",
         ]
+        expected += [
+            "carry_on_bags",
+            "checked_bags",
+            "max_price",
+            "max_duration",
+            "connecting_airports",
+            "exclude_connecting_airports",
+            "min_layover_duration",
+            "max_layover_duration",
+        ]
         assert param_names == expected
 
     def test_search_raw_params(self):
@@ -371,6 +381,16 @@ class TestSearchSignature:
             "transport",
             "exclude_basic_economy",
         ]
+        expected += [
+            "carry_on_bags",
+            "checked_bags",
+            "max_price",
+            "max_duration",
+            "connecting_airports",
+            "exclude_connecting_airports",
+            "min_layover_duration",
+            "max_layover_duration",
+        ]
         assert param_names == expected
 
     def test_check_price_params(self):
@@ -383,6 +403,16 @@ class TestSearchSignature:
             "max_stops", "include_basic_economy",
             "transport",
         ]
+        expected += [
+            "carry_on_bags",
+            "checked_bags",
+            "max_price",
+            "max_duration",
+            "connecting_airports",
+            "exclude_connecting_airports",
+            "min_layover_duration",
+            "max_layover_duration",
+        ]
         assert param_names == expected
 
     def test_search_legs_params(self):
@@ -394,6 +424,7 @@ class TestSearchSignature:
             "include_basic_economy", "transport",
             "max_results", "beam_width", "time_budget",
         ]
+        expected += ["carry_on_bags", "checked_bags", "max_price"]
         assert param_names == expected
 
     def test_price_legs_params(self):
@@ -402,6 +433,16 @@ class TestSearchSignature:
         expected = [
             "legs", "cabin", "passengers",
             "include_basic_economy", "transport",
+        ]
+        expected += [
+            "carry_on_bags",
+            "checked_bags",
+            "max_price",
+            "max_duration",
+            "connecting_airports",
+            "exclude_connecting_airports",
+            "min_layover_duration",
+            "max_layover_duration",
         ]
         assert param_names == expected
 

@@ -548,3 +548,31 @@ Testing notes:
 ## License
 
 MIT
+
+Google's QPX shopping filters support bag counts and a price ceiling:
+
+```python
+results = swoop.search(
+    "JFK", "LAX", "2026-12-03",
+    carry_on_bags=1, checked_bags=1, max_price=500,
+    max_duration=480, connecting_airports=["ATL"],
+    min_layover_duration=45, max_layover_duration=120,
+)
+priced = swoop.price_selector(results.results[0].selector)
+```
+
+Bag counts are per passenger: 0–1 carry-on and 0–2 checked bags. Google includes
+known bag charges or selects an eligible fare upgrade; coverage depends on the
+carrier's baggage data. `max_price` is in the displayed currency's major units.
+All duration limits are minutes. `connecting_airports` restricts connections but
+still permits nonstop flights; `exclude_connecting_airports` excludes specific
+hubs. Choose one of those two airport filters. For distinct filters on each leg,
+set the routing fields on each `SearchLeg` and call `search_legs()`.
+
+Selectors preserve these filters through every search stage and booking call.
+The raw search and booking APIs, `check_price()`, and `price_legs()` also accept
+the pricing filters. TFS builders encode the same baggage, price, and routing
+settings. CLI equivalents include `--carry-on-bags`, `--checked-bags`,
+`--max-price`, `--max-duration`, `--connect-via`, `--exclude-connection`,
+`--min-layover`, and `--max-layover`. A selector already contains its filters;
+price it directly without repeating those flags.
