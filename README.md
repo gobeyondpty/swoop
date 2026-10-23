@@ -576,3 +576,41 @@ settings. CLI equivalents include `--carry-on-bags`, `--checked-bags`,
 `--max-price`, `--max-duration`, `--connect-via`, `--exclude-connection`,
 `--min-layover`, and `--max-layover`. A selector already contains its filters;
 price it directly without repeating those flags.
+
+Flexible dates can be priced in one RPC instead of searching each date:
+
+```python
+# All four departure × return date pairs.
+prices = swoop.calendar_prices(
+    "JFK", "LAX", "2026-12-03", "2026-12-04",
+    return_start="2026-12-08", return_end="2026-12-09",
+    max_stops=0, checked_bags=1,
+)
+# Cheapest five-night trip for each departure day.
+calendar = swoop.get_calendar(
+    "JFK", "LAX", "2026-12-03", "2026-12-04", min_stay=5,
+)
+graph = swoop.get_price_graph(
+    "JFK", "LAX", "2026-12-03", "2026-12-04", min_stay=5,
+)
+```
+
+`calendar_prices()` returns `list[CalendarPrice]` from `GetCalendarGrid`.
+`get_calendar()` returns `CalendarResult` with `days`, `currency`, `min_price`,
+and `max_price` from `GetCalendarPicker`. `get_price_graph()` returns
+`list[CalendarPrice]` from **`GetCalendarGraph`**, the method used by Google's
+price graph; `GetPriceGraph` currently returns HTTP 404. Omit return/stay bounds
+for one-way pricing. A lone `min_stay` means an exact stay; a lone `max_stay`
+means 0 through that many days. All windows are inclusive ISO dates. Missing
+fares are omitted, currencies are decoded from responses, and malformed or
+rejected responses raise typed errors.
+
+All three calendar APIs share shopping's cabin, passenger, airline, stop,
+baggage, price, routing, and time-window filters, plus
+`exclude_basic_economy` and `exclude_separate_tickets`. Calendar fares are
+shopping estimates; use a dated search and its selector for bookable offers.
+
+```bash
+swoop calendar JFK LAX 2026-12-03 2026-12-04 --checked-bags 1 -o json
+swoop calendar JFK LAX 2026-12-03 2026-12-04 --mode graph --min-stay 5
+```

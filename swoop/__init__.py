@@ -64,6 +64,7 @@ from .models import (
     TripLeg,
     TripOption,
 )
+from ._calendar import CalendarPrice, calendar_prices, get_calendar, get_price_graph
 from .rpc import (
     SORT_ARRIVAL_TIME,
     SORT_CHEAPEST,
@@ -1283,6 +1284,12 @@ def deals(
 
 __all__ = [
     # Functions
+    "calendar_prices",
+    "get_calendar",
+    "get_price_graph",
+    "CalendarPrice",
+    "CalendarDay",
+    "CalendarResult",
     "search",
     "search_legs",
     "check_price",

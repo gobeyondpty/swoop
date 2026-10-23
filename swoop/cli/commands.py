@@ -1,7 +1,7 @@
 """CLI commands for swoop: search and price."""
 
 from contextlib import nullcontext
-from typing import Optional, TypedDict
+from typing import Any, Optional, TypedDict
 
 import click
 from rich.console import Console
@@ -1141,3 +1141,175 @@ def explore_cmd(
         format_explore_csv(result, limit=limit)
     elif output_format == "brief":
         format_explore_brief(result, limit=limit)
+
+
+@click.command("calendar")
+@click.argument("origin", type=IATA_CODE)
+@click.argument("destination", type=IATA_CODE)
+@click.argument("start", type=DATE)
+@click.argument("end", type=DATE)
+@click.option(
+    "--mode",
+    type=click.Choice(["grid", "picker", "graph"]),
+    default="grid",
+    show_default=True,
+)
+@click.option("--return-start", type=DATE, default=None)
+@click.option("--return-end", type=DATE, default=None)
+@click.option(
+    "--min-stay",
+    type=click.IntRange(0, 365),
+    default=None,
+    help="Roundtrip stay in days (picker/graph).",
+)
+@click.option("--max-stay", type=click.IntRange(0, 365), default=None)
+@click.option("--max-stops", type=click.IntRange(0, 2), default=None)
+@click.option("--airline", multiple=True, help="Airline IATA code (repeatable).")
+@click.option("--cabin", type=click.Choice(CABIN_CHOICES), default="economy")
+@click.option("--passengers", type=click.IntRange(1, 9), default=1)
+@click.option("--include-basic", is_flag=True, default=False)
+@click.option("--exclude-separate-tickets", is_flag=True, default=False)
+@click.option("--country", default=None, help="Point-of-sale country code.")
+@click.option("--proxy", default=None)
+@click.option("--timeout", type=int, default=90)
+@click.option("--retries", type=int, default=2)
+@_pricing_options
+@_output_options(["table", "json", "csv"])
+@click.pass_context
+def calendar_cmd(
+    ctx,
+    origin,
+    destination,
+    start,
+    end,
+    mode,
+    return_start,
+    return_end,
+    min_stay,
+    max_stay,
+    max_stops,
+    airline,
+    cabin,
+    passengers,
+    include_basic,
+    exclude_separate_tickets,
+    country,
+    proxy,
+    timeout,
+    retries,
+    carry_on_bags,
+    checked_bags,
+    max_price,
+    max_duration,
+    connecting_airports,
+    exclude_connecting_airports,
+    min_layover_duration,
+    max_layover_duration,
+    output_format,
+    no_color,
+    quiet,
+    verbose,
+):
+    """Compare flexible-date fares with one calendar RPC.
+
+    Example: swoop calendar JFK LAX 2026-12-01 2026-12-07 --checked-bags 1
+    """
+    import csv
+    import json
+    import sys
+    from dataclasses import asdict
+    from rich.table import Table
+    import swoop
+    from .formatters import _csv_safe
+
+    configure_verbose_logging(ctx, verbose)
+    err = _err_console(no_color)
+    if mode == "grid" and (min_stay is not None or max_stay is not None):
+        raise click.UsageError("--min-stay/--max-stay require --mode picker or graph")
+    if mode != "grid" and (return_start is not None or return_end is not None):
+        raise click.UsageError("--return-start/--return-end require --mode grid")
+    options: dict[str, Any] = dict(
+        cabin=cabin,
+        passengers=swoop.Passengers(adults=passengers),
+        max_stops=max_stops,
+        airlines=list(airline) or None,
+        exclude_basic_economy=not include_basic,
+        exclude_separate_tickets=exclude_separate_tickets,
+        carry_on_bags=carry_on_bags,
+        checked_bags=checked_bags,
+        max_price=max_price,
+        max_duration=max_duration,
+        connecting_airports=list(connecting_airports) or None,
+        exclude_connecting_airports=list(exclude_connecting_airports) or None,
+        min_layover_duration=min_layover_duration,
+        max_layover_duration=max_layover_duration,
+        transport=swoop.TransportConfig(
+            country=country, proxy=proxy, timeout=timeout, retries=retries
+        ),
+    )
+    try:
+        if mode == "grid":
+            cells = swoop.calendar_prices(
+                origin,
+                destination,
+                start,
+                end,
+                return_start=return_start,
+                return_end=return_end,
+                **options,
+            )
+        elif mode == "graph":
+            cells = swoop.get_price_graph(
+                origin,
+                destination,
+                start,
+                end,
+                min_stay=min_stay,
+                max_stay=max_stay,
+                **options,
+            )
+        else:
+            result = swoop.get_calendar(
+                origin,
+                destination,
+                start,
+                end,
+                min_stay=min_stay,
+                max_stay=max_stay,
+                **options,
+            )
+            cells = [
+                swoop.CalendarPrice(
+                    d.departure_date, d.return_date, d.price, d.currency
+                )
+                for d in result.days
+            ]
+    except ValueError as exc:
+        raise click.BadParameter(str(exc)) from exc
+    except swoop.SwoopError as exc:
+        handle_rpc_error(exc, err=err, ctx=ctx)
+        return
+    if output_format == "json":
+        click.echo(json.dumps([asdict(cell) for cell in cells], indent=2))
+    elif output_format == "csv":
+        writer = csv.writer(sys.stdout)
+        writer.writerow(["departure_date", "return_date", "price", "currency"])
+        for cell in cells:
+            writer.writerow(
+                [
+                    _csv_safe(cell.departure_date),
+                    _csv_safe(cell.return_date or ""),
+                    cell.price,
+                    _csv_safe(cell.currency or ""),
+                ]
+            )
+    else:
+        table = Table("Departure", "Return", "Price", "Currency")
+        for cell in cells:
+            table.add_row(
+                cell.departure_date,
+                cell.return_date or "",
+                str(cell.price),
+                cell.currency or "",
+            )
+        Console(no_color=no_color).print(table)
