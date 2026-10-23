@@ -101,16 +101,22 @@ def _parse_calendar_days(
                 returning,
                 int(amount),
                 summary.currency if summary and summary.currency else None,
-                _safe_get(cell, [2, 1]) if isinstance(_safe_get(cell, [2, 1]), str) else None,
+                _safe_get(cell, [2, 1])
+                if isinstance(_safe_get(cell, [2, 1]), str)
+                else None,
             )
     if not payloads:
         raise SwoopParseError("Calendar response missing inner payload")
     return list(prices.values())
 
 
-def _parse_calendar_prices(text: str, *, endpoint: str = "GetCalendarGrid") -> list[CalendarPrice]:
-    return [CalendarPrice(d.departure_date, d.return_date, d.price, d.currency)
-            for d in _parse_calendar_days(text, endpoint=endpoint)]
+def _parse_calendar_prices(
+    text: str, *, endpoint: str = "GetCalendarGrid"
+) -> list[CalendarPrice]:
+    return [
+        CalendarPrice(d.departure_date, d.return_date, d.price, d.currency)
+        for d in _parse_calendar_days(text, endpoint=endpoint)
+    ]
 
 
 def _window(start: str, end: str, name: str) -> list[str]:
@@ -278,7 +284,10 @@ def calendar_prices(
         latest_arrival=latest_arrival,
         transport=transport,
     )
-    return [CalendarPrice(d.departure_date, d.return_date, d.price, d.currency) for d in prices]
+    return [
+        CalendarPrice(d.departure_date, d.return_date, d.price, d.currency)
+        for d in prices
+    ]
 
 
 def get_calendar(
@@ -408,4 +417,7 @@ def get_price_graph(
         latest_arrival=latest_arrival,
         transport=transport,
     )
-    return [CalendarPrice(d.departure_date, d.return_date, d.price, d.currency) for d in prices]
+    return [
+        CalendarPrice(d.departure_date, d.return_date, d.price, d.currency)
+        for d in prices
+    ]
