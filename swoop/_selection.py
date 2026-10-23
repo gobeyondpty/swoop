@@ -78,9 +78,12 @@ def encode_trip_selector(
     passengers: Passengers = Passengers(),
     include_basic_economy: bool,
     sort: int = SORT_DEPARTURE_TIME,
+    transport: TransportConfig = TransportConfig(),
 ) -> str:
     payload = {
         "v": 1,
+        "country": transport.country,
+        "currency": transport.currency,
         "query_legs": [_selector_query_leg(leg) for leg in request_legs],
         "selected_legs": [_build_selected_legs(itinerary) for itinerary in itineraries],
         "cabin": cabin,
@@ -181,6 +184,7 @@ def _build_trip_option(
     passengers: Passengers = Passengers(),
     include_basic_economy: bool,
     sort: int = SORT_DEPARTURE_TIME,
+    transport: TransportConfig = TransportConfig(),
 ) -> TripOption:
     return TripOption(
         selector=encode_trip_selector(
@@ -190,6 +194,7 @@ def _build_trip_option(
             passengers=passengers,
             include_basic_economy=include_basic_economy,
             sort=sort,
+            transport=transport,
         ),
         price=itineraries[-1].price,
         currency=itineraries[-1].currency,
@@ -316,6 +321,7 @@ def search_trip_options(
                     passengers=passengers,
                     include_basic_economy=include_basic_economy,
                     sort=sort,
+                    transport=transport,
                 )
                 for itinerary in first_candidates
             ],
@@ -396,6 +402,7 @@ def search_trip_options(
             passengers=passengers,
             include_basic_economy=include_basic_economy,
             sort=sort,
+            transport=transport,
         )
         for prefix in prefixes[:max_results]
     ]
@@ -418,12 +425,22 @@ def _match_itinerary_by_selected_segments(
     return None
 
 
+def _selector_transport(payload: dict[str, Any], transport: TransportConfig) -> TransportConfig:
+    """Restore selector pricing context; explicit transport values override it."""
+    return replace(
+        transport,
+        country=transport.country if transport.country is not None else payload.get("country"),
+        currency=transport.currency if transport.currency is not None else payload.get("currency"),
+    )
+
+
 def resolve_trip_selector(
     selector: str,
     *,
     transport: TransportConfig = TransportConfig(),
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[Itinerary], int]:
     payload = decode_trip_selector(selector)
+    transport = _selector_transport(payload, transport)
     request_legs = [_copy_request_leg(leg) for leg in payload["query_legs"]]
     selected_legs = payload["selected_legs"]
     resolved: list[Itinerary] = []
@@ -614,7 +631,7 @@ def price_trip_selector(
         cabin=payload["cabin"],
         passengers=payload["passengers"],
         include_basic_economy=payload["include_basic_economy"],
-        transport=transport,
+        transport=_selector_transport(payload, transport),
         rpc_calls=rpc_calls,
     )
 
