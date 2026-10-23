@@ -677,3 +677,20 @@ Amenity flags are scoped to that segment's cabin. An absent Wi-Fi tier means
 unknown availability; it does not establish that Wi-Fi is unavailable or included
 in a fare. The raw tier should not be used to promise a free service without
 checking the applicable carrier/fare terms.
+
+Display currency can be chosen independently of the point of sale:
+
+```python
+import swoop
+
+# British point of sale, prices displayed in Japanese yen.
+transport = swoop.TransportConfig(country="GB", currency="JPY")
+results = swoop.search("JFK", "LAX", "2026-12-03", transport=transport)
+```
+
+`currency` is an optional three-letter ISO 4217 code. Omitting it preserves
+Google's default currency. Shopping and booking requests use the same locale
+header; selectors retain the requested country and currency for later pricing.
+Passing an explicit country or currency to `price_selector(..., transport=...)`
+overrides that saved value. The CLI accepts `--country GB --currency JPY` on
+`search`, `price`, `deals`, and `explore`.

@@ -20,13 +20,22 @@ class Passengers:
 
 @dataclass
 class TransportConfig:
-    """HTTP transport configuration for API requests."""
+    """HTTP settings. ``country`` selects the point of sale; ``currency``
+    independently selects the display currency (ISO 4217), when provided.
+    """
 
     timeout: float = 90
     retries: int = 2
     country: Optional[str] = None
     proxy: Optional[str] = None
     impersonate: Optional[str] = None
+    currency: Optional[str] = None
+
+    def __post_init__(self) -> None:
+        if self.currency is not None:
+            if len(self.currency) != 3 or not self.currency.isascii() or not self.currency.isalpha():
+                raise ValueError("currency must be a three-letter ISO 4217 code")
+            self.currency = self.currency.upper()
 
 
 @dataclass

@@ -80,9 +80,12 @@ def encode_trip_selector(
     sort: int = SORT_DEPARTURE_TIME,
     exclude_separate_tickets: bool = False,
     show_all_results: bool = True,
+    transport: TransportConfig = TransportConfig(),
 ) -> str:
     payload = {
         "v": 1,
+        "country": transport.country,
+        "currency": transport.currency,
         "query_legs": [_selector_query_leg(leg) for leg in request_legs],
         "selected_legs": [_build_selected_legs(itinerary) for itinerary in itineraries],
         "cabin": cabin,
@@ -196,6 +199,7 @@ def _build_trip_option(
     sort: int = SORT_DEPARTURE_TIME,
     exclude_separate_tickets: bool = False,
     show_all_results: bool = True,
+    transport: TransportConfig = TransportConfig(),
 ) -> TripOption:
     return TripOption(
         selector=encode_trip_selector(
@@ -207,6 +211,7 @@ def _build_trip_option(
             sort=sort,
             show_all_results=show_all_results,
             exclude_separate_tickets=exclude_separate_tickets,
+            transport=transport,
         ),
         price=itineraries[-1].price,
         currency=itineraries[-1].currency,
@@ -382,7 +387,7 @@ def search_trip_options(
                             if itinerary_matches_flight(itinerary, carrier, number)]
 
     def option(prefix: list[Itinerary]) -> TripOption:
-        return _build_trip_option(request_legs, prefix, cabin=cabin, passengers=passengers,
+        return _build_trip_option(request_legs, prefix, cabin=cabin, passengers=passengers, transport=transport,
             include_basic_economy=include_basic_economy, sort=sort,
             show_all_results=show_all_results,
             exclude_separate_tickets=exclude_separate_tickets)
@@ -456,6 +461,15 @@ def _match_itinerary_by_selected_segments(
     return None
 
 
+def _selector_transport(payload: dict[str, Any], transport: TransportConfig) -> TransportConfig:
+    """Restore selector pricing context; explicit transport values override it."""
+    return replace(
+        transport,
+        country=transport.country if transport.country is not None else payload.get("country"),
+        currency=transport.currency if transport.currency is not None else payload.get("currency"),
+    )
+
+
 def resolve_trip_selector(
     selector: str,
     *,
@@ -465,6 +479,7 @@ def resolve_trip_selector(
     coverage: Optional[_Coverage] = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[Itinerary], int]:
     payload = decode_trip_selector(selector)
+    transport = _selector_transport(payload, transport)
     query_legs = payload.get("query_legs")
     selected_legs = payload.get("selected_legs")
     if not isinstance(query_legs, list) or not query_legs or len(query_legs) > 6 or not all(isinstance(leg, dict) for leg in query_legs):
@@ -546,6 +561,7 @@ def search_next_leg(
     """
     deadline = _deadline(time_budget if time_budget is not None else TIME_BUDGET_SECONDS)
     payload = decode_trip_selector(selector)
+    transport = _selector_transport(payload, transport)
     coverage = _Coverage(payload["show_all_results"])
     payload, legs, prefix, _ = resolve_trip_selector(selector, transport=transport,
         deadline=deadline, allow_partial=True, coverage=coverage)
@@ -561,7 +577,7 @@ def search_next_leg(
         exclude_separate_tickets=payload["exclude_separate_tickets"])
     coverage.add(raw)
     coverage.result.results = [_build_trip_option(legs, [*prefix, candidate],
-        cabin=payload["cabin"], passengers=payload["passengers"],
+        cabin=payload["cabin"], passengers=payload["passengers"], transport=transport,
         include_basic_economy=payload["include_basic_economy"],
         sort=payload.get("sort", SORT_DEPARTURE_TIME), show_all_results=payload["show_all_results"],
         exclude_separate_tickets=payload["exclude_separate_tickets"])
@@ -736,7 +752,7 @@ def price_trip_selector(
         cabin=payload["cabin"],
         passengers=payload["passengers"],
         include_basic_economy=payload["include_basic_economy"],
-        transport=transport,
+        transport=_selector_transport(payload, transport),
         rpc_calls=rpc_calls,
         deadline=deadline,
         exclude_separate_tickets=payload["exclude_separate_tickets"],
