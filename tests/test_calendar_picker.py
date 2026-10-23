@@ -117,3 +117,40 @@ def test_invalid_picker_inputs_do_not_send_requests(monkeypatch, args, kwargs):
     with pytest.raises(ValueError):
         swoop.calendar(*args, **kwargs)
     assert calls == []
+
+
+@pytest.mark.parametrize("connection_filter,slot", [
+    ({"connecting_airports": ["ATL"]}, 9),
+    ({"exclude_connecting_airports": ["ATL"]}, 10),
+])
+def test_calendar_wrapper_forwards_the_full_pricing_and_time_context(monkeypatch, connection_filter, slot):
+    calls = _serve(monkeypatch, encode_rpc_outer([None, [
+        ["2027-01-10", "2027-01-17", [[None, 400], "synthetic-selector"]],
+    ]]))
+    transport = swoop.TransportConfig(country="GB", currency="JPY")
+    swoop.calendar("JFK", "LAX", "2027-01-10", "2027-01-11", min_stay=7,
+        max_stops=1, airlines=["AA"], exclude_basic_economy=True, exclude_separate_tickets=True,
+        carry_on_bags=1, checked_bags=2, max_price=500, max_duration=600,
+        min_layover_duration=45, max_layover_duration=120,
+        earliest_departure=9, latest_departure=18, earliest_arrival=12, latest_arrival=24,
+        return_earliest_departure=10, return_latest_departure=20,
+        transport=transport, **connection_filter)
+    _, content, used = calls[0]
+    filters = decode_f_req(content.decode().removeprefix("f.req="))[1]
+    assert used is transport
+    assert filters[7] == [None, 500] and filters[10] == [1, 2]
+    assert filters[18] == filters[28] == 1
+    outbound, inbound = filters[13]
+    assert outbound[2] == [9, 18, 12, 24]
+    assert inbound[2] == [10, 20, None, None]
+    for leg in (outbound, inbound):
+        assert leg[3:5] == [2, ["AA"]]
+        assert leg[7] == [600] and leg[slot] == ["ATL"] and leg[11:13] == [45, 120]
+
+
+def test_legacy_picker_parser_uses_shared_multichunk_decoding():
+    chunks = [json.dumps([["di", 123]]), json.dumps([["wrb.fr", None,
+        json.dumps([None, [["2027-01-10", None, [[None, 300], "synthetic-selector"]]]])]])]
+    response = ")]}'\n" + "".join(str(len(chunk.encode())) + "\n" + chunk + "\n" for chunk in chunks)
+    assert rpc._parse_calendar_response(response).days == _calendar._parse_calendar_days(response)
+    assert rpc._parse_calendar_response(response).days[0].price == 300

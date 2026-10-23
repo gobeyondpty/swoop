@@ -1607,6 +1607,24 @@ def calendar(
     max_stay: Optional[int] = None,
     cabin: CabinClass = "economy",
     passengers: Passengers = Passengers(),
+    max_stops: Optional[int] = None,
+    airlines: Optional[list[str]] = None,
+    exclude_basic_economy: bool = False,
+    exclude_separate_tickets: bool = False,
+    carry_on_bags: int = 0,
+    checked_bags: int = 0,
+    max_price: Optional[int] = None,
+    max_duration: Optional[int] = None,
+    connecting_airports: Optional[list[str]] = None,
+    exclude_connecting_airports: Optional[list[str]] = None,
+    min_layover_duration: Optional[int] = None,
+    max_layover_duration: Optional[int] = None,
+    earliest_departure: Optional[int] = None,
+    latest_departure: Optional[int] = None,
+    earliest_arrival: Optional[int] = None,
+    latest_arrival: Optional[int] = None,
+    return_earliest_departure: Optional[int] = None,
+    return_latest_departure: Optional[int] = None,
     transport: TransportConfig = TransportConfig(),
 ) -> CalendarResult:
     """Fetch Google Flights' date-grid prices for a route + date window.
@@ -1618,6 +1636,10 @@ def calendar(
     For a one-way scan, omit ``min_stay`` / ``max_stay``. For a round-trip
     scan, pass at least ``min_stay`` (set ``max_stay = min_stay`` for an
     exact stay length, or widen to surface flexible options).
+
+    QPX bag, price and routing filters match :func:`get_calendar`. Durations
+    are minutes and the ceiling uses display-currency major units. Outbound
+    time windows do not constrain the return; set return departure hours explicitly.
 
     The returned prices' coloring (green/typical/red) is computed
     client-side from the prices themselves — bucket them yourself with
@@ -1666,6 +1688,24 @@ def calendar(
         max_stay=max_stay if max_stay is not None else min_stay,
         cabin=cabin,
         passengers=passengers,
+        max_stops=max_stops,
+        airlines=airlines,
+        exclude_basic_economy=exclude_basic_economy,
+        exclude_separate_tickets=exclude_separate_tickets,
+        carry_on_bags=carry_on_bags,
+        checked_bags=checked_bags,
+        max_price=max_price,
+        max_duration=max_duration,
+        connecting_airports=connecting_airports,
+        exclude_connecting_airports=exclude_connecting_airports,
+        min_layover_duration=min_layover_duration,
+        max_layover_duration=max_layover_duration,
+        earliest_departure=earliest_departure,
+        latest_departure=latest_departure,
+        earliest_arrival=earliest_arrival,
+        latest_arrival=latest_arrival,
+        return_earliest_departure=return_earliest_departure,
+        return_latest_departure=return_latest_departure,
         transport=transport,
     )
 

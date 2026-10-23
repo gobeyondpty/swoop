@@ -821,7 +821,7 @@ class TestCalendarSurface:
             "return_end",
             *shared,
         ]
-        for fn in [swoop.get_calendar, swoop.get_price_graph]:
+        for fn in [swoop.calendar, swoop.get_calendar, swoop.get_price_graph]:
             assert list(inspect.signature(fn).parameters) == [
                 "origin",
                 "destination",

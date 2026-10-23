@@ -605,7 +605,7 @@ filters[1]  = main filter block:
   [1][13]   = segments array (outbound + optional return)
   [1][17]   = 1 (constant)
 filters[2]  = sort order (1=top, 2=cheapest, 3=dep_time, 4=arr_time, 5=duration)
-filters[3]  = 0 (constant)
+filters[3]  = 1 if show_all_results else 0  # request the wider result list
 filters[4]  = 0 (constant)
 filters[5]  = 2 (constant)
 ```
