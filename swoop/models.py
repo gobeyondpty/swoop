@@ -28,6 +28,10 @@ class TransportConfig:
     proxy: Optional[str] = None
     impersonate: Optional[str] = None
 
+    def __post_init__(self) -> None:
+        if self.country is not None and not isinstance(self.country, str):
+            raise ValueError("country must be a string when provided")
+
 
 @dataclass
 class TripLeg:

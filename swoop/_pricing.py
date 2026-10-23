@@ -45,7 +45,7 @@ def _validate_routing(
         raise ValueError("choose connecting_airports or exclude_connecting_airports")
     for codes in (connecting_airports, exclude_connecting_airports):
         if codes is not None:
-            if isinstance(codes, str) or any(
+            if not isinstance(codes, list) or any(
                 not isinstance(c, str)
                 or len(c) != 3
                 or not c.isascii()

@@ -10,7 +10,8 @@ from dataclasses import replace
 from typing import Any, Optional
 
 from .builders import CabinClass
-from ._validate import parse_flight_number
+from ._pricing import _validate_pricing, _validate_routing
+from ._validate import parse_flight_number, validate_cabin, validate_date, validate_iata_code, validate_adults
 from .decoder import Itinerary, RawSearchResult, itinerary_matches_flight
 from .exceptions import SwoopError, SwoopUpstreamError
 from .models import Passengers, PriceResult, ResolvedLeg, SearchResult, TransportConfig, TripLeg, TripOption
@@ -111,7 +112,7 @@ def encode_trip_selector(
 
 
 def decode_trip_selector(selector: str) -> dict[str, Any]:
-    if not selector.startswith(SELECTOR_PREFIX):
+    if not isinstance(selector, str) or not selector.startswith(SELECTOR_PREFIX):
         raise ValueError("invalid selector format")
     encoded = selector[len(SELECTOR_PREFIX):]
     padding = "=" * (-len(encoded) % 4)
@@ -463,9 +464,33 @@ def resolve_trip_selector(
     *,
     transport: TransportConfig = TransportConfig(),
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[Itinerary], int]:
-    payload = decode_trip_selector(selector)
-    request_legs = [_copy_request_leg(leg) for leg in payload["query_legs"]]
-    selected_legs = payload["selected_legs"]
+    try:
+        payload = decode_trip_selector(selector)
+        query_legs = payload["query_legs"]
+        selected_legs = payload["selected_legs"]
+        if (not isinstance(query_legs, list) or not 1 <= len(query_legs) <= 6
+                or not all(isinstance(leg, dict) for leg in query_legs)):
+            raise ValueError("invalid selector query legs")
+        if (not isinstance(selected_legs, list) or len(selected_legs) > len(query_legs)
+                or not all(isinstance(leg, list) and leg and all(
+                    isinstance(flight, list) and len(flight) == 6 for flight in leg)
+                    for leg in selected_legs)):
+            raise ValueError("invalid selector selected legs")
+        validate_cabin(payload["cabin"])
+        validate_adults(payload["passengers"].adults)
+        if not isinstance(payload["include_basic_economy"], bool):
+            raise ValueError("invalid selector fare filter")
+        _validate_pricing(payload.get("carry_on_bags", 0), payload.get("checked_bags", 0), payload.get("max_price"))
+        for leg in query_legs:
+            validate_iata_code(leg["origin"], "origin")
+            validate_iata_code(leg["destination"], "destination")
+            validate_date(leg["date"], "date")
+            _validate_routing(leg.get("max_duration"), leg.get("connecting_airports"),
+                              leg.get("exclude_connecting_airports"), leg.get("min_layover_duration"),
+                              leg.get("max_layover_duration"))
+        request_legs = [_copy_request_leg(leg) for leg in query_legs]
+    except (TypeError, AttributeError, KeyError) as exc:
+        raise ValueError("invalid selector context") from exc
     resolved: list[Itinerary] = []
     rpc_calls = 0
 
