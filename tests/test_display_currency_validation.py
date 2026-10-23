@@ -55,3 +55,14 @@ def test_nonstring_selector_is_not_a_transport_failure(value):
     with pytest.raises(ValueError):
         selection.resolve_trip_selector(value)
     assert selection.price_trip_selector(value) is None
+
+
+@pytest.mark.parametrize("value", [[], {}, "1", -1, True])
+def test_malformed_stops_are_rejected_before_building_a_request(monkeypatch, value):
+    payload = _selector_payload()
+    payload["query_legs"][0]["max_stops"] = value
+    selector = selection.SELECTOR_PREFIX + selection._encode_payload(payload)
+    monkeypatch.setattr(selection, "_search_from_legs", lambda *_a, **_k: pytest.fail("invalid stops reached shopping"))
+    with pytest.raises(ValueError):
+        selection.resolve_trip_selector(selector)
+    assert selection.price_trip_selector(selector) is None

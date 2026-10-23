@@ -464,6 +464,9 @@ def resolve_trip_selector(
             validate_iata_code(leg["origin"], "origin")
             validate_iata_code(leg["destination"], "destination")
             validate_date(leg["date"], "date")
+            stops = leg.get("max_stops")
+            if stops is not None and (type(stops) is not int or stops < 0):
+                raise ValueError("invalid selector stop filter")
         request_legs = [_copy_request_leg(leg) for leg in query_legs]
     except (TypeError, AttributeError, KeyError) as exc:
         raise ValueError("invalid selector context") from exc
