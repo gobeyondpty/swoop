@@ -38,6 +38,7 @@ def test_tampered_global_pricing_is_rejected_without_rpc(monkeypatch, field, val
 
 
 @pytest.mark.parametrize("field,value", [
+    ("max_stops", []), ("max_stops", {}), ("max_stops", "1"), ("max_stops", -1), ("max_stops", True),
     ("max_duration", "600"), ("max_duration", {}), ("max_duration", -1),
     ("connecting_airports", True), ("connecting_airports", "ATL"),
     ("connecting_airports", {"ATL": 1}), ("connecting_airports", [None]),
@@ -70,3 +71,19 @@ def _assert_no_rpc(monkeypatch, payload):
     with pytest.raises(ValueError):
         selection.resolve_trip_selector(selector)
     assert selection.price_trip_selector(selector) is None
+
+
+@pytest.mark.parametrize("path,value", [
+    (("passengers", "children"), []), (("passengers", "infants_in_seat"), {}),
+    (("sort",), []), (("sort",), "3"),
+    (("query_legs", 0, "airlines"), [1]), (("query_legs", 0, "airlines"), {"AA": 1}),
+    (("query_legs", 0, "earliest_departure"), {}), (("query_legs", 0, "latest_arrival"), "18"),
+    (("selected_legs", 0, 0, 0), {}), (("selected_legs", 0, 0, 4), []),
+])
+def test_legacy_filter_shapes_cannot_trigger_fallback_builder_errors(monkeypatch, path, value):
+    payload = _payload()
+    target = payload
+    for part in path[:-1]:
+        target = target[part]
+    target[path[-1]] = value
+    _assert_no_rpc(monkeypatch, payload)
