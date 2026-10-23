@@ -10,6 +10,7 @@ from dataclasses import replace
 from typing import Any, Optional
 
 from .builders import CabinClass
+from ._pricing import _validate_pricing, _validate_routing
 from ._validate import parse_flight_number, validate_cabin, validate_date, validate_iata_code, validate_adults
 from .decoder import Itinerary, RawSearchResult, itinerary_matches_flight
 from .exceptions import SwoopError, SwoopTransportError, SwoopUpstreamError
@@ -546,9 +547,13 @@ def resolve_trip_selector(
             raise ValueError("incomplete selector: every requested leg must be selected")
         if allow_partial and len(selected_legs) == len(request_legs):
             raise ValueError("continuation requires an unselected leg")
+        _validate_pricing(payload.get("carry_on_bags", 0), payload.get("checked_bags", 0), payload.get("max_price"))
         validate_cabin(payload["cabin"])
         validate_adults(payload["passengers"].adults)
         for index, leg in enumerate(request_legs):
+            _validate_routing(leg.get("max_duration"), leg.get("connecting_airports"),
+                              leg.get("exclude_connecting_airports"), leg.get("min_layover_duration"),
+                              leg.get("max_layover_duration"))
             _normalize_raw_airports(leg["origin"], "origin")
             _normalize_raw_airports(leg["destination"], "destination")
             validate_date(leg["date"], "date")

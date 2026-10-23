@@ -159,14 +159,25 @@ def _fetch_calendar(
     latest_departure: Optional[int] = None,
     earliest_arrival: Optional[int] = None,
     latest_arrival: Optional[int] = None,
+    return_earliest_departure: Optional[int] = None,
+    return_latest_departure: Optional[int] = None,
     transport: TransportConfig = TransportConfig(),
 ) -> list[CalendarDay]:
-    from ._validate import validate_cabin, validate_iata_code, validate_adults
+    from ._validate import validate_cabin, validate_iata_code, validate_adults, validate_time_range
 
     validate_iata_code(origin, "origin")
     validate_iata_code(destination, "destination")
     validate_cabin(cabin)
     validate_adults(passengers.adults)
+    for earliest_name, earliest, latest_name, latest in (
+        ("earliest_departure", earliest_departure, "latest_departure", latest_departure),
+        ("earliest_arrival", earliest_arrival, "latest_arrival", latest_arrival),
+        ("return_earliest_departure", return_earliest_departure, "return_latest_departure", return_latest_departure),
+    ):
+        validate_time_range(earliest, earliest_name, 0, 23)
+        validate_time_range(latest, latest_name, 1, 24)
+        if earliest is not None and latest is not None and earliest >= latest:
+            raise ValueError(f"{earliest_name} must be before {latest_name}")
     windows = [_window(start, end, "departure window")]
     if (return_start is None) != (return_end is None):
         raise ValueError("return_start and return_end must be given together")
@@ -189,18 +200,14 @@ def _fetch_calendar(
         exclude_connecting_airports=exclude_connecting_airports,
         min_layover_duration=min_layover_duration,
         max_layover_duration=max_layover_duration,
-        earliest_departure=earliest_departure,
-        latest_departure=latest_departure,
-        earliest_arrival=earliest_arrival,
-        latest_arrival=latest_arrival,
     )
-    legs = [_normalize_rpc_leg(origin, destination, start, **route_filters)]
+    legs = [_normalize_rpc_leg(origin, destination, start,
+        earliest_departure=earliest_departure, latest_departure=latest_departure,
+        earliest_arrival=earliest_arrival, latest_arrival=latest_arrival, **route_filters)]
     if len(windows) == 2 or stay is not None:
-        legs.append(
-            _normalize_rpc_leg(
-                destination, origin, return_start or start, **route_filters
-            )
-        )
+        legs.append(_normalize_rpc_leg(destination, origin, return_start or start,
+            earliest_departure=return_earliest_departure,
+            latest_departure=return_latest_departure, **route_filters))
     filters = _build_filters_from_legs(
         legs,
         cabin=cabin,
@@ -250,12 +257,15 @@ def calendar_prices(
     latest_departure: Optional[int] = None,
     earliest_arrival: Optional[int] = None,
     latest_arrival: Optional[int] = None,
+    return_earliest_departure: Optional[int] = None,
+    return_latest_departure: Optional[int] = None,
     transport: TransportConfig = TransportConfig(),
 ) -> list[CalendarPrice]:
     """Cheapest fares for each departure/return date pair in inclusive windows.
 
     Duration and layover limits are in minutes; max_price is in major units of
     the display currency. Filters have the same wire format as shopping.
+    Time windows apply to the outbound leg; return departure hours are independent.
     Dates with no published fare are omitted.
     """
     prices = _fetch_calendar(
@@ -284,6 +294,8 @@ def calendar_prices(
         latest_departure=latest_departure,
         earliest_arrival=earliest_arrival,
         latest_arrival=latest_arrival,
+        return_earliest_departure=return_earliest_departure,
+        return_latest_departure=return_latest_departure,
         transport=transport,
     )
     return [
@@ -318,12 +330,15 @@ def get_calendar(
     latest_departure: Optional[int] = None,
     earliest_arrival: Optional[int] = None,
     latest_arrival: Optional[int] = None,
+    return_earliest_departure: Optional[int] = None,
+    return_latest_departure: Optional[int] = None,
     transport: TransportConfig = TransportConfig(),
 ) -> CalendarResult:
     """Cheapest fares per departure date; optional stay bounds select a roundtrip.
 
     Duration and layover limits are in minutes; max_price is in major units of
     the display currency. Filters have the same wire format as shopping.
+    Time windows apply to the outbound leg; return departure hours are independent.
     Dates with no published fare are omitted.
     """
     prices = _fetch_calendar(
@@ -352,6 +367,8 @@ def get_calendar(
         latest_departure=latest_departure,
         earliest_arrival=earliest_arrival,
         latest_arrival=latest_arrival,
+        return_earliest_departure=return_earliest_departure,
+        return_latest_departure=return_latest_departure,
         transport=transport,
     )
     return CalendarResult(days=prices)
@@ -383,12 +400,15 @@ def get_price_graph(
     latest_departure: Optional[int] = None,
     earliest_arrival: Optional[int] = None,
     latest_arrival: Optional[int] = None,
+    return_earliest_departure: Optional[int] = None,
+    return_latest_departure: Optional[int] = None,
     transport: TransportConfig = TransportConfig(),
 ) -> list[CalendarPrice]:
     """Cheapest fares per departure date; optional stay bounds select a roundtrip.
 
     Duration and layover limits are in minutes; max_price is in major units of
     the display currency. Filters have the same wire format as shopping.
+    Time windows apply to the outbound leg; return departure hours are independent.
     Dates with no published fare are omitted.
     """
     prices = _fetch_calendar(
@@ -417,6 +437,8 @@ def get_price_graph(
         latest_departure=latest_departure,
         earliest_arrival=earliest_arrival,
         latest_arrival=latest_arrival,
+        return_earliest_departure=return_earliest_departure,
+        return_latest_departure=return_latest_departure,
         transport=transport,
     )
     return [
