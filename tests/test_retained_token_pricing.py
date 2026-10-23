@@ -465,3 +465,21 @@ def test_changed_qpx_context_replays_instead_of_reusing_retained_token(monkeypat
     monkeypatch.setattr(selection, "get_trip_booking_results", lambda token, *_a, **_k: tokens.append(token) or [_option(trips)])
     assert selection.price_trip_selector(selector) is not None
     assert len(calls) == 1 and tokens == ["fresh-token"]
+
+
+@pytest.mark.parametrize("field,value", [
+    ("carry_on_bags", "one"), ("checked_bags", {}), ("max_price", []),
+    ("max_duration", "600"), ("connecting_airports", True),
+    ("currency", 123), ("country", {}),
+])
+def test_invalid_context_cannot_use_a_retained_token_even_with_a_matching_digest(monkeypatch, field, value):
+    selector, _, _ = _source()
+    payload = selection.decode_trip_selector(selector)
+    if field in ("max_duration", "connecting_airports"):
+        payload["query_legs"][0][field] = value
+    else:
+        payload[field] = value
+    payload["pricing_hint"]["context"] = hints._context_digest(payload)
+    monkeypatch.setattr(selection, "_search_from_legs", lambda *_a, **_k: pytest.fail("invalid context shopped"))
+    monkeypatch.setattr(selection, "get_trip_booking_results", lambda *_a, **_k: pytest.fail("invalid context booked"))
+    assert selection.price_trip_selector(_encode(payload)) is None
