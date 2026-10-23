@@ -88,15 +88,28 @@ def test_live_currency_independent_of_point_of_sale():
 def test_continuation_retains_display_currency(monkeypatch):
     calls = []
     def fetch(legs, **kwargs):
+        assert kwargs['carry_on_bags'] == kwargs['checked_bags'] == 1
+        assert kwargs['max_price'] == 500
         calls.append(kwargs['transport'])
         leg = next(leg for leg in legs if not leg.get('selected_legs'))
         itinerary = make_simple_itinerary(origin=leg['origin'], destination=leg['destination'], date=leg['date'], airline='AA', flight_number='123', price=300, booking_token='synthetic-token')
         return make_raw_result(itinerary)
     monkeypatch.setattr(selection, '_search_from_legs', fetch)
     legs = [{'origin':'JFK','destination':'LAX','date':'2026-12-03'}, {'origin':'LAX','destination':'JFK','date':'2026-12-08'}]
-    result = selection.search_trip_options(legs, transport=TransportConfig(country='GB',currency='JPY'))
+    result = selection.search_trip_options(legs, carry_on_bags=1, checked_bags=1, max_price=500, transport=TransportConfig(country='GB',currency='JPY'))
     continued = selection.search_next_leg(result.results[0].selector)
     assert continued.results
     payload = selection.decode_trip_selector(continued.results[0].selector)
     assert payload['country'] == 'GB' and payload['currency'] == 'JPY'
+    assert payload['carry_on_bags'] == payload['checked_bags'] == 1 and payload['max_price'] == 500
     assert all((t.country,t.currency)==('GB','JPY') for t in calls)
+
+
+@pytest.mark.live
+@pytest.mark.parametrize('api',['calendar_prices','get_calendar','get_price_graph'])
+def test_live_calendar_currency(api):
+    from datetime import date,timedelta
+    day=(date.today()+timedelta(days=42)).isoformat()
+    result=getattr(swoop,api)('JFK','LAX',day,day,max_stops=0,carry_on_bags=1,checked_bags=1,transport=TransportConfig(country='GB',currency='JPY',timeout=45,retries=0))
+    cells=result.days if isinstance(result,swoop.CalendarResult) else result
+    assert len(cells)==1 and cells[0].currency=='JPY' and cells[0].price>1000

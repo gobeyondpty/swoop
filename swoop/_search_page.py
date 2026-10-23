@@ -42,6 +42,9 @@ def fetch_search_page(
     passengers: Passengers, sort: int, exclude_basic_economy: bool,
     transport: TransportConfig,
     exclude_separate_tickets: bool = False,
+    carry_on_bags: int = 0,
+    checked_bags: int = 0,
+    max_price: int | None = None,
 ) -> RawSearchResult:
     """Make one page request, preserving supported search constraints.
 
@@ -59,16 +62,22 @@ TFS encoding here; reject them rather than return flights ignoring the intent.
         flight_data=[SearchLeg(
             date=leg["date"], from_airport=leg["origin"], to_airport=leg["destination"],
             max_stops=leg.get("max_stops"), airlines=leg.get("airlines"),
+            max_duration=leg.get("max_duration"), connecting_airports=leg.get("connecting_airports"),
+            exclude_connecting_airports=leg.get("exclude_connecting_airports"),
+            min_layover_duration=leg.get("min_layover_duration"), max_layover_duration=leg.get("max_layover_duration"),
         ) for leg in legs],
         seat=CABIN_CLASS_MAP[cabin], trip=2 if len(legs) == 1 else 1,
         passengers=_PBPassengers(
             adults=passengers.adults, children=passengers.children,
             infants_in_seat=passengers.infants_in_seat, infants_on_lap=passengers.infants_on_lap,
         ),
+        carry_on_bags=carry_on_bags, checked_bags=checked_bags, max_price=max_price,
         exclude_basic_economy=exclude_basic_economy,
         exclude_separate_tickets=exclude_separate_tickets,
     )
     params = {"tfs": tfs.as_b64().decode(), "hl": "en"}
+    if transport.currency:
+        params["curr"] = transport.currency
     if transport.country:
         params["gl"] = transport.country.upper()
     response = client.get(

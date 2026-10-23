@@ -5,7 +5,7 @@ import json
 import pytest
 
 import swoop
-from swoop import rpc
+from swoop import rpc, _calendar
 from tests.factories import FakeHTTPResponse, decode_f_req, encode_rpc_outer, make_error_response
 
 
@@ -17,6 +17,7 @@ def _serve(monkeypatch, response):
         return FakeHTTPResponse(text=response)
 
     monkeypatch.setattr(rpc, "_http_post", post)
+    monkeypatch.setattr(_calendar, "_http_post", post)
     return calls
 
 
@@ -44,9 +45,9 @@ def test_oneway_picker_sends_bytes_and_preserves_fares_and_transport(monkeypatch
     assert used_transport is transport
     payload = decode_f_req(content.decode().removeprefix("f.req="))
     assert payload[1][5:7] == [3, [2, 1, 1, 1]]
-    assert payload[1][13] == [[[[["PTY", 0]]], [[["CDG", 0]]], None, 0]]
-    assert payload[1][17] == 2
-    assert payload[2:] == [["2027-01-10", "2027-01-11"], None, None]
+    assert payload[1][13][0][:4] == [[[["PTY", 0]]], [[["CDG", 0]]], None, 0]
+    assert payload[1][2] == 2
+    assert payload[2:] == [["2027-01-10", "2027-01-11"]]
 
 
 @pytest.mark.parametrize("max_stay, expected", [(None, [7, 7]), (10, [7, 10])])

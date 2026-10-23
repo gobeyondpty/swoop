@@ -24,27 +24,29 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rflights.proto\"\x1a\n\x07\x41irport\x12\x0f\n\x07\x61irport\x18\x02 \x01(\t\"\x8e\x01\n\nFlightData\x12\x0c\n\x04\x64\x61te\x18\x02 \x01(\t\x12\x1d\n\x0b\x66rom_flight\x18\r \x01(\x0b\x32\x08.Airport\x12\x1b\n\tto_flight\x18\x0e \x01(\x0b\x32\x08.Airport\x12\x16\n\tmax_stops\x18\x05 \x01(\x05H\x00\x88\x01\x01\x12\x10\n\x08\x61irlines\x18\x06 \x03(\tB\x0c\n\n_max_stops\"\xed\x01\n\x04Info\x12\x19\n\x04\x64\x61ta\x18\x03 \x03(\x0b\x32\x0b.FlightData\x12\x13\n\x04seat\x18\t \x01(\x0e\x32\x05.Seat\x12\x1e\n\npassengers\x18\x08 \x03(\x0e\x32\n.Passenger\x12%\n\x18\x65xclude_separate_tickets\x18\x11 \x01(\x08H\x00\x88\x01\x01\x12\x13\n\x04trip\x18\x13 \x01(\x0e\x32\x05.Trip\x12\"\n\x15\x65xclude_basic_economy\x18\x19 \x01(\x08H\x01\x88\x01\x01\x42\x1b\n\x19_exclude_separate_ticketsB\x18\n\x16_exclude_basic_economy\"(\n\x05Price\x12\r\n\x05price\x18\x01 \x01(\x05\x12\x10\n\x08\x63urrency\x18\x03 \x01(\t\":\n\x10ItinerarySummary\x12\x0f\n\x07\x66lights\x18\x02 \x01(\t\x12\x15\n\x05price\x18\x03 \x01(\x0b\x32\x06.Price*S\n\x04Seat\x12\x10\n\x0cUNKNOWN_SEAT\x10\x00\x12\x0b\n\x07\x45\x43ONOMY\x10\x01\x12\x13\n\x0fPREMIUM_ECONOMY\x10\x02\x12\x0c\n\x08\x42USINESS\x10\x03\x12\t\n\x05\x46IRST\x10\x04*E\n\x04Trip\x12\x10\n\x0cUNKNOWN_TRIP\x10\x00\x12\x0e\n\nROUND_TRIP\x10\x01\x12\x0b\n\x07ONE_WAY\x10\x02\x12\x0e\n\nMULTI_CITY\x10\x03*_\n\tPassenger\x12\x15\n\x11UNKNOWN_PASSENGER\x10\x00\x12\t\n\x05\x41\x44ULT\x10\x01\x12\t\n\x05\x43HILD\x10\x02\x12\x12\n\x0eINFANT_IN_SEAT\x10\x03\x12\x11\n\rINFANT_ON_LAP\x10\x04\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rflights.proto\"\x1a\n\x07\x41irport\x12\x0f\n\x07\x61irport\x18\x02 \x01(\t\"\xf4\x02\n\nFlightData\x12\x0c\n\x04\x64\x61te\x18\x02 \x01(\t\x12\x1d\n\x0b\x66rom_flight\x18\r \x01(\x0b\x32\x08.Airport\x12\x1b\n\tto_flight\x18\x0e \x01(\x0b\x32\x08.Airport\x12\x16\n\tmax_stops\x18\x05 \x01(\x05H\x00\x88\x01\x01\x12\x10\n\x08\x61irlines\x18\x06 \x03(\t\x12\x19\n\x0cmax_duration\x18\x0c \x01(\x05H\x01\x88\x01\x01\x12\x1b\n\x13\x63onnecting_airports\x18\x0f \x03(\t\x12#\n\x1b\x65xclude_connecting_airports\x18\x10 \x03(\t\x12!\n\x14min_layover_duration\x18\x11 \x01(\x05H\x02\x88\x01\x01\x12!\n\x14max_layover_duration\x18\x12 \x01(\x05H\x03\x88\x01\x01\x42\x0c\n\n_max_stopsB\x0f\n\r_max_durationB\x17\n\x15_min_layover_durationB\x17\n\x15_max_layover_duration\"c\n\x07\x42\x61ggage\x12\x1a\n\rcarry_on_bags\x18\x02 \x01(\x05H\x00\x88\x01\x01\x12\x19\n\x0c\x63hecked_bags\x18\x03 \x01(\x05H\x01\x88\x01\x01\x42\x10\n\x0e_carry_on_bagsB\x0f\n\r_checked_bags\"\xae\x02\n\x04Info\x12\x19\n\x04\x64\x61ta\x18\x03 \x03(\x0b\x32\x0b.FlightData\x12\x13\n\x04seat\x18\t \x01(\x0e\x32\x05.Seat\x12\x16\n\tmax_price\x18\x0c \x01(\x05H\x00\x88\x01\x01\x12\x19\n\x07\x62\x61ggage\x18\r \x01(\x0b\x32\x08.Baggage\x12\x1e\n\npassengers\x18\x08 \x03(\x0e\x32\n.Passenger\x12%\n\x18\x65xclude_separate_tickets\x18\x11 \x01(\x08H\x01\x88\x01\x01\x12\x13\n\x04trip\x18\x13 \x01(\x0e\x32\x05.Trip\x12\"\n\x15\x65xclude_basic_economy\x18\x19 \x01(\x08H\x02\x88\x01\x01\x42\x0c\n\n_max_priceB\x1b\n\x19_exclude_separate_ticketsB\x18\n\x16_exclude_basic_economy\"(\n\x05Price\x12\r\n\x05price\x18\x01 \x01(\x05\x12\x10\n\x08\x63urrency\x18\x03 \x01(\t\":\n\x10ItinerarySummary\x12\x0f\n\x07\x66lights\x18\x02 \x01(\t\x12\x15\n\x05price\x18\x03 \x01(\x0b\x32\x06.Price*S\n\x04Seat\x12\x10\n\x0cUNKNOWN_SEAT\x10\x00\x12\x0b\n\x07\x45\x43ONOMY\x10\x01\x12\x13\n\x0fPREMIUM_ECONOMY\x10\x02\x12\x0c\n\x08\x42USINESS\x10\x03\x12\t\n\x05\x46IRST\x10\x04*E\n\x04Trip\x12\x10\n\x0cUNKNOWN_TRIP\x10\x00\x12\x0e\n\nROUND_TRIP\x10\x01\x12\x0b\n\x07ONE_WAY\x10\x02\x12\x0e\n\nMULTI_CITY\x10\x03*_\n\tPassenger\x12\x15\n\x11UNKNOWN_PASSENGER\x10\x00\x12\t\n\x05\x41\x44ULT\x10\x01\x12\t\n\x05\x43HILD\x10\x02\x12\x12\n\x0eINFANT_IN_SEAT\x10\x03\x12\x11\n\rINFANT_ON_LAP\x10\x04\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'flights_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_SEAT']._serialized_start=532
-  _globals['_SEAT']._serialized_end=615
-  _globals['_TRIP']._serialized_start=617
-  _globals['_TRIP']._serialized_end=686
-  _globals['_PASSENGER']._serialized_start=688
-  _globals['_PASSENGER']._serialized_end=783
+  _globals['_SEAT']._serialized_start=928
+  _globals['_SEAT']._serialized_end=1011
+  _globals['_TRIP']._serialized_start=1013
+  _globals['_TRIP']._serialized_end=1082
+  _globals['_PASSENGER']._serialized_start=1084
+  _globals['_PASSENGER']._serialized_end=1179
   _globals['_AIRPORT']._serialized_start=17
   _globals['_AIRPORT']._serialized_end=43
   _globals['_FLIGHTDATA']._serialized_start=46
-  _globals['_FLIGHTDATA']._serialized_end=188
-  _globals['_INFO']._serialized_start=191
-  _globals['_INFO']._serialized_end=428
-  _globals['_PRICE']._serialized_start=430
-  _globals['_PRICE']._serialized_end=470
-  _globals['_ITINERARYSUMMARY']._serialized_start=472
-  _globals['_ITINERARYSUMMARY']._serialized_end=530
+  _globals['_FLIGHTDATA']._serialized_end=418
+  _globals['_BAGGAGE']._serialized_start=420
+  _globals['_BAGGAGE']._serialized_end=519
+  _globals['_INFO']._serialized_start=522
+  _globals['_INFO']._serialized_end=824
+  _globals['_PRICE']._serialized_start=826
+  _globals['_PRICE']._serialized_end=866
+  _globals['_ITINERARYSUMMARY']._serialized_start=868
+  _globals['_ITINERARYSUMMARY']._serialized_end=926
 # @@protoc_insertion_point(module_scope)
