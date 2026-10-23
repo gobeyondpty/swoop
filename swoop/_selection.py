@@ -10,7 +10,7 @@ from dataclasses import replace
 from typing import Any, Optional
 
 from .builders import CabinClass
-from ._validate import parse_flight_number, validate_cabin, validate_date, validate_iata_code
+from ._validate import parse_flight_number, validate_cabin, validate_date, validate_iata_code, validate_adults
 from .decoder import Itinerary, RawSearchResult, itinerary_matches_flight
 from .exceptions import SwoopError, SwoopTransportError, SwoopUpstreamError
 from .models import Passengers, PriceResult, ResolvedLeg, SearchResult, TransportConfig, TripLeg, TripOption
@@ -125,7 +125,7 @@ def encode_trip_selector(
 
 
 def decode_trip_selector(selector: str) -> dict[str, Any]:
-    if not selector.startswith(SELECTOR_PREFIX):
+    if not isinstance(selector, str) or not selector.startswith(SELECTOR_PREFIX):
         raise ValueError("invalid selector format")
     encoded = selector[len(SELECTOR_PREFIX):]
     padding = "=" * (-len(encoded) % 4)
@@ -512,11 +512,15 @@ def _match_itinerary_by_selected_segments(
 
 def _selector_transport(payload: dict[str, Any], transport: TransportConfig) -> TransportConfig:
     """Restore selector pricing context; explicit transport values override it."""
-    return replace(
-        transport,
-        country=_effective_country(transport.country if transport.country is not None else payload.get("country")),
-        currency=transport.currency if transport.currency is not None else payload.get("currency"),
-    )
+    try:
+        saved = TransportConfig(country=payload.get("country"), currency=payload.get("currency"))
+        return replace(
+            transport,
+            country=_effective_country(transport.country if transport.country is not None else saved.country),
+            currency=transport.currency if transport.currency is not None else saved.currency,
+        )
+    except (TypeError, AttributeError, KeyError) as exc:
+        raise ValueError("invalid selector transport") from exc
 
 
 def resolve_trip_selector(
@@ -527,22 +531,23 @@ def resolve_trip_selector(
     allow_partial: bool = False,
     coverage: Optional[_Coverage] = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[Itinerary], int]:
-    payload = decode_trip_selector(selector)
-    transport = _selector_transport(payload, transport)
-    query_legs = payload.get("query_legs")
-    selected_legs = payload.get("selected_legs")
-    if not isinstance(query_legs, list) or not query_legs or len(query_legs) > 6 or not all(isinstance(leg, dict) for leg in query_legs):
-        raise ValueError("invalid selector query legs")
-    request_legs = [_copy_request_leg(leg) for leg in query_legs]
-    if not isinstance(selected_legs, list) or not selected_legs or not all(isinstance(leg, list) and leg for leg in selected_legs):
-        raise ValueError("incomplete selector: every requested leg must be selected")
-    if (len(selected_legs) > len(request_legs)
-            or (not allow_partial and len(selected_legs) != len(request_legs))):
-        raise ValueError("incomplete selector: every requested leg must be selected")
-    if allow_partial and len(selected_legs) == len(request_legs):
-        raise ValueError("continuation requires an unselected leg")
     try:
+        payload = decode_trip_selector(selector)
+        transport = _selector_transport(payload, transport)
+        query_legs = payload.get("query_legs")
+        selected_legs = payload.get("selected_legs")
+        if not isinstance(query_legs, list) or not query_legs or len(query_legs) > 6 or not all(isinstance(leg, dict) for leg in query_legs):
+            raise ValueError("invalid selector query legs")
+        request_legs = query_legs
+        if not isinstance(selected_legs, list) or not selected_legs or not all(isinstance(leg, list) and leg for leg in selected_legs):
+            raise ValueError("incomplete selector: every requested leg must be selected")
+        if (len(selected_legs) > len(request_legs)
+                or (not allow_partial and len(selected_legs) != len(request_legs))):
+            raise ValueError("incomplete selector: every requested leg must be selected")
+        if allow_partial and len(selected_legs) == len(request_legs):
+            raise ValueError("continuation requires an unselected leg")
         validate_cabin(payload["cabin"])
+        validate_adults(payload["passengers"].adults)
         for index, leg in enumerate(request_legs):
             _normalize_raw_airports(leg["origin"], "origin")
             _normalize_raw_airports(leg["destination"], "destination")
@@ -563,6 +568,7 @@ def resolve_trip_selector(
                         raise ValueError("selected segments are disconnected")
         if not isinstance(payload["include_basic_economy"], bool):
             raise ValueError("invalid selector fare filter")
+        request_legs = [_copy_request_leg(leg) for leg in query_legs]
     except (KeyError, TypeError, AttributeError) as exc:
         raise ValueError("invalid selector context") from exc
     resolved: list[Itinerary] = []
