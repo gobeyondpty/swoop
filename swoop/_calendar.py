@@ -37,7 +37,7 @@ class CalendarPrice:
 
 def _calendar_frames(text: str) -> list[Any]:
     """Read naked JSON or every chunk of Google's length-framed stream."""
-    remaining = text.removeprefix(")]}'").lstrip()
+    remaining = text.lstrip().removeprefix(")]}'").lstrip()
     decoder = json.JSONDecoder()
     frames: list[Any] = []
     try:
@@ -55,12 +55,12 @@ def _calendar_frames(text: str) -> list[Any]:
     return frames
 
 
-def _parse_calendar_prices(
+def _parse_calendar_days(
     text: str, *, endpoint: str = "GetCalendarGrid"
-) -> list[CalendarPrice]:
+) -> list[CalendarDay]:
     frames = _calendar_frames(text)
     raise_if_error_envelope(frames, endpoint=endpoint)
-    prices: dict[tuple[str, Optional[str]], CalendarPrice] = {}
+    prices: dict[tuple[str, Optional[str]], CalendarDay] = {}
     payloads = 0
     for frame in frames:
         if not (
@@ -74,6 +74,8 @@ def _parse_calendar_prices(
             inner = json.loads(frame[2])
         except ValueError as exc:
             raise SwoopParseError("Malformed inner calendar payload") from exc
+        if isinstance(inner, list) and len(inner) > 1 and inner[1] is None:
+            continue  # Leading metadata frames carry no fare cells.
         if (
             not isinstance(inner, list)
             or len(inner) < 2
@@ -94,15 +96,27 @@ def _parse_calendar_prices(
                 continue
             summary = _decode_price_info(_safe_get(cell, [2]) or [])
             returning = returning if isinstance(returning, str) else None
-            prices[(departure, returning)] = CalendarPrice(
+            prices[(departure, returning)] = CalendarDay(
                 departure,
                 returning,
                 int(amount),
                 summary.currency if summary and summary.currency else None,
+                _safe_get(cell, [2, 1])
+                if isinstance(_safe_get(cell, [2, 1]), str)
+                else None,
             )
     if not payloads:
         raise SwoopParseError("Calendar response missing inner payload")
     return list(prices.values())
+
+
+def _parse_calendar_prices(
+    text: str, *, endpoint: str = "GetCalendarGrid"
+) -> list[CalendarPrice]:
+    return [
+        CalendarPrice(d.departure_date, d.return_date, d.price, d.currency)
+        for d in _parse_calendar_days(text, endpoint=endpoint)
+    ]
 
 
 def _window(start: str, end: str, name: str) -> list[str]:
@@ -145,7 +159,7 @@ def _fetch_calendar(
     earliest_arrival: Optional[int] = None,
     latest_arrival: Optional[int] = None,
     transport: TransportConfig = TransportConfig(),
-) -> list[CalendarPrice]:
+) -> list[CalendarDay]:
     from ._validate import validate_cabin, validate_iata_code, validate_adults
 
     validate_iata_code(origin, "origin")
@@ -205,7 +219,7 @@ def _fetch_calendar(
         content=("f.req=" + _encode_f_req_payload(payload)).encode(),
         transport=transport,
     )
-    return _parse_calendar_prices(response.text, endpoint=method)
+    return _parse_calendar_days(response.text, endpoint=method)
 
 
 def calendar_prices(
@@ -270,7 +284,10 @@ def calendar_prices(
         latest_arrival=latest_arrival,
         transport=transport,
     )
-    return prices
+    return [
+        CalendarPrice(d.departure_date, d.return_date, d.price, d.currency)
+        for d in prices
+    ]
 
 
 def get_calendar(
@@ -335,12 +352,7 @@ def get_calendar(
         latest_arrival=latest_arrival,
         transport=transport,
     )
-    return CalendarResult(
-        days=[
-            CalendarDay(p.departure_date, p.return_date, p.price, p.currency)
-            for p in prices
-        ]
-    )
+    return CalendarResult(days=prices)
 
 
 def get_price_graph(
@@ -405,4 +417,7 @@ def get_price_graph(
         latest_arrival=latest_arrival,
         transport=transport,
     )
-    return prices
+    return [
+        CalendarPrice(d.departure_date, d.return_date, d.price, d.currency)
+        for d in prices
+    ]

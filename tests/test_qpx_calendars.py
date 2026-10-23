@@ -289,3 +289,9 @@ def test_live_filtered_calendars(name, roundtrip):
             == 5
             for p in cells
         )
+
+
+def test_stream_metadata_before_price_cells():
+    frames = cal._calendar_frames((FIXTURES / "grid_rt.json").read_text())
+    frames.insert(0, ["wrb.fr", None, json.dumps([[None, []], None])])
+    assert len(cal._parse_calendar_prices(json.dumps(frames))) == 4
