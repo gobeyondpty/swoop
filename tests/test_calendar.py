@@ -119,3 +119,41 @@ def test_regression_2981_invalid_calendar_airport_alternatives_fail_before_rpc(m
     with pytest.raises(ValueError):
         swoop.calendar_prices(endpoint, 'PTY', '2026-10-10', '2026-10-15')
     assert calls == []
+
+
+@pytest.mark.parametrize('method', [swoop.calendar_prices, swoop.get_calendar, swoop.get_price_graph])
+def test_regression_2985_real_prices_survive_metadata_trailer_in_one_rpc(monkeypatch, method):
+    # Archive call01M5W8FGF0G3478CBM9NY442MD, production2026-10-26.
+    # Dates/prices/frame structure retained; selectors and metadata capabilities redacted.
+    calls = _serve(monkeypatch, (FIX / 'picker_jfk_pty_trailer_2985.txt').read_text())
+    result = method('JFK', 'PTY', '2026-10-26', '2027-04-30')
+    days = result.days if isinstance(result, swoop.CalendarResult) else result
+    assert len(calls) == 1
+    assert len(days) == 187
+    assert days[0].departure_date == '2026-10-26'
+    assert days[-1].departure_date == '2027-04-30'
+    assert min(day.price for day in days) == 359
+    assert max(day.price for day in days) == 781
+    assert {day.currency for day in days} == {'USD'}
+
+
+def test_regression_2985_metadata_alone_is_not_empty_calendar_success():
+    frames = _calendar._calendar_frames((FIX / 'picker_jfk_pty_trailer_2985.txt').read_text())
+    with pytest.raises(SwoopParseError, match='missing inner payload'):
+        _calendar._parse_calendar_days(json.dumps([frames[1]]))
+
+
+@pytest.mark.parametrize('tail', [[['unexpected']], [[], 'bad-fare-cells']])
+def test_regression_2985_unknown_or_malformed_tail_still_fails(tail):
+    frames = _calendar._calendar_frames((FIX / 'picker_jfk_pty_trailer_2985.txt').read_text())
+    frames[1][2] = json.dumps(tail)
+    with pytest.raises(SwoopParseError, match='missing price cells'):
+        _calendar._parse_calendar_days(json.dumps(frames))
+
+
+def test_regression_2985_upstream_error_after_valid_prices_still_fails():
+    frames = _calendar._calendar_frames((FIX / 'picker_jfk_pty_trailer_2985.txt').read_text())
+    error = (Path(__file__).parent / 'fixtures' / 'responses' / 'explore' / 'error_response.txt').read_text()
+    frames.extend(_calendar._calendar_frames(error))
+    with pytest.raises(SwoopUpstreamError):
+        _calendar._parse_calendar_days(json.dumps(frames))
