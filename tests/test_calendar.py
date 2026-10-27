@@ -98,3 +98,24 @@ def test_error_envelope_and_unparseable_responses_raise(monkeypatch: pytest.Monk
     _serve(monkeypatch, "<!doctype html><title>Before you continue</title>")
     with pytest.raises(SwoopParseError):
         swoop.calendar_prices("PTY", "CDG", "2026-10-10", "2026-10-15")
+
+
+@pytest.mark.parametrize('method', [swoop.calendar_prices, swoop.get_calendar, swoop.get_price_graph])
+def test_regression_2981_calendar_airport_alternatives_use_one_rpc(monkeypatch, method):
+    calls = _serve(monkeypatch, (FIX / 'oneway_pty_cdg_business.txt').read_text())
+    origin, destination = ['JFK', 'EWR'], ['LHR', 'LGW']
+    result = method(origin, destination, '2026-10-10', '2026-10-15')
+    assert result
+    assert len(calls) == 1
+    expected = swoop.rpc._build_filters_from_legs([
+        swoop.rpc._normalize_rpc_leg(origin, destination, '2026-10-10'),
+    ])[1]
+    assert _payload(calls[0][1])[1] == expected
+
+
+@pytest.mark.parametrize('endpoint', [[], ['JFK', 'JFK'], ['NYC'], ['jfk'], ['JFK'] * 9])
+def test_regression_2981_invalid_calendar_airport_alternatives_fail_before_rpc(monkeypatch, endpoint):
+    calls = _serve(monkeypatch, '')
+    with pytest.raises(ValueError):
+        swoop.calendar_prices(endpoint, 'PTY', '2026-10-10', '2026-10-15')
+    assert calls == []

@@ -132,8 +132,8 @@ def _window(start: str, end: str, name: str) -> list[str]:
 
 def _fetch_calendar(
     method: str,
-    origin: str,
-    destination: str,
+    origin: str | list[str],
+    destination: str | list[str],
     start: str,
     end: str,
     *,
@@ -165,8 +165,12 @@ def _fetch_calendar(
 ) -> list[CalendarDay]:
     from ._validate import validate_cabin, validate_iata_code, validate_adults, validate_time_range
 
-    validate_iata_code(origin, "origin")
-    validate_iata_code(destination, "destination")
+    for name, endpoint in (("origin", origin), ("destination", destination)):
+        codes = endpoint if isinstance(endpoint, list) else [endpoint]
+        if not 1 <= len(codes) <= 8 or any(not isinstance(code, str) for code in codes) or len(set(codes)) != len(codes):
+            raise ValueError(f"{name} requires 1-8 distinct airport codes")
+        for code in codes:
+            validate_iata_code(code, name)
     validate_cabin(cabin)
     validate_adults(passengers.adults)
     for earliest_name, earliest, latest_name, latest in (
@@ -232,8 +236,8 @@ def _fetch_calendar(
 
 
 def calendar_prices(
-    origin: str,
-    destination: str,
+    origin: str | list[str],
+    destination: str | list[str],
     departure_start: str,
     departure_end: str,
     *,
@@ -305,8 +309,8 @@ def calendar_prices(
 
 
 def get_calendar(
-    origin: str,
-    destination: str,
+    origin: str | list[str],
+    destination: str | list[str],
     window_start: str,
     window_end: str,
     *,
@@ -375,8 +379,8 @@ def get_calendar(
 
 
 def get_price_graph(
-    origin: str,
-    destination: str,
+    origin: str | list[str],
+    destination: str | list[str],
     window_start: str,
     window_end: str,
     *,
