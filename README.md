@@ -809,9 +809,11 @@ and `max_price` from `GetCalendarPicker`. `get_price_graph()` returns
 `list[CalendarPrice]` from **`GetCalendarGraph`**, the method used by Google's
 price graph; `GetPriceGraph` currently returns HTTP 404. Omit return/stay bounds
 for one-way pricing. A lone `min_stay` means an exact stay; a lone `max_stay`
-means 0 through that many days. All windows are inclusive ISO dates. Missing
-fares are omitted, currencies are decoded from responses, and malformed or
-rejected responses raise typed errors.
+means 0 through that many days. All windows are inclusive ISO dates; a
+departure window spans at most 200 dates (Google rejects longer ones), and
+grid return dates before the first departure are omitted. Missing fares are
+omitted, currencies are decoded from responses, and malformed or rejected
+responses raise typed errors.
 
 All three calendar APIs share shopping's cabin, passenger, airline, stop,
 baggage, price, routing, and time-window filters, plus

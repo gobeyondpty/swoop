@@ -174,3 +174,41 @@ def test_regression_3037_streamed_grid_keeps_fares_before_numbered_trailer(monke
     assert min(day.price for day in days) == 630
     assert max(day.price for day in days) == 1824
     assert {day.currency for day in days} == {'USD'}
+
+
+@pytest.mark.parametrize('method', [swoop.calendar_prices, swoop.get_calendar, swoop.get_price_graph])
+def test_regression_3048_departure_window_over_200_dates_fails_before_rpc(monkeypatch, method):
+    # Live probes 2026-10-30: Google answers a 201+ date departure window with
+    # gRPC 3 INVALID_ARGUMENT on grid, picker and graph; 200 dates are priced.
+    calls = _serve(monkeypatch, '')
+    with pytest.raises(ValueError, match='200 dates'):
+        method('JFK', 'PTY', '2026-11-01', '2027-05-20')
+    assert calls == []
+
+
+def test_regression_3048_200_date_departure_window_is_sent(monkeypatch):
+    calls = _serve(monkeypatch, (FIX / 'picker_jfk_pty_trailer_2985.txt').read_text())
+    swoop.get_calendar('JFK', 'PTY', '2026-11-01', '2027-05-19')
+    assert _payload(calls[0][1])[2] == ['2026-11-01', '2027-05-19']
+
+
+def test_regression_3048_return_window_starts_at_first_departure(monkeypatch):
+    # Production ALB-MIA 2026-10-26: returns from 2027-01-01 for a 2027-01-10
+    # departure were rejected with gRPC 3 on every exit. Return dates before the
+    # first departure have no fare, so they are omitted like any unpriced date.
+    calls = _serve(monkeypatch, (FIX / 'roundtrip_pty_cdg_business.txt').read_text())
+    swoop.calendar_prices('ALB', 'MIA', '2027-01-10', '2027-01-10',
+                          return_start='2027-01-01', return_end='2027-02-18')
+    payload = _payload(calls[0][1])
+    assert payload[2:] == [['2027-01-10', '2027-01-10'], ['2027-01-10', '2027-02-18']]
+    assert payload[1] == swoop.rpc._build_filters_from_legs([
+        swoop.rpc._normalize_rpc_leg('ALB', 'MIA', '2027-01-10'),
+        swoop.rpc._normalize_rpc_leg('MIA', 'ALB', '2027-01-10'),
+    ])[1]
+
+
+def test_regression_3048_return_window_before_departure_is_empty_without_rpc(monkeypatch):
+    calls = _serve(monkeypatch, '')
+    assert swoop.calendar_prices('JFK', 'PTY', '2027-01-10', '2027-01-12',
+                                 return_start='2026-12-20', return_end='2027-01-09') == []
+    assert calls == []

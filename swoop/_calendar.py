@@ -138,6 +138,11 @@ def _parse_calendar_prices(
     ]
 
 
+# Google answers a longer departure window with gRPC 3 INVALID_ARGUMENT on the
+# grid, picker and graph RPCs alike (live probes 2026-10-30, #3048).
+MAX_DEPARTURE_DATES = 200
+
+
 def _window(start: str, end: str, name: str) -> list[str]:
     try:
         first, last = date.fromisoformat(start), date.fromisoformat(end)
@@ -201,10 +206,10 @@ def _fetch_calendar(
         if earliest is not None and latest is not None and earliest >= latest:
             raise ValueError(f"{earliest_name} must be before {latest_name}")
     windows = [_window(start, end, "departure window")]
+    if (date.fromisoformat(end) - date.fromisoformat(start)).days >= MAX_DEPARTURE_DATES:
+        raise ValueError(f"departure window spans at most {MAX_DEPARTURE_DATES} dates")
     if (return_start is None) != (return_end is None):
         raise ValueError("return_start and return_end must be given together")
-    if return_start is not None and return_end is not None:
-        windows.append(_window(return_start, return_end, "return window"))
     stay = None
     if min_stay is not None or max_stay is not None:
         lo, hi = (
@@ -214,6 +219,14 @@ def _fetch_calendar(
         if type(lo) is not int or type(hi) is not int or not 0 <= lo <= hi <= 365:
             raise ValueError("stay requires 0 <= min_stay <= max_stay <= 365")
         stay = [lo, hi]
+    if return_start is not None and return_end is not None:
+        _window(return_start, return_end, "return window")
+        # Google rejects a return window opening before the first departure
+        # (gRPC 3, #3048). Those dates have no fare, so omit them like any other.
+        return_start = max(return_start, start)
+        if return_start > return_end:
+            return []
+        windows.append([return_start, return_end])
     route_filters: dict[str, Any] = dict(
         max_stops=max_stops,
         airlines=airlines,
@@ -288,7 +301,8 @@ def calendar_prices(
     Duration and layover limits are in minutes; max_price is in major units of
     the display currency. Filters have the same wire format as shopping.
     Time windows apply to the outbound leg; return departure hours are independent.
-    Dates with no published fare are omitted.
+    Dates with no published fare, and return dates before ``departure_start``,
+    are omitted. The departure window spans at most 200 dates.
     """
     prices = _fetch_calendar(
         "GetCalendarGrid",
@@ -361,7 +375,7 @@ def get_calendar(
     Duration and layover limits are in minutes; max_price is in major units of
     the display currency. Filters have the same wire format as shopping.
     Time windows apply to the outbound leg; return departure hours are independent.
-    Dates with no published fare are omitted.
+    Dates with no published fare are omitted. The window spans at most 200 dates.
     """
     prices = _fetch_calendar(
         "GetCalendarPicker",
@@ -431,7 +445,7 @@ def get_price_graph(
     Duration and layover limits are in minutes; max_price is in major units of
     the display currency. Filters have the same wire format as shopping.
     Time windows apply to the outbound leg; return departure hours are independent.
-    Dates with no published fare are omitted.
+    Dates with no published fare are omitted. The window spans at most 200 dates.
     """
     prices = _fetch_calendar(
         "GetCalendarGraph",
