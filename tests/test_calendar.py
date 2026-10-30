@@ -157,3 +157,20 @@ def test_regression_2985_upstream_error_after_valid_prices_still_fails():
     frames.extend(_calendar._calendar_frames(error))
     with pytest.raises(SwoopUpstreamError):
         _calendar._parse_calendar_days(json.dumps(frames))
+
+
+def test_regression_3037_streamed_grid_keeps_fares_before_numbered_trailer(monkeypatch):
+    # Production DEN->LIM grid, 2026-10-30: one fare frame per cell (sequence
+    # 0-16), then the completion frame numbered 17. Dates/prices/frame structure
+    # retained; metadata tokens and booking selectors redacted.
+    calls = _serve(monkeypatch, (FIX / 'grid_den_lim_streamed_3037.txt').read_text())
+    days = swoop.calendar_prices('DEN', 'LIM', '2026-11-29', '2026-11-29',
+                                 return_start='2026-11-29', return_end='2027-01-16')
+    assert len(calls) == 1
+    assert len(days) == 49
+    assert {day.departure_date for day in days} == {'2026-11-29'}
+    assert min(day.return_date for day in days) == '2026-11-29'
+    assert max(day.return_date for day in days) == '2027-01-16'
+    assert min(day.price for day in days) == 630
+    assert max(day.price for day in days) == 1824
+    assert {day.currency for day in days} == {'USD'}

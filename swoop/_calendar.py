@@ -57,13 +57,17 @@ def _calendar_frames(text: str) -> list[Any]:
 
 
 def _is_calendar_metadata_trailer(inner: Any) -> bool:
-    """Observed one-slot completion frame, without a fare-cell slot (#2985)."""
+    """Observed one-slot completion frame, without a fare-cell slot (#2985).
+
+    meta[2] is the frame sequence: 1 after a single fare frame, N after a grid
+    streamed one cell per frame (#3037).
+    """
     if not isinstance(inner, list) or len(inner) != 1:
         return False
     meta = inner[0]
     return (
         isinstance(meta, list) and len(meta) == 5 and meta[0] is None
-        and isinstance(meta[1], list) and type(meta[2]) is int and meta[2] == 1
+        and isinstance(meta[1], list) and type(meta[2]) is int and meta[2] >= 1
         and isinstance(meta[3], str) and isinstance(meta[4], str)
     )
 
