@@ -1,9 +1,9 @@
 # Family-controlled transport and bounded RPC failover
 
-Install `swoop-flights[native]` to enable `TransportConfig(address_family="ipv6")`.
+On Python 3.11+, install `swoop-flights[native]` to enable `TransportConfig(address_family="ipv6")`.
 The optional, pinned `wreq==0.13.0` Rust client supplies IPv6-only DNS and an IPv6
 local bind. URLs keep their hostnames; SNI, certificate-chain and hostname checks
-stay enabled. It uses Chrome137 for the generic `chrome` profile. Existing
+stay enabled. It uses Chrome137 for the generic `chrome` profile. Python 3.10 retains the default primp transport. Existing
 `address_family="auto"` callers continue to use primp. This is an explicit native
 backend, not the diagnostic curl adapter and not a claim that primp gained IPv6
 configuration.

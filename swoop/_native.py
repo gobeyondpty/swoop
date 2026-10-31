@@ -13,7 +13,7 @@ class NativeClient:
             import wreq
             from wreq.blocking import Client
         except ImportError as exc:
-            raise RuntimeError("Family-controlled transport requires swoop-flights[native]") from exc
+            raise RuntimeError("Family-controlled transport requires Python 3.11+ and swoop-flights[native]") from exc
         profile_name = "Chrome137" if impersonate == "chrome" else "".join(
             part.capitalize() for part in impersonate.split("_"))
         profile = getattr(wreq.Emulation, profile_name, None)
