@@ -616,7 +616,10 @@ def resolve_trip_selector(
     exclude_basic = payload["cabin"] == "economy" and not payload["include_basic_economy"]
 
     for index in range(len(selected_legs)):
-        staged_legs = _with_selected_prefix(request_legs, selected_legs[:index])
+        # Revalidate the already selected prefix under its saved intent. A new
+        # next-bound restriction can change the broad outbound list; apply it
+        # only once that prefix is fixed, not while rediscovering the outbound.
+        staged_legs = _with_selected_prefix(query_legs, selected_legs[:index])
         bounded = _budget_transport(transport, deadline)
         if coverage is not None:
             coverage.result.rpc_calls += 1

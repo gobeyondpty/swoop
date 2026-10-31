@@ -73,8 +73,8 @@ def test_regression_2149_filters_reach_next_bound_and_pricing_without_changing_o
     assert wire[7] == [700]
     assert wire[10:13] == [["ATL", "MIA"], 180, 600]
     assert swoop.price_selector(result.results[0].selector) is not None
-    for query, kwargs in calls:
-        assert query[1] == expected
+    for index, (query, kwargs) in enumerate(calls):
+        assert query[1] == (original_legs[1] if index == 0 else expected)
         assert kwargs["passengers"] == Passengers(adults=2, children=1)
         assert kwargs["cabin"] == "premium-economy"
         assert kwargs["max_price"] == 900 and kwargs["checked_bags"] == 2
@@ -147,4 +147,21 @@ def test_regression_2149_narrowed_bound_survives_later_continuation(monkeypatch)
     assert payload["query_legs"][1]["exclude_connecting_airports"] == ["MIA"]
     assert payload["query_legs"][2]["max_stops"] == 0
     assert "max_stops" not in payload["query_legs"][0]
-    assert all(query[1]["exclude_connecting_airports"] == ["MIA"] for query in seen)
+    assert all(query[1]["exclude_connecting_airports"] == ["MIA"] for query in seen[1:])
+
+
+def test_regression_2149_new_return_filter_does_not_rediscover_outbound_under_new_intent(monkeypatch):
+    outbound = connecting("JFK", "MIA", "MIA", "PTY")
+    inbound = flight("PTY", "JFK", "119", "2026-11-23")
+    calls = []
+    def provider(query, **kwargs):
+        calls.append(deepcopy(query))
+        if query[0].get("selected_legs"):
+            return RawSearchResult(other=[inbound])
+        # The new return restriction changes Google's unselected outbound list.
+        return RawSearchResult(other=[] if query[1].get("exclude_connecting_airports") else [outbound])
+    monkeypatch.setattr(selection, "_search_from_legs", provider)
+    result = swoop.search_next_leg(selector(LEGS, outbound), next_leg_filters={"exclude_connecting_airports": ["MIA"]})
+    assert len(result.results) == 1
+    assert "exclude_connecting_airports" not in calls[0][1]
+    assert calls[1][1]["exclude_connecting_airports"] == ["MIA"]
