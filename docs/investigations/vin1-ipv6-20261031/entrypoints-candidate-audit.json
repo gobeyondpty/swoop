@@ -1,0 +1,35 @@
+{
+  "release": "/srv/ndcterm/releases/events-1f1e4b0be589/ndcterm",
+  "sdk_commit": "82bd0e1b9e9d0e41556d34f333e36d09a76ee712",
+  "candidate_sha": "5cb6b48c4bb8d9e1397f189d4448252b7d83ba5a",
+  "candidate_main_sha256": "cd121e0408ed759f6d083c901762be23b898090cc5c4a8d80ebdc6b6e014038f",
+  "http_calls": 0,
+  "passed": true,
+  "rows": [
+    {
+      "operation": "deals",
+      "explicit_proxy_preserved": true,
+      "native_admitted": false,
+      "http_calls": 0
+    },
+    {
+      "operation": "explore",
+      "explicit_proxy_preserved": true,
+      "native_admitted": false,
+      "http_calls": 0
+    },
+    {
+      "operation": "search_raw",
+      "native_admitted": true,
+      "observed": [
+        {
+          "address_family": "ipv6",
+          "proxy_is_none": true,
+          "operation_deadline": true,
+          "cancellation_check": true
+        }
+      ],
+      "http_calls": 0
+    }
+  ]
+}
