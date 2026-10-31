@@ -1,0 +1,476 @@
+{
+  "started_at": "2026-10-31T23:00:29.967073+00:00",
+  "production_root": "/srv/ndcterm/releases/events-5e36ceb56729/ndcterm",
+  "source": "/tmp/swoop-unified-stage",
+  "query": {
+    "origin": "JFK",
+    "destination": "LAX",
+    "date": "2026-11-30",
+    "window": [
+      "2026-11-01",
+      "2026-11-30"
+    ],
+    "country": "US",
+    "currency": "USD",
+    "adults": 1,
+    "exclude_separate_tickets": true
+  },
+  "rows": [
+    {
+      "operation": "deals_policy",
+      "success": true,
+      "count": 30,
+      "request_body_sha256": [
+        "b1752149bfbee1259fcc8cf77f8dab3bb06c8dd8d1470b2cf413fa4f5ae97cac"
+      ],
+      "elapsed_ms": 3367.082067998126,
+      "diagnostics": {
+        "http_attempts": 2,
+        "rpc_attempts": 1,
+        "page_attempts": 1,
+        "retry_attempts": 0,
+        "elapsed_ms": 3155.8396311011165,
+        "network_ms": 3155.3299331571907,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 1724907,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "deals",
+            "transport": "page",
+            "method": "GET",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 205.36924107000232,
+            "response_bytes": 1688754,
+            "error_type": null
+          },
+          {
+            "query_id": null,
+            "operation": "deals",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 2949.9606920871884,
+            "response_bytes": 36153,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "explore_policy",
+      "success": true,
+      "count": 87,
+      "request_body_sha256": [
+        "702ddd0919cd5de2d9e743124942162ad3c4c3e4dabb70601c481fa149647eaa",
+        "702ddd0919cd5de2d9e743124942162ad3c4c3e4dabb70601c481fa149647eaa"
+      ],
+      "elapsed_ms": 6061.97829102166,
+      "diagnostics": {
+        "http_attempts": 4,
+        "rpc_attempts": 2,
+        "page_attempts": 2,
+        "retry_attempts": 0,
+        "elapsed_ms": 6056.3200659817085,
+        "network_ms": 6012.371755903587,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 3861374,
+        "responses_with_unknown_bytes": 1,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "explore",
+            "transport": "page",
+            "method": "GET",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 250.04672398790717,
+            "response_bytes": 1944038,
+            "error_type": null
+          },
+          {
+            "query_id": null,
+            "operation": "explore",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": null,
+            "network_ms": 4749.835078953765,
+            "response_bytes": null,
+            "error_type": "SwoopTransportError"
+          },
+          {
+            "query_id": null,
+            "operation": "explore",
+            "transport": "page",
+            "method": "GET",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 458.31051794812083,
+            "response_bytes": 1855464,
+            "error_type": null
+          },
+          {
+            "query_id": null,
+            "operation": "explore",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 554.1794350137934,
+            "response_bytes": 61872,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "timeout",
+          "retry_in": 30.202137663261965,
+          "active": 0
+        },
+        {
+          "operation": "google",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "hotels_policy",
+      "success": true,
+      "count": 14,
+      "request_body_sha256": [
+        "8836aa0e62b24b2cc76b8e78c904387c32336e2c21eaa4df1664ed86a1b141ed",
+        "c9a71fef39032d343f6439c88bdb7805d717fd1b14370cbc591ae18537fbe547"
+      ],
+      "elapsed_ms": 3480.223817983642,
+      "diagnostics": {
+        "http_attempts": 3,
+        "rpc_attempts": 2,
+        "page_attempts": 1,
+        "retry_attempts": 0,
+        "elapsed_ms": 3478.2190968981013,
+        "network_ms": 3441.6664527961984,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 2407035,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "page",
+            "method": "GET",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 1328.1622698996216,
+            "response_bytes": 2223378,
+            "error_type": null
+          },
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 2024.4900119723752,
+            "response_bytes": 183518,
+            "error_type": null
+          },
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 89.01417092420161,
+            "response_bytes": 139,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "timeout",
+          "retry_in": 26.72149589820765,
+          "active": 0
+        },
+        {
+          "operation": "google",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "hotel_token_policy",
+      "success": true,
+      "count": 1,
+      "request_body_sha256": [
+        "be3d079af7d2cecc8caae7f2862c4bc6fe17d9e4f10dd70cbd403e8d1fdb81e6"
+      ],
+      "elapsed_ms": 2172.2370870411396,
+      "diagnostics": {
+        "http_attempts": 2,
+        "rpc_attempts": 1,
+        "page_attempts": 1,
+        "retry_attempts": 0,
+        "elapsed_ms": 2154.5432010898367,
+        "network_ms": 2132.7776241814718,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 2556656,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "page",
+            "method": "GET",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 1000.6860950961709,
+            "response_bytes": 2184557,
+            "error_type": null
+          },
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 1132.0915290853009,
+            "response_bytes": 372099,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "timeout",
+          "retry_in": 24.54881349625066,
+          "active": 0
+        },
+        {
+          "operation": "google",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "hotel_prices_policy",
+      "success": true,
+      "count": 3,
+      "request_body_sha256": [
+        "8836aa0e62b24b2cc76b8e78c904387c32336e2c21eaa4df1664ed86a1b141ed",
+        "79a0e6774a011fa72fe7cb6f3423e312ca4c76068c12be2f3f4ac9ee1c789c44"
+      ],
+      "elapsed_ms": 3943.8448819564655,
+      "diagnostics": {
+        "http_attempts": 3,
+        "rpc_attempts": 2,
+        "page_attempts": 1,
+        "retry_attempts": 0,
+        "elapsed_ms": 3934.728855965659,
+        "network_ms": 3930.5146740516648,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 2660280,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "page",
+            "method": "GET",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 1121.2028580484912,
+            "response_bytes": 2209454,
+            "error_type": null
+          },
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 2392.2794710379094,
+            "response_bytes": 162580,
+            "error_type": null
+          },
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 417.0323449652642,
+            "response_bytes": 288246,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "timeout",
+          "retry_in": 20.604338753269985,
+          "active": 0
+        },
+        {
+          "operation": "google",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "hotel_reviews_policy",
+      "success": true,
+      "count": 10,
+      "request_body_sha256": [
+        "06bf80cd051b83135146225a2d2d9c8ac4a2307e945a337a335311d2f01726e4"
+      ],
+      "elapsed_ms": 1159.0130489785224,
+      "diagnostics": {
+        "http_attempts": 2,
+        "rpc_attempts": 1,
+        "page_attempts": 1,
+        "retry_attempts": 0,
+        "elapsed_ms": 1155.503727030009,
+        "network_ms": 1155.2683840272948,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 2251420,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "page",
+            "method": "GET",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 985.8469240134582,
+            "response_bytes": 2226004,
+            "error_type": null
+          },
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 169.42146001383662,
+            "response_bytes": 25416,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "timeout",
+          "retry_in": 19.444681275170296,
+          "active": 0
+        },
+        {
+          "operation": "google",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    }
+  ],
+  "phase_timings": {
+    "dns_ms": null,
+    "tls_ms": null,
+    "connect_ms": null,
+    "ttfb_ms": null
+  },
+  "production_health": {
+    "status": "ok",
+    "proxy_count": 2,
+    "identity_pool": {
+      "size": 8,
+      "replaced": 0
+    },
+    "swoop_version": "0.7.0",
+    "swoop_commit": "82bd0e1b9e9d0e41556d34f333e36d09a76ee712",
+    "transport_primary": "native_ipv6",
+    "transport_health": [],
+    "native_client": "wreq==0.13.0",
+    "hotels": true
+  },
+  "finished_at": "2026-10-31T23:00:50.159768+00:00"
+}

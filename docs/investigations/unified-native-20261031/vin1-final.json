@@ -1,0 +1,1262 @@
+{
+  "started_at": "2026-10-31T23:03:38.139247+00:00",
+  "production_root": "/srv/ndcterm/releases/events-5e36ceb56729/ndcterm",
+  "source": "/tmp/swoop-unified-stage",
+  "query": {
+    "origin": "JFK",
+    "destination": "LAX",
+    "date": "2026-11-30",
+    "window": [
+      "2026-11-01",
+      "2026-11-30"
+    ],
+    "country": "US",
+    "currency": "USD",
+    "adults": 1,
+    "exclude_separate_tickets": true
+  },
+  "rows": [
+    {
+      "operation": "calendar_direct_0",
+      "success": false,
+      "error_type": "SwoopTransportError",
+      "cause_type": "TimeoutError",
+      "grpc_code": null,
+      "http_status": null,
+      "request_body_sha256": [
+        "11760fe6b7ba99e397f3294f5b0daa4192fb75a0a4c2d2b0af273d74a62efcb1"
+      ],
+      "elapsed_ms": 2001.5434989472851,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 1916.1945650121197,
+        "network_ms": 1916.1945650121197,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 0,
+        "responses_with_unknown_bytes": 1,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": null,
+            "network_ms": 1916.1945650121197,
+            "response_bytes": null,
+            "error_type": "TimeoutError"
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": []
+    },
+    {
+      "operation": "calendar_direct_1",
+      "success": true,
+      "count": 30,
+      "request_body_sha256": [
+        "11760fe6b7ba99e397f3294f5b0daa4192fb75a0a4c2d2b0af273d74a62efcb1"
+      ],
+      "elapsed_ms": 143.43607204500586,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 142.92713103350252,
+        "network_ms": 137.60293298400939,
+        "decode_ms": 5.158244050107896,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4624,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 137.60293298400939,
+            "response_bytes": 4624,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": []
+    },
+    {
+      "operation": "calendar_mia1_0",
+      "success": true,
+      "count": 30,
+      "request_body_sha256": [
+        "11760fe6b7ba99e397f3294f5b0daa4192fb75a0a4c2d2b0af273d74a62efcb1"
+      ],
+      "elapsed_ms": 376.2185210362077,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 356.6588439280167,
+        "network_ms": 351.41334601212293,
+        "decode_ms": 5.102725932374597,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4620,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 351.41334601212293,
+            "response_bytes": 4620,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": []
+    },
+    {
+      "operation": "calendar_mia1_1",
+      "success": true,
+      "count": 30,
+      "request_body_sha256": [
+        "11760fe6b7ba99e397f3294f5b0daa4192fb75a0a4c2d2b0af273d74a62efcb1"
+      ],
+      "elapsed_ms": 180.55720394477248,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 179.86111203208566,
+        "network_ms": 174.77676598355174,
+        "decode_ms": 4.940293030813336,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4624,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 174.77676598355174,
+            "response_bytes": 4624,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": []
+    },
+    {
+      "operation": "shopping_direct_0",
+      "success": false,
+      "error_type": "SwoopTransportError",
+      "cause_type": "TimeoutError",
+      "grpc_code": null,
+      "http_status": null,
+      "request_body_sha256": [
+        "5293f0ebbdec230d562aeabccd98dfea7935e81b8e18b75e97a8f1040e7e374f"
+      ],
+      "elapsed_ms": 2001.899971975945,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 2000.2567919436842,
+        "network_ms": 2000.2567919436842,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 0,
+        "responses_with_unknown_bytes": 1,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": null,
+            "network_ms": 2000.2567919436842,
+            "response_bytes": null,
+            "error_type": "TimeoutError"
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "error",
+            "raw_result_count": null,
+            "decoded_result_count": null,
+            "result_scope": null,
+            "decode_ms": 0.0,
+            "error_type": "SwoopTransportError"
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": []
+    },
+    {
+      "operation": "shopping_direct_1",
+      "success": false,
+      "error_type": "SwoopTransportError",
+      "cause_type": "TimeoutError",
+      "grpc_code": null,
+      "http_status": null,
+      "request_body_sha256": [
+        "5293f0ebbdec230d562aeabccd98dfea7935e81b8e18b75e97a8f1040e7e374f"
+      ],
+      "elapsed_ms": 2001.575187081471,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 2001.3137960340828,
+        "network_ms": 2001.3137960340828,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 0,
+        "responses_with_unknown_bytes": 1,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": null,
+            "network_ms": 2001.3137960340828,
+            "response_bytes": null,
+            "error_type": "TimeoutError"
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "error",
+            "raw_result_count": null,
+            "decoded_result_count": null,
+            "result_scope": null,
+            "decode_ms": 0.0,
+            "error_type": "SwoopTransportError"
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": []
+    },
+    {
+      "operation": "shopping_mia1_0",
+      "success": true,
+      "count": 122,
+      "request_body_sha256": [
+        "5293f0ebbdec230d562aeabccd98dfea7935e81b8e18b75e97a8f1040e7e374f"
+      ],
+      "elapsed_ms": 346.83216304983944,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 346.5876430273056,
+        "network_ms": 301.77863501012325,
+        "decode_ms": 44.510890962556005,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451344,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 301.77863501012325,
+            "response_bytes": 451344,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 122,
+            "decoded_result_count": 122,
+            "result_scope": "all",
+            "decode_ms": 44.510890962556005,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": []
+    },
+    {
+      "operation": "shopping_mia1_1",
+      "success": true,
+      "count": 122,
+      "request_body_sha256": [
+        "5293f0ebbdec230d562aeabccd98dfea7935e81b8e18b75e97a8f1040e7e374f"
+      ],
+      "elapsed_ms": 367.94522998388857,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 367.69061896484345,
+        "network_ms": 320.23614400532097,
+        "decode_ms": 47.050982946529984,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451592,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 320.23614400532097,
+            "response_bytes": 451592,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 122,
+            "decoded_result_count": 122,
+            "result_scope": "all",
+            "decode_ms": 47.050982946529984,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": []
+    },
+    {
+      "operation": "calendar_policy_0",
+      "success": true,
+      "count": 30,
+      "request_body_sha256": [
+        "11760fe6b7ba99e397f3294f5b0daa4192fb75a0a4c2d2b0af273d74a62efcb1"
+      ],
+      "elapsed_ms": 121.28964008297771,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 121.00856506731361,
+        "network_ms": 110.58435204904526,
+        "decode_ms": 4.731139983050525,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4620,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 110.58435204904526,
+            "response_bytes": 4620,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "shopping_policy_0",
+      "success": true,
+      "count": 122,
+      "request_body_sha256": [
+        "5293f0ebbdec230d562aeabccd98dfea7935e81b8e18b75e97a8f1040e7e374f"
+      ],
+      "elapsed_ms": 351.4178259065375,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 350.3402719506994,
+        "network_ms": 281.9980200147256,
+        "decode_ms": 12.876449967734516,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451593,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 281.9980200147256,
+            "response_bytes": 451593,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 122,
+            "decoded_result_count": 122,
+            "result_scope": "all",
+            "decode_ms": 12.876449967734516,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "calendar_policy_1",
+      "success": true,
+      "count": 30,
+      "request_body_sha256": [
+        "11760fe6b7ba99e397f3294f5b0daa4192fb75a0a4c2d2b0af273d74a62efcb1"
+      ],
+      "elapsed_ms": 111.13606905564666,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 110.88119796477258,
+        "network_ms": 100.99718894343823,
+        "decode_ms": 4.5447499724105,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4622,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 100.99718894343823,
+            "response_bytes": 4622,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "shopping_policy_1",
+      "success": true,
+      "count": 122,
+      "request_body_sha256": [
+        "5293f0ebbdec230d562aeabccd98dfea7935e81b8e18b75e97a8f1040e7e374f",
+        "5293f0ebbdec230d562aeabccd98dfea7935e81b8e18b75e97a8f1040e7e374f"
+      ],
+      "elapsed_ms": 2310.2418390335515,
+      "diagnostics": {
+        "http_attempts": 2,
+        "rpc_attempts": 2,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 2309.1498659923673,
+        "network_ms": 2281.794207985513,
+        "decode_ms": 10.533050051890314,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451841,
+        "responses_with_unknown_bytes": 1,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": null,
+            "network_ms": 2001.3380309101194,
+            "response_bytes": null,
+            "error_type": "SwoopTransportError"
+          },
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 280.4561770753935,
+            "response_bytes": 451841,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 122,
+            "decoded_result_count": 122,
+            "result_scope": "all",
+            "decode_ms": 10.533050051890314,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "timeout",
+          "retry_in": 30.019415677292272,
+          "active": 0
+        },
+        {
+          "operation": "google",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "calendar_policy_2",
+      "success": true,
+      "count": 30,
+      "request_body_sha256": [
+        "11760fe6b7ba99e397f3294f5b0daa4192fb75a0a4c2d2b0af273d74a62efcb1"
+      ],
+      "elapsed_ms": 142.6134220091626,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 142.4175959546119,
+        "network_ms": 140.60835191048682,
+        "decode_ms": 0.7857780437916517,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4623,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 140.60835191048682,
+            "response_bytes": 4623,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "timeout",
+          "retry_in": 29.876482401276007,
+          "active": 0
+        },
+        {
+          "operation": "google",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "shopping_policy_2",
+      "success": true,
+      "count": 122,
+      "request_body_sha256": [
+        "5293f0ebbdec230d562aeabccd98dfea7935e81b8e18b75e97a8f1040e7e374f"
+      ],
+      "elapsed_ms": 301.38707300648093,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 300.9489610558376,
+        "network_ms": 273.2327060075477,
+        "decode_ms": 10.520551004447043,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451592,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 273.2327060075477,
+            "response_bytes": 451592,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 122,
+            "decoded_result_count": 122,
+            "result_scope": "all",
+            "decode_ms": 10.520551004447043,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "timeout",
+          "retry_in": 29.574750366271473,
+          "active": 0
+        },
+        {
+          "operation": "google",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "deals_policy",
+      "success": true,
+      "count": 30,
+      "request_body_sha256": [
+        "b1752149bfbee1259fcc8cf77f8dab3bb06c8dd8d1470b2cf413fa4f5ae97cac"
+      ],
+      "elapsed_ms": 2761.391017003916,
+      "diagnostics": {
+        "http_attempts": 2,
+        "rpc_attempts": 1,
+        "page_attempts": 1,
+        "retry_attempts": 0,
+        "elapsed_ms": 2679.4728719396517,
+        "network_ms": 2678.6224979441613,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 1706544,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "deals",
+            "transport": "page",
+            "method": "GET",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 413.9599238988012,
+            "response_bytes": 1670459,
+            "error_type": null
+          },
+          {
+            "query_id": null,
+            "operation": "deals",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 2264.66257404536,
+            "response_bytes": 36085,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "timeout",
+          "retry_in": 26.812951689353213,
+          "active": 0
+        },
+        {
+          "operation": "google",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "explore_policy",
+      "success": true,
+      "count": 24,
+      "request_body_sha256": [
+        "702ddd0919cd5de2d9e743124942162ad3c4c3e4dabb70601c481fa149647eaa"
+      ],
+      "elapsed_ms": 890.5875249765813,
+      "diagnostics": {
+        "http_attempts": 2,
+        "rpc_attempts": 1,
+        "page_attempts": 1,
+        "retry_attempts": 0,
+        "elapsed_ms": 887.957681901753,
+        "network_ms": 886.9965568883345,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 1955374,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "explore",
+            "transport": "page",
+            "method": "GET",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 379.1199579136446,
+            "response_bytes": 1934449,
+            "error_type": null
+          },
+          {
+            "query_id": null,
+            "operation": "explore",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 507.87659897468984,
+            "response_bytes": 20925,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "timeout",
+          "retry_in": 25.921894328319468,
+          "active": 0
+        },
+        {
+          "operation": "google",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "hotels_policy",
+      "success": true,
+      "count": 12,
+      "request_body_sha256": [
+        "8836aa0e62b24b2cc76b8e78c904387c32336e2c21eaa4df1664ed86a1b141ed",
+        "29f8290f3ce17c4e185667a8ae52f4c8a0168f9ad52363d79a30b5d6d027ec5d"
+      ],
+      "elapsed_ms": 3661.031575058587,
+      "diagnostics": {
+        "http_attempts": 3,
+        "rpc_attempts": 2,
+        "page_attempts": 1,
+        "retry_attempts": 0,
+        "elapsed_ms": 3656.9665990537032,
+        "network_ms": 3627.3912582546473,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 2351065,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "page",
+            "method": "GET",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 1424.257519072853,
+            "response_bytes": 2207521,
+            "error_type": null
+          },
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 2108.6059251101688,
+            "response_bytes": 143406,
+            "error_type": null
+          },
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 94.52781407162547,
+            "response_bytes": 138,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "timeout",
+          "retry_in": 22.25889203324914,
+          "active": 0
+        },
+        {
+          "operation": "google",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "hotel_token_policy",
+      "success": true,
+      "count": 1,
+      "request_body_sha256": [
+        "be3d079af7d2cecc8caae7f2862c4bc6fe17d9e4f10dd70cbd403e8d1fdb81e6"
+      ],
+      "elapsed_ms": 1907.2377680568025,
+      "diagnostics": {
+        "http_attempts": 2,
+        "rpc_attempts": 1,
+        "page_attempts": 1,
+        "retry_attempts": 0,
+        "elapsed_ms": 1895.2880681026727,
+        "network_ms": 1885.2534610778093,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 2539207,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "page",
+            "method": "GET",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 1014.349295059219,
+            "response_bytes": 2181970,
+            "error_type": null
+          },
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 870.9041660185903,
+            "response_bytes": 357237,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "timeout",
+          "retry_in": 20.34964749426581,
+          "active": 0
+        },
+        {
+          "operation": "google",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "hotel_prices_policy",
+      "success": true,
+      "count": 3,
+      "request_body_sha256": [
+        "8836aa0e62b24b2cc76b8e78c904387c32336e2c21eaa4df1664ed86a1b141ed",
+        "79a0e6774a011fa72fe7cb6f3423e312ca4c76068c12be2f3f4ac9ee1c789c44"
+      ],
+      "elapsed_ms": 4459.309566067532,
+      "diagnostics": {
+        "http_attempts": 3,
+        "rpc_attempts": 2,
+        "page_attempts": 1,
+        "retry_attempts": 0,
+        "elapsed_ms": 4453.214213019237,
+        "network_ms": 4444.71707905177,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 2663657,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "page",
+            "method": "GET",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 1293.3976420899853,
+            "response_bytes": 2204764,
+            "error_type": null
+          },
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 1997.5973470136523,
+            "response_bytes": 181664,
+            "error_type": null
+          },
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 1153.7220899481326,
+            "response_bytes": 277229,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "timeout",
+          "retry_in": 15.889869720325805,
+          "active": 0
+        },
+        {
+          "operation": "google",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "hotel_reviews_policy",
+      "success": true,
+      "count": 10,
+      "request_body_sha256": [
+        "06bf80cd051b83135146225a2d2d9c8ac4a2307e945a337a335311d2f01726e4"
+      ],
+      "elapsed_ms": 1225.721680908464,
+      "diagnostics": {
+        "http_attempts": 2,
+        "rpc_attempts": 1,
+        "page_attempts": 1,
+        "retry_attempts": 0,
+        "elapsed_ms": 1222.5240690167993,
+        "network_ms": 1222.0541149144992,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 2248637,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "page",
+            "method": "GET",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 1060.8831169083714,
+            "response_bytes": 2223221,
+            "error_type": null
+          },
+          {
+            "query_id": null,
+            "operation": "hotels",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 161.17099800612777,
+            "response_bytes": 25416,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "timeout",
+          "retry_in": 14.663579506333917,
+          "active": 0
+        },
+        {
+          "operation": "google",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    }
+  ],
+  "phase_timings": {
+    "dns_ms": null,
+    "tls_ms": null,
+    "connect_ms": null,
+    "ttfb_ms": null
+  },
+  "production_health": {
+    "status": "ok",
+    "proxy_count": 2,
+    "identity_pool": {
+      "size": 8,
+      "replaced": 0
+    },
+    "swoop_version": "0.7.0",
+    "swoop_commit": "82bd0e1b9e9d0e41556d34f333e36d09a76ee712",
+    "transport_primary": "native_ipv6",
+    "transport_health": [],
+    "native_client": "wreq==0.13.0",
+    "hotels": true
+  },
+  "finished_at": "2026-10-31T23:04:03.820836+00:00",
+  "sdk_source_sha": "e9f751e39cd0bb00425c0a57f63d7f796fa9ec80",
+  "package_sha256": "248dfc48b3aef6203ddcc824a07dde428305d9f04f576dee0c44e9ea0f7a22a5"
+}

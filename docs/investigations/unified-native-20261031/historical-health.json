@@ -1,0 +1,153 @@
+{
+  "source_evidence_sha": "9178845093f8f39e5765db3dc6bd783b89ca4f23",
+  "source_paths": [
+    "docs/investigations/vin1-ipv6-20261031/production-benchmark.json",
+    "docs/investigations/vin1-ipv6-20261031/production-api-benchmark.json"
+  ],
+  "production_before": {
+    "status": "ok",
+    "proxy_count": 2,
+    "identity_pool": {
+      "size": 8,
+      "replaced": 0
+    },
+    "swoop_version": "0.7.0",
+    "swoop_commit": "82bd0e1b9e9d0e41556d34f333e36d09a76ee712",
+    "transport_primary": "native_ipv6",
+    "transport_health": [
+      {
+        "operation": "GetCalendarPicker",
+        "route": "ipv6",
+        "state": "open",
+        "reason": "http_redirect",
+        "retry_in": 0.0,
+        "active": 0
+      },
+      {
+        "operation": "GetShoppingResults",
+        "route": "ipv6",
+        "state": "open",
+        "reason": "timeout",
+        "retry_in": 0.0,
+        "active": 0
+      },
+      {
+        "operation": "GetShoppingResults",
+        "route": "fallback",
+        "state": "closed",
+        "reason": null,
+        "retry_in": 0.0,
+        "active": 0
+      },
+      {
+        "operation": "GetCalendarPicker",
+        "route": "fallback",
+        "state": "closed",
+        "reason": null,
+        "retry_in": 0.0,
+        "active": 0
+      }
+    ],
+    "native_client": "wreq==0.13.0",
+    "hotels": true
+  },
+  "production_after": {
+    "status": "ok",
+    "proxy_count": 2,
+    "identity_pool": {
+      "size": 8,
+      "replaced": 0
+    },
+    "swoop_version": "0.7.0",
+    "swoop_commit": "82bd0e1b9e9d0e41556d34f333e36d09a76ee712",
+    "transport_primary": "native_ipv6",
+    "transport_health": [
+      {
+        "operation": "GetCalendarPicker",
+        "route": "ipv6",
+        "state": "open",
+        "reason": "http_redirect",
+        "retry_in": 0.0,
+        "active": 0
+      },
+      {
+        "operation": "GetCalendarPicker",
+        "route": "fallback",
+        "state": "closed",
+        "reason": null,
+        "retry_in": 0.0,
+        "active": 0
+      },
+      {
+        "operation": "GetCalendarGrid",
+        "route": "ipv6",
+        "state": "open",
+        "reason": "http_redirect",
+        "retry_in": 13.356472103041597,
+        "active": 0
+      },
+      {
+        "operation": "GetCalendarGrid",
+        "route": "fallback",
+        "state": "closed",
+        "reason": null,
+        "retry_in": 0.0,
+        "active": 0
+      },
+      {
+        "operation": "GetCalendarGraph",
+        "route": "ipv6",
+        "state": "open",
+        "reason": "timeout",
+        "retry_in": 21.51827833999414,
+        "active": 0
+      },
+      {
+        "operation": "GetCalendarGraph",
+        "route": "fallback",
+        "state": "closed",
+        "reason": null,
+        "retry_in": 0.0,
+        "active": 0
+      },
+      {
+        "operation": "GetShoppingResults",
+        "route": "ipv6",
+        "state": "open",
+        "reason": "timeout",
+        "retry_in": 2.5859773110132664,
+        "active": 0
+      },
+      {
+        "operation": "GetShoppingResults",
+        "route": "fallback",
+        "state": "closed",
+        "reason": null,
+        "retry_in": 0.0,
+        "active": 0
+      },
+      {
+        "operation": "GetBookingResults",
+        "route": "ipv6",
+        "state": "open",
+        "reason": "timeout",
+        "retry_in": 25.910036892979406,
+        "active": 0
+      },
+      {
+        "operation": "GetBookingResults",
+        "route": "fallback",
+        "state": "closed",
+        "reason": null,
+        "retry_in": 0.0,
+        "active": 0
+      }
+    ],
+    "native_client": "wreq==0.13.0",
+    "hotels": true
+  },
+  "timeout_tails_ms": {
+    "one_way_calendar": 8141.6,
+    "shopping": 3182.6
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "command": "strace -f -e trace=connect python3 -I -S vin1_probe.py ... sessions",
+  "source_sha": "e9f751e39cd0bb00425c0a57f63d7f796fa9ec80",
+  "connects": [
+    "2190993 connect(6, {sa_family=AF_INET6, sin6_port=htons(443), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, \"2001:4860:482c:7700::\", &sin6_addr), sin6_scope_id=0}, 28) = -1 EINPROGRESS (Operation now in progress)",
+    "2190994 connect(7, {sa_family=AF_INET6, sin6_port=htons(443), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, \"2001:4860:4828:7700::\", &sin6_addr), sin6_scope_id=0}, 28) = -1 EINPROGRESS (Operation now in progress)",
+    "2190982 connect(14, {sa_family=AF_INET, sin_port=htons(1082), sin_addr=inet_addr(\"10.0.0.10\")}, 16) = -1 EINPROGRESS (Operation now in progress)",
+    "2190982 connect(15, {sa_family=AF_INET, sin_port=htons(1082), sin_addr=inet_addr(\"10.0.0.10\")}, 16) = -1 EINPROGRESS (Operation now in progress)"
+  ],
+  "recovery_connects": [
+    "2194366 connect(12, {sa_family=AF_INET, sin_port=htons(1082), sin_addr=inet_addr(\"10.0.0.10\")}, 16) = -1 EINPROGRESS (Operation now in progress)",
+    "2194368 connect(13, {sa_family=AF_INET6, sin6_port=htons(443), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, \"2001:4860:4826:7700::\", &sin6_addr), sin6_scope_id=0}, 28) = -1 EINPROGRESS (Operation now in progress)"
+  ]
+}

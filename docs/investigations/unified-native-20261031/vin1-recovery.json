@@ -1,0 +1,179 @@
+{
+  "started_at": "2026-10-31T23:05:12.647305+00:00",
+  "rows": [
+    {
+      "operation": "controlled_failure_real_mia1",
+      "success": true,
+      "count": 30,
+      "elapsed_ms": 491.6329790139571,
+      "primary_dispatches": 1,
+      "diagnostics": {
+        "http_attempts": 2,
+        "rpc_attempts": 2,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 392.242135014385,
+        "network_ms": 350.3876000177115,
+        "decode_ms": 0.9198429761454463,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4618,
+        "responses_with_unknown_bytes": 1,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": null,
+            "network_ms": 0.0237050699070096,
+            "response_bytes": null,
+            "error_type": "SwoopTransportError"
+          },
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 350.3638949478045,
+            "response_bytes": 4618,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "timeout",
+          "retry_in": 32.04847296245862,
+          "active": 0
+        },
+        {
+          "operation": "google",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "cooldown_real_mia1",
+      "success": true,
+      "count": 30,
+      "elapsed_ms": 148.96706398576498,
+      "primary_dispatches": 1,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 148.75206805299968,
+        "network_ms": 142.73123699240386,
+        "decode_ms": 0.7876490708440542,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4621,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 142.73123699240386,
+            "response_bytes": 4621,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "timeout",
+          "retry_in": 31.899028901359998,
+          "active": 0
+        },
+        {
+          "operation": "google",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    },
+    {
+      "operation": "native_recovery",
+      "success": true,
+      "count": 30,
+      "elapsed_ms": 226.98309703264385,
+      "primary_dispatches": 2,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 226.65942297317088,
+        "network_ms": 216.82351897470653,
+        "decode_ms": 4.587761010043323,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4621,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 216.82351897470653,
+            "response_bytes": 4621,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "health": [
+        {
+          "operation": "google",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        },
+        {
+          "operation": "google",
+          "route": "ipv6",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ]
+    }
+  ],
+  "control": "first primary dispatch raises synthetic TimeoutError; provider requests unmodified",
+  "package_sha256": "248dfc48b3aef6203ddcc824a07dde428305d9f04f576dee0c44e9ea0f7a22a5",
+  "actual_cooldown_wait_seconds": 31.998706827429125,
+  "finished_at": "2026-10-31T23:05:45.521534+00:00"
+}
