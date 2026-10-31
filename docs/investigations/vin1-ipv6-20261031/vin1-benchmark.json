@@ -1,0 +1,2253 @@
+{
+  "host": "vin1",
+  "release": "events-402fd6540676",
+  "client": "curl, same deployed SDK payloads and decoding on both routes",
+  "date": "2026-10-31",
+  "summary": [
+    {
+      "operation": "calendar",
+      "vin1-direct-ipv6": {
+        "valid": 5,
+        "samples": 5,
+        "freshConnectionMs": 202.201,
+        "reusedConnectionSamples": 4,
+        "reusedConnectionMeanMs": 116.097,
+        "reusedConnectionMedianMs": 119.157
+      },
+      "via-mia1-ipv6": {
+        "valid": 5,
+        "samples": 5,
+        "freshConnectionMs": 289.335,
+        "reusedConnectionSamples": 4,
+        "reusedConnectionMeanMs": 144.638,
+        "reusedConnectionMedianMs": 141.185
+      },
+      "warmSavedMs": 28.541,
+      "warmReductionPercent": 19.7,
+      "allReturnedPricesMatch": true
+    },
+    {
+      "operation": "shopping",
+      "vin1-direct-ipv6": {
+        "valid": 5,
+        "samples": 5,
+        "freshConnectionMs": 241.167,
+        "reusedConnectionSamples": 4,
+        "reusedConnectionMeanMs": 261.04,
+        "reusedConnectionMedianMs": 265.755
+      },
+      "via-mia1-ipv6": {
+        "valid": 5,
+        "samples": 5,
+        "freshConnectionMs": 582.419,
+        "reusedConnectionSamples": 4,
+        "reusedConnectionMeanMs": 339.567,
+        "reusedConnectionMedianMs": 339.118
+      },
+      "warmSavedMs": 78.527,
+      "warmReductionPercent": 23.1
+    }
+  ],
+  "results": [
+    {
+      "http_code": 200,
+      "remote_ip": "2001:4860:4828:7700::",
+      "local_ip": "2604:2dc0:100:2437::17",
+      "http_version": "2",
+      "num_connects": 1,
+      "exitcode": 0,
+      "operation": "calendar",
+      "route": "vin1-direct-ipv6",
+      "sample": 0,
+      "time_namelookup_ms": 3.999,
+      "time_connect_ms": 7.016,
+      "time_appconnect_ms": 24.962,
+      "time_pretransfer_ms": 25.047,
+      "time_starttransfer_ms": 202.117,
+      "time_total_ms": 202.201,
+      "pricedCells": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "returnDate": "2026-11-06",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "returnDate": "2026-11-07",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "returnDate": "2026-11-08",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "returnDate": "2026-11-09",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "returnDate": "2026-11-10",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "returnDate": "2026-11-11",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "returnDate": "2026-11-12",
+          "amount": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "returnDate": "2026-11-13",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "returnDate": "2026-11-14",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "returnDate": "2026-11-15",
+          "amount": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "returnDate": "2026-11-16",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "returnDate": "2026-11-17",
+          "amount": 472,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "returnDate": "2026-11-18",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "returnDate": "2026-11-19",
+          "amount": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "returnDate": "2026-11-20",
+          "amount": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "returnDate": "2026-11-21",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "returnDate": "2026-11-22",
+          "amount": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "returnDate": "2026-11-23",
+          "amount": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "returnDate": "2026-11-24",
+          "amount": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "returnDate": "2026-11-25",
+          "amount": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "returnDate": "2026-11-26",
+          "amount": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "returnDate": "2026-11-27",
+          "amount": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "returnDate": "2026-11-28",
+          "amount": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "returnDate": "2026-11-29",
+          "amount": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "returnDate": "2026-11-30",
+          "amount": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "returnDate": "2026-12-01",
+          "amount": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "returnDate": "2026-12-02",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "returnDate": "2026-12-03",
+          "amount": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "returnDate": "2026-12-04",
+          "amount": 689,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "returnDate": "2026-12-05",
+          "amount": 436,
+          "currency": "USD"
+        }
+      ],
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "2001:4860:4828:7700::",
+      "local_ip": "2604:2dc0:100:2437::17",
+      "http_version": "2",
+      "num_connects": 0,
+      "exitcode": 0,
+      "operation": "calendar",
+      "route": "vin1-direct-ipv6",
+      "sample": 1,
+      "time_namelookup_ms": 0.0,
+      "time_connect_ms": 0.0,
+      "time_appconnect_ms": 0.0,
+      "time_pretransfer_ms": 0.048,
+      "time_starttransfer_ms": 113.712,
+      "time_total_ms": 113.952,
+      "pricedCells": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "returnDate": "2026-11-06",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "returnDate": "2026-11-07",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "returnDate": "2026-11-08",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "returnDate": "2026-11-09",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "returnDate": "2026-11-10",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "returnDate": "2026-11-11",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "returnDate": "2026-11-12",
+          "amount": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "returnDate": "2026-11-13",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "returnDate": "2026-11-14",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "returnDate": "2026-11-15",
+          "amount": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "returnDate": "2026-11-16",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "returnDate": "2026-11-17",
+          "amount": 472,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "returnDate": "2026-11-18",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "returnDate": "2026-11-19",
+          "amount": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "returnDate": "2026-11-20",
+          "amount": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "returnDate": "2026-11-21",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "returnDate": "2026-11-22",
+          "amount": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "returnDate": "2026-11-23",
+          "amount": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "returnDate": "2026-11-24",
+          "amount": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "returnDate": "2026-11-25",
+          "amount": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "returnDate": "2026-11-26",
+          "amount": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "returnDate": "2026-11-27",
+          "amount": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "returnDate": "2026-11-28",
+          "amount": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "returnDate": "2026-11-29",
+          "amount": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "returnDate": "2026-11-30",
+          "amount": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "returnDate": "2026-12-01",
+          "amount": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "returnDate": "2026-12-02",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "returnDate": "2026-12-03",
+          "amount": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "returnDate": "2026-12-04",
+          "amount": 689,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "returnDate": "2026-12-05",
+          "amount": 436,
+          "currency": "USD"
+        }
+      ],
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "2001:4860:4828:7700::",
+      "local_ip": "2604:2dc0:100:2437::17",
+      "http_version": "2",
+      "num_connects": 0,
+      "exitcode": 0,
+      "operation": "calendar",
+      "route": "vin1-direct-ipv6",
+      "sample": 2,
+      "time_namelookup_ms": 0.0,
+      "time_connect_ms": 0.0,
+      "time_appconnect_ms": 0.0,
+      "time_pretransfer_ms": 0.046,
+      "time_starttransfer_ms": 131.4,
+      "time_total_ms": 131.706,
+      "pricedCells": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "returnDate": "2026-11-06",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "returnDate": "2026-11-07",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "returnDate": "2026-11-08",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "returnDate": "2026-11-09",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "returnDate": "2026-11-10",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "returnDate": "2026-11-11",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "returnDate": "2026-11-12",
+          "amount": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "returnDate": "2026-11-13",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "returnDate": "2026-11-14",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "returnDate": "2026-11-15",
+          "amount": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "returnDate": "2026-11-16",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "returnDate": "2026-11-17",
+          "amount": 472,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "returnDate": "2026-11-18",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "returnDate": "2026-11-19",
+          "amount": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "returnDate": "2026-11-20",
+          "amount": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "returnDate": "2026-11-21",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "returnDate": "2026-11-22",
+          "amount": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "returnDate": "2026-11-23",
+          "amount": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "returnDate": "2026-11-24",
+          "amount": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "returnDate": "2026-11-25",
+          "amount": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "returnDate": "2026-11-26",
+          "amount": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "returnDate": "2026-11-27",
+          "amount": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "returnDate": "2026-11-28",
+          "amount": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "returnDate": "2026-11-29",
+          "amount": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "returnDate": "2026-11-30",
+          "amount": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "returnDate": "2026-12-01",
+          "amount": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "returnDate": "2026-12-02",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "returnDate": "2026-12-03",
+          "amount": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "returnDate": "2026-12-04",
+          "amount": 689,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "returnDate": "2026-12-05",
+          "amount": 436,
+          "currency": "USD"
+        }
+      ],
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "2001:4860:4828:7700::",
+      "local_ip": "2604:2dc0:100:2437::17",
+      "http_version": "2",
+      "num_connects": 0,
+      "exitcode": 0,
+      "operation": "calendar",
+      "route": "vin1-direct-ipv6",
+      "sample": 3,
+      "time_namelookup_ms": 0.0,
+      "time_connect_ms": 0.0,
+      "time_appconnect_ms": 0.0,
+      "time_pretransfer_ms": 0.216,
+      "time_starttransfer_ms": 94.147,
+      "time_total_ms": 94.369,
+      "pricedCells": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "returnDate": "2026-11-06",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "returnDate": "2026-11-07",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "returnDate": "2026-11-08",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "returnDate": "2026-11-09",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "returnDate": "2026-11-10",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "returnDate": "2026-11-11",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "returnDate": "2026-11-12",
+          "amount": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "returnDate": "2026-11-13",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "returnDate": "2026-11-14",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "returnDate": "2026-11-15",
+          "amount": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "returnDate": "2026-11-16",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "returnDate": "2026-11-17",
+          "amount": 472,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "returnDate": "2026-11-18",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "returnDate": "2026-11-19",
+          "amount": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "returnDate": "2026-11-20",
+          "amount": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "returnDate": "2026-11-21",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "returnDate": "2026-11-22",
+          "amount": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "returnDate": "2026-11-23",
+          "amount": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "returnDate": "2026-11-24",
+          "amount": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "returnDate": "2026-11-25",
+          "amount": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "returnDate": "2026-11-26",
+          "amount": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "returnDate": "2026-11-27",
+          "amount": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "returnDate": "2026-11-28",
+          "amount": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "returnDate": "2026-11-29",
+          "amount": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "returnDate": "2026-11-30",
+          "amount": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "returnDate": "2026-12-01",
+          "amount": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "returnDate": "2026-12-02",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "returnDate": "2026-12-03",
+          "amount": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "returnDate": "2026-12-04",
+          "amount": 689,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "returnDate": "2026-12-05",
+          "amount": 436,
+          "currency": "USD"
+        }
+      ],
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "2001:4860:4828:7700::",
+      "local_ip": "2604:2dc0:100:2437::17",
+      "http_version": "2",
+      "num_connects": 0,
+      "exitcode": 0,
+      "operation": "calendar",
+      "route": "vin1-direct-ipv6",
+      "sample": 4,
+      "time_namelookup_ms": 0.0,
+      "time_connect_ms": 0.0,
+      "time_appconnect_ms": 0.0,
+      "time_pretransfer_ms": 0.093,
+      "time_starttransfer_ms": 124.088,
+      "time_total_ms": 124.363,
+      "pricedCells": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "returnDate": "2026-11-06",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "returnDate": "2026-11-07",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "returnDate": "2026-11-08",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "returnDate": "2026-11-09",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "returnDate": "2026-11-10",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "returnDate": "2026-11-11",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "returnDate": "2026-11-12",
+          "amount": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "returnDate": "2026-11-13",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "returnDate": "2026-11-14",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "returnDate": "2026-11-15",
+          "amount": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "returnDate": "2026-11-16",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "returnDate": "2026-11-17",
+          "amount": 472,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "returnDate": "2026-11-18",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "returnDate": "2026-11-19",
+          "amount": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "returnDate": "2026-11-20",
+          "amount": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "returnDate": "2026-11-21",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "returnDate": "2026-11-22",
+          "amount": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "returnDate": "2026-11-23",
+          "amount": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "returnDate": "2026-11-24",
+          "amount": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "returnDate": "2026-11-25",
+          "amount": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "returnDate": "2026-11-26",
+          "amount": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "returnDate": "2026-11-27",
+          "amount": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "returnDate": "2026-11-28",
+          "amount": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "returnDate": "2026-11-29",
+          "amount": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "returnDate": "2026-11-30",
+          "amount": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "returnDate": "2026-12-01",
+          "amount": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "returnDate": "2026-12-02",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "returnDate": "2026-12-03",
+          "amount": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "returnDate": "2026-12-04",
+          "amount": 689,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "returnDate": "2026-12-05",
+          "amount": 436,
+          "currency": "USD"
+        }
+      ],
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "10.0.0.10",
+      "local_ip": "10.0.0.17",
+      "http_version": "2",
+      "num_connects": 1,
+      "exitcode": 0,
+      "operation": "calendar",
+      "route": "via-mia1-ipv6",
+      "sample": 0,
+      "time_namelookup_ms": 0.027,
+      "time_connect_ms": 24.704,
+      "time_appconnect_ms": 147.043,
+      "time_pretransfer_ms": 147.145,
+      "time_starttransfer_ms": 285.976,
+      "time_total_ms": 289.335,
+      "pricedCells": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "returnDate": "2026-11-06",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "returnDate": "2026-11-07",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "returnDate": "2026-11-08",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "returnDate": "2026-11-09",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "returnDate": "2026-11-10",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "returnDate": "2026-11-11",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "returnDate": "2026-11-12",
+          "amount": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "returnDate": "2026-11-13",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "returnDate": "2026-11-14",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "returnDate": "2026-11-15",
+          "amount": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "returnDate": "2026-11-16",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "returnDate": "2026-11-17",
+          "amount": 472,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "returnDate": "2026-11-18",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "returnDate": "2026-11-19",
+          "amount": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "returnDate": "2026-11-20",
+          "amount": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "returnDate": "2026-11-21",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "returnDate": "2026-11-22",
+          "amount": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "returnDate": "2026-11-23",
+          "amount": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "returnDate": "2026-11-24",
+          "amount": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "returnDate": "2026-11-25",
+          "amount": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "returnDate": "2026-11-26",
+          "amount": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "returnDate": "2026-11-27",
+          "amount": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "returnDate": "2026-11-28",
+          "amount": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "returnDate": "2026-11-29",
+          "amount": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "returnDate": "2026-11-30",
+          "amount": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "returnDate": "2026-12-01",
+          "amount": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "returnDate": "2026-12-02",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "returnDate": "2026-12-03",
+          "amount": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "returnDate": "2026-12-04",
+          "amount": 689,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "returnDate": "2026-12-05",
+          "amount": 436,
+          "currency": "USD"
+        }
+      ],
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "10.0.0.10",
+      "local_ip": "10.0.0.17",
+      "http_version": "2",
+      "num_connects": 0,
+      "exitcode": 0,
+      "operation": "calendar",
+      "route": "via-mia1-ipv6",
+      "sample": 1,
+      "time_namelookup_ms": 0.0,
+      "time_connect_ms": 0.0,
+      "time_appconnect_ms": 0.0,
+      "time_pretransfer_ms": 0.063,
+      "time_starttransfer_ms": 115.659,
+      "time_total_ms": 118.064,
+      "pricedCells": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "returnDate": "2026-11-06",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "returnDate": "2026-11-07",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "returnDate": "2026-11-08",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "returnDate": "2026-11-09",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "returnDate": "2026-11-10",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "returnDate": "2026-11-11",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "returnDate": "2026-11-12",
+          "amount": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "returnDate": "2026-11-13",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "returnDate": "2026-11-14",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "returnDate": "2026-11-15",
+          "amount": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "returnDate": "2026-11-16",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "returnDate": "2026-11-17",
+          "amount": 472,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "returnDate": "2026-11-18",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "returnDate": "2026-11-19",
+          "amount": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "returnDate": "2026-11-20",
+          "amount": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "returnDate": "2026-11-21",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "returnDate": "2026-11-22",
+          "amount": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "returnDate": "2026-11-23",
+          "amount": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "returnDate": "2026-11-24",
+          "amount": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "returnDate": "2026-11-25",
+          "amount": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "returnDate": "2026-11-26",
+          "amount": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "returnDate": "2026-11-27",
+          "amount": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "returnDate": "2026-11-28",
+          "amount": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "returnDate": "2026-11-29",
+          "amount": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "returnDate": "2026-11-30",
+          "amount": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "returnDate": "2026-12-01",
+          "amount": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "returnDate": "2026-12-02",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "returnDate": "2026-12-03",
+          "amount": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "returnDate": "2026-12-04",
+          "amount": 689,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "returnDate": "2026-12-05",
+          "amount": 436,
+          "currency": "USD"
+        }
+      ],
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "10.0.0.10",
+      "local_ip": "10.0.0.17",
+      "http_version": "2",
+      "num_connects": 0,
+      "exitcode": 0,
+      "operation": "calendar",
+      "route": "via-mia1-ipv6",
+      "sample": 2,
+      "time_namelookup_ms": 0.0,
+      "time_connect_ms": 0.0,
+      "time_appconnect_ms": 0.0,
+      "time_pretransfer_ms": 0.273,
+      "time_starttransfer_ms": 138.094,
+      "time_total_ms": 140.149,
+      "pricedCells": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "returnDate": "2026-11-06",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "returnDate": "2026-11-07",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "returnDate": "2026-11-08",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "returnDate": "2026-11-09",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "returnDate": "2026-11-10",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "returnDate": "2026-11-11",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "returnDate": "2026-11-12",
+          "amount": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "returnDate": "2026-11-13",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "returnDate": "2026-11-14",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "returnDate": "2026-11-15",
+          "amount": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "returnDate": "2026-11-16",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "returnDate": "2026-11-17",
+          "amount": 472,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "returnDate": "2026-11-18",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "returnDate": "2026-11-19",
+          "amount": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "returnDate": "2026-11-20",
+          "amount": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "returnDate": "2026-11-21",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "returnDate": "2026-11-22",
+          "amount": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "returnDate": "2026-11-23",
+          "amount": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "returnDate": "2026-11-24",
+          "amount": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "returnDate": "2026-11-25",
+          "amount": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "returnDate": "2026-11-26",
+          "amount": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "returnDate": "2026-11-27",
+          "amount": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "returnDate": "2026-11-28",
+          "amount": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "returnDate": "2026-11-29",
+          "amount": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "returnDate": "2026-11-30",
+          "amount": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "returnDate": "2026-12-01",
+          "amount": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "returnDate": "2026-12-02",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "returnDate": "2026-12-03",
+          "amount": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "returnDate": "2026-12-04",
+          "amount": 689,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "returnDate": "2026-12-05",
+          "amount": 436,
+          "currency": "USD"
+        }
+      ],
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "10.0.0.10",
+      "local_ip": "10.0.0.17",
+      "http_version": "2",
+      "num_connects": 0,
+      "exitcode": 0,
+      "operation": "calendar",
+      "route": "via-mia1-ipv6",
+      "sample": 3,
+      "time_namelookup_ms": 0.0,
+      "time_connect_ms": 0.0,
+      "time_appconnect_ms": 0.0,
+      "time_pretransfer_ms": 0.246,
+      "time_starttransfer_ms": 139.876,
+      "time_total_ms": 142.22,
+      "pricedCells": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "returnDate": "2026-11-06",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "returnDate": "2026-11-07",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "returnDate": "2026-11-08",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "returnDate": "2026-11-09",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "returnDate": "2026-11-10",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "returnDate": "2026-11-11",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "returnDate": "2026-11-12",
+          "amount": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "returnDate": "2026-11-13",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "returnDate": "2026-11-14",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "returnDate": "2026-11-15",
+          "amount": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "returnDate": "2026-11-16",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "returnDate": "2026-11-17",
+          "amount": 472,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "returnDate": "2026-11-18",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "returnDate": "2026-11-19",
+          "amount": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "returnDate": "2026-11-20",
+          "amount": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "returnDate": "2026-11-21",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "returnDate": "2026-11-22",
+          "amount": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "returnDate": "2026-11-23",
+          "amount": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "returnDate": "2026-11-24",
+          "amount": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "returnDate": "2026-11-25",
+          "amount": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "returnDate": "2026-11-26",
+          "amount": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "returnDate": "2026-11-27",
+          "amount": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "returnDate": "2026-11-28",
+          "amount": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "returnDate": "2026-11-29",
+          "amount": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "returnDate": "2026-11-30",
+          "amount": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "returnDate": "2026-12-01",
+          "amount": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "returnDate": "2026-12-02",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "returnDate": "2026-12-03",
+          "amount": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "returnDate": "2026-12-04",
+          "amount": 689,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "returnDate": "2026-12-05",
+          "amount": 436,
+          "currency": "USD"
+        }
+      ],
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "10.0.0.10",
+      "local_ip": "10.0.0.17",
+      "http_version": "2",
+      "num_connects": 0,
+      "exitcode": 0,
+      "operation": "calendar",
+      "route": "via-mia1-ipv6",
+      "sample": 4,
+      "time_namelookup_ms": 0.0,
+      "time_connect_ms": 0.0,
+      "time_appconnect_ms": 0.0,
+      "time_pretransfer_ms": 0.255,
+      "time_starttransfer_ms": 176.16,
+      "time_total_ms": 178.119,
+      "pricedCells": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "returnDate": "2026-11-06",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "returnDate": "2026-11-07",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "returnDate": "2026-11-08",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "returnDate": "2026-11-09",
+          "amount": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "returnDate": "2026-11-10",
+          "amount": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "returnDate": "2026-11-11",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "returnDate": "2026-11-12",
+          "amount": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "returnDate": "2026-11-13",
+          "amount": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "returnDate": "2026-11-14",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "returnDate": "2026-11-15",
+          "amount": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "returnDate": "2026-11-16",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "returnDate": "2026-11-17",
+          "amount": 472,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "returnDate": "2026-11-18",
+          "amount": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "returnDate": "2026-11-19",
+          "amount": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "returnDate": "2026-11-20",
+          "amount": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "returnDate": "2026-11-21",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "returnDate": "2026-11-22",
+          "amount": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "returnDate": "2026-11-23",
+          "amount": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "returnDate": "2026-11-24",
+          "amount": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "returnDate": "2026-11-25",
+          "amount": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "returnDate": "2026-11-26",
+          "amount": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "returnDate": "2026-11-27",
+          "amount": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "returnDate": "2026-11-28",
+          "amount": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "returnDate": "2026-11-29",
+          "amount": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "returnDate": "2026-11-30",
+          "amount": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "returnDate": "2026-12-01",
+          "amount": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "returnDate": "2026-12-02",
+          "amount": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "returnDate": "2026-12-03",
+          "amount": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "returnDate": "2026-12-04",
+          "amount": 689,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "returnDate": "2026-12-05",
+          "amount": 436,
+          "currency": "USD"
+        }
+      ],
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "10.0.0.10",
+      "local_ip": "10.0.0.17",
+      "http_version": "2",
+      "num_connects": 1,
+      "exitcode": 0,
+      "operation": "shopping",
+      "route": "via-mia1-ipv6",
+      "sample": 0,
+      "time_namelookup_ms": 0.026,
+      "time_connect_ms": 22.465,
+      "time_appconnect_ms": 143.469,
+      "time_pretransfer_ms": 143.581,
+      "time_starttransfer_ms": 470.059,
+      "time_total_ms": 582.419,
+      "itineraries": 131,
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "10.0.0.10",
+      "local_ip": "10.0.0.17",
+      "http_version": "2",
+      "num_connects": 0,
+      "exitcode": 0,
+      "operation": "shopping",
+      "route": "via-mia1-ipv6",
+      "sample": 1,
+      "time_namelookup_ms": 0.0,
+      "time_connect_ms": 0.0,
+      "time_appconnect_ms": 0.0,
+      "time_pretransfer_ms": 0.281,
+      "time_starttransfer_ms": 301.905,
+      "time_total_ms": 331.844,
+      "itineraries": 131,
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "10.0.0.10",
+      "local_ip": "10.0.0.17",
+      "http_version": "2",
+      "num_connects": 0,
+      "exitcode": 0,
+      "operation": "shopping",
+      "route": "via-mia1-ipv6",
+      "sample": 2,
+      "time_namelookup_ms": 0.0,
+      "time_connect_ms": 0.0,
+      "time_appconnect_ms": 0.0,
+      "time_pretransfer_ms": 0.07,
+      "time_starttransfer_ms": 314.933,
+      "time_total_ms": 348.187,
+      "itineraries": 131,
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "10.0.0.10",
+      "local_ip": "10.0.0.17",
+      "http_version": "2",
+      "num_connects": 0,
+      "exitcode": 0,
+      "operation": "shopping",
+      "route": "via-mia1-ipv6",
+      "sample": 3,
+      "time_namelookup_ms": 0.0,
+      "time_connect_ms": 0.0,
+      "time_appconnect_ms": 0.0,
+      "time_pretransfer_ms": 0.274,
+      "time_starttransfer_ms": 314.884,
+      "time_total_ms": 340.61,
+      "itineraries": 131,
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "10.0.0.10",
+      "local_ip": "10.0.0.17",
+      "http_version": "2",
+      "num_connects": 0,
+      "exitcode": 0,
+      "operation": "shopping",
+      "route": "via-mia1-ipv6",
+      "sample": 4,
+      "time_namelookup_ms": 0.0,
+      "time_connect_ms": 0.0,
+      "time_appconnect_ms": 0.0,
+      "time_pretransfer_ms": 0.242,
+      "time_starttransfer_ms": 295.547,
+      "time_total_ms": 337.626,
+      "itineraries": 131,
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "2001:4860:4826:7700::",
+      "local_ip": "2604:2dc0:100:2437::17",
+      "http_version": "2",
+      "num_connects": 1,
+      "exitcode": 0,
+      "operation": "shopping",
+      "route": "vin1-direct-ipv6",
+      "sample": 0,
+      "time_namelookup_ms": 1.219,
+      "time_connect_ms": 3.954,
+      "time_appconnect_ms": 19.428,
+      "time_pretransfer_ms": 19.51,
+      "time_starttransfer_ms": 222.2,
+      "time_total_ms": 241.167,
+      "itineraries": 131,
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "2001:4860:4826:7700::",
+      "local_ip": "2604:2dc0:100:2437::17",
+      "http_version": "2",
+      "num_connects": 0,
+      "exitcode": 0,
+      "operation": "shopping",
+      "route": "vin1-direct-ipv6",
+      "sample": 1,
+      "time_namelookup_ms": 0.0,
+      "time_connect_ms": 0.0,
+      "time_appconnect_ms": 0.0,
+      "time_pretransfer_ms": 0.231,
+      "time_starttransfer_ms": 246.444,
+      "time_total_ms": 269.449,
+      "itineraries": 131,
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "2001:4860:4826:7700::",
+      "local_ip": "2604:2dc0:100:2437::17",
+      "http_version": "2",
+      "num_connects": 0,
+      "exitcode": 0,
+      "operation": "shopping",
+      "route": "vin1-direct-ipv6",
+      "sample": 2,
+      "time_namelookup_ms": 0.0,
+      "time_connect_ms": 0.0,
+      "time_appconnect_ms": 0.0,
+      "time_pretransfer_ms": 0.224,
+      "time_starttransfer_ms": 258.579,
+      "time_total_ms": 276.434,
+      "itineraries": 131,
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "2001:4860:4826:7700::",
+      "local_ip": "2604:2dc0:100:2437::17",
+      "http_version": "2",
+      "num_connects": 0,
+      "exitcode": 0,
+      "operation": "shopping",
+      "route": "vin1-direct-ipv6",
+      "sample": 3,
+      "time_namelookup_ms": 0.0,
+      "time_connect_ms": 0.0,
+      "time_appconnect_ms": 0.0,
+      "time_pretransfer_ms": 0.217,
+      "time_starttransfer_ms": 246.381,
+      "time_total_ms": 262.062,
+      "itineraries": 131,
+      "validResult": true
+    },
+    {
+      "http_code": 200,
+      "remote_ip": "2001:4860:4826:7700::",
+      "local_ip": "2604:2dc0:100:2437::17",
+      "http_version": "2",
+      "num_connects": 0,
+      "exitcode": 0,
+      "operation": "shopping",
+      "route": "vin1-direct-ipv6",
+      "sample": 4,
+      "time_namelookup_ms": 0.0,
+      "time_connect_ms": 0.0,
+      "time_appconnect_ms": 0.0,
+      "time_pretransfer_ms": 0.05,
+      "time_starttransfer_ms": 216.849,
+      "time_total_ms": 236.215,
+      "itineraries": 131,
+      "validResult": true
+    }
+  ]
+}
