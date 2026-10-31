@@ -85,7 +85,9 @@ successful latency samples, and do not treat a small sample as a latency SLA.
 
 Hotels audit: all three paths use the shared policy. No proxy-first exception is
 required. The live broad-search M0CRd follow-up returned gRPC 3 while AtySUc
-returned valid hotels; the existing partial seed-result behavior remains valid.
+returned valid hotels. This remains separate unresolved wire triage; it is not
+not-applicable and does not justify a transport exception. The existing partial
+seed-result behavior is preserved while the RPC rejection remains unresolved.
 Invalid arguments do not open route health. Compact gRPC 13/availability failures
 restart the session on fallback, including when an optional follow-up catches
 the exception. See the investigation report and JSON for measured limits.

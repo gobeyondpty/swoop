@@ -576,7 +576,7 @@ class TestSearchSignature:
 
     def test_search_next_leg_params(self):
         assert list(inspect.signature(swoop.search_next_leg).parameters) == [
-            "selector", "transport", "time_budget",
+            "selector", "transport", "time_budget", "next_leg_filters",
         ]
 
     def test_deals_params(self):

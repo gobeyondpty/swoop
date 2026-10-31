@@ -11,6 +11,7 @@ from typing import Any, Optional
 
 from .builders import CabinClass
 from ._pricing import _validate_pricing, _validate_routing
+from ._continuation import narrow_next_leg, routing_matches
 from ._validate import parse_flight_number, validate_cabin, validate_date, validate_iata_code, validate_adults, validate_time_range
 from .decoder import Itinerary, RawSearchResult, itinerary_matches_flight
 from .exceptions import SwoopError, SwoopTransportError, SwoopUpstreamError
@@ -430,6 +431,10 @@ def search_trip_options(
 
     first_pass = fetch(request_legs)
     first_candidates = _iter_raw_itineraries(first_pass)
+    admitted = [it for it in first_candidates if routing_matches(it, request_legs[0])]
+    if len(admitted) != len(first_candidates):
+        coverage.reason("routing_mismatch")
+    first_candidates = admitted
     if first_flight_filter is not None:
         carrier, number = first_flight_filter
         first_candidates = [itinerary for itinerary in first_candidates
@@ -476,6 +481,10 @@ def search_trip_options(
                 coverage.result.unexpanded_prefixes += 1
                 continue
             children = _iter_raw_itineraries(raw)
+            admitted = [it for it in children if routing_matches(it, request_legs[stage])]
+            if len(admitted) != len(children):
+                coverage.reason("routing_mismatch")
+            children = admitted
             if children:
                 branches.append([prefix + [child] for child in children])
         size = sum(len(branch) for branch in branches)
@@ -531,6 +540,7 @@ def resolve_trip_selector(
     deadline: Optional[float] = None,
     allow_partial: bool = False,
     coverage: Optional[_Coverage] = None,
+    next_leg_filters: Optional[dict[str, Any]] = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[Itinerary], int]:
     try:
         payload = decode_trip_selector(selector)
@@ -592,6 +602,11 @@ def resolve_trip_selector(
         if not isinstance(payload["include_basic_economy"], bool):
             raise ValueError("invalid selector fare filter")
         request_legs = [_copy_request_leg(leg) for leg in query_legs]
+        if next_leg_filters is not None:
+            if not allow_partial:
+                raise ValueError("next-leg filters require an incomplete selection")
+            index = len(selected_legs)
+            request_legs[index] = narrow_next_leg(request_legs[index], next_leg_filters)
     except (KeyError, TypeError, AttributeError) as exc:
         raise ValueError("invalid selector context") from exc
     resolved: list[Itinerary] = []
@@ -601,7 +616,10 @@ def resolve_trip_selector(
     exclude_basic = payload["cabin"] == "economy" and not payload["include_basic_economy"]
 
     for index in range(len(selected_legs)):
-        staged_legs = _with_selected_prefix(request_legs, selected_legs[:index])
+        # Revalidate the already selected prefix under its saved intent. A new
+        # next-bound restriction can change the broad outbound list; apply it
+        # only once that prefix is fixed, not while rediscovering the outbound.
+        staged_legs = _with_selected_prefix(query_legs, selected_legs[:index])
         bounded = _budget_transport(transport, deadline)
         if coverage is not None:
             coverage.result.rpc_calls += 1
@@ -634,19 +652,27 @@ def resolve_trip_selector(
 def search_next_leg(
     selector: str, *, transport: TransportConfig = TransportConfig(),
     time_budget: Optional[float] = None,
+    next_leg_filters: Optional[dict[str, Any]] = None,
 ) -> SearchResult:
     """Replay a selected prefix and return every choice for its next bound.
 
     This is a progressive search, with no beam or trip-result cap. Each result
     preserves the selected prefix and the original search constraints. Only a
     final-bound result has ``is_resolved=True`` and can be exactly priced.
+
+    ``next_leg_filters`` narrows only the next unselected bound. Supported keys
+    are airlines, max_stops, max_duration, connecting_airports,
+    exclude_connecting_airports, min/max_layover_duration and earliest/latest
+    departure/arrival hours. Limits intersect the selector's original limits;
+    an empty intersection fails before provider I/O. Returned selectors retain
+    the effective constraints for subsequent continuation and pricing.
     """
     deadline = _deadline(time_budget if time_budget is not None else TIME_BUDGET_SECONDS)
     payload = decode_trip_selector(selector)
     transport = _selector_transport(payload, transport)
     coverage = _Coverage(payload["show_all_results"])
     payload, legs, prefix, _ = resolve_trip_selector(selector, transport=transport,
-        deadline=deadline, allow_partial=True, coverage=coverage)
+        deadline=deadline, allow_partial=True, coverage=coverage, next_leg_filters=next_leg_filters)
     selected = _selected_payloads_for_itineraries(prefix)
     if selected is None:
         raise ValueError("invalid selected prefix")
@@ -658,12 +684,16 @@ def search_next_leg(
         transport=bounded, retain_raw=False, show_all_results=payload["show_all_results"],
         exclude_separate_tickets=payload["exclude_separate_tickets"])
     coverage.add(raw)
+    candidates = _iter_raw_itineraries(raw)
+    admitted = [it for it in candidates if routing_matches(it, legs[len(prefix)])]
+    if len(admitted) != len(candidates):
+        coverage.reason("routing_mismatch")
     coverage.result.results = [_build_trip_option(legs, [*prefix, candidate], carry_on_bags=payload.get("carry_on_bags", 0), checked_bags=payload.get("checked_bags", 0), max_price=payload.get("max_price"),
         cabin=payload["cabin"], passengers=payload["passengers"], transport=transport,
         include_basic_economy=payload["include_basic_economy"],
         sort=payload.get("sort", SORT_DEPARTURE_TIME), show_all_results=payload["show_all_results"],
         exclude_separate_tickets=payload["exclude_separate_tickets"], country=transport.country)
-        for candidate in _iter_raw_itineraries(raw)]
+        for candidate in admitted]
     coverage.result.price_range = raw.price_range if raw else None
     return coverage.result
 

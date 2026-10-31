@@ -114,8 +114,10 @@ providers and ten reviews. Different Explore inventory counts do not establish
 blocking by themselves; route health was opened for the actual timeout.
 
 Hotels have no routing exception. Broad AtySUc returned usable hotels; M0CRd
-returned gRPC 3 on the follow-up. The existing partial seed behavior is preserved
-for that endpoint/wire constraint. Invalid arguments do not poison route health.
+returned gRPC 3 on the follow-up. This is separate unresolved wire triage, not
+a not-applicable endpoint or a resolved provider limitation. Partial seed behavior
+is preserved without claiming the rejected follow-up is fixed. Invalid arguments
+do not poison route health.
 A compact gRPC 13 or availability failure in an optional follow-up instead
 restarts the full route session. Hotel follow-ups preserve explicit currency and
 child ages instead of taking currency defaults from returned context.
