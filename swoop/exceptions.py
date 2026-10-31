@@ -54,7 +54,8 @@ class SwoopTransportError(SwoopError):
     """Raised when sending a request or reading its response body fails.
 
     The original transport exception is preserved as ``__cause__``. Transport
-    failures are not retried automatically.
+    failures are not retried by default. Opt-in adaptive transport may retry
+    the identical RPC on its bounded, caller-configured fallback routes.
     """
 
 
@@ -64,6 +65,8 @@ class SwoopHTTPError(SwoopError):
     Attributes:
         status_code: The HTTP status code returned.
     """
+
+    retry_after: Optional[float] = None
 
     def __init__(self, status_code: int, message: str | None = None):
         self.status_code = status_code

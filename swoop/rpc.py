@@ -7,7 +7,7 @@ Based on reverse-engineering from punitarani/fli.
 """
 
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import json
 import logging
 import threading
@@ -324,13 +324,13 @@ def _search_from_legs(
         # Some exits reject unsigned RPCs while serving the same inventory in
         # the public search page. Only the observed compact INTERNAL rejection
         # gets one alternate-transport attempt; detailed outages still raise.
-        if exc.grpc_code != 13 or exc.type_url is not None:
+        if transport.fallback_proxies or exc.grpc_code != 13 or exc.type_url is not None:
             raise
         from ._search_page import fetch_search_page
 
         remaining_timeout(deadline)
         result = fetch_search_page(
-            _get_client(transport.proxy, transport.impersonate), legs,
+            _get_transport_client(transport), legs,
             cabin=cabin, passengers=passengers, sort=sort,
             carry_on_bags=carry_on_bags, checked_bags=checked_bags, max_price=max_price,
             exclude_basic_economy=exclude_basic_economy, transport=transport,
@@ -474,6 +474,21 @@ def _get_client(proxy: Optional[str] = None, impersonate: Optional[str] = None) 
         return _clients[key]
 
 
+def _get_transport_client(transport: TransportConfig) -> Any:
+    if transport.address_family == "auto":
+        return _get_client(transport.proxy, transport.impersonate)
+    from ._native import NativeClient
+
+    key = f"{transport.proxy or ''}|{transport.impersonate or 'chrome'}|{transport.address_family}|native"
+    with _clients_lock:
+        if key not in _clients:
+            client = NativeClient(transport.address_family, transport.impersonate or "chrome", transport.proxy)
+            if len(_clients) >= _MAX_CLIENTS:
+                _clients.pop(next(iter(_clients)))
+            _clients[key] = client
+        return _clients[key]
+
+
 def _effective_country(country: Optional[str]) -> Optional[str]:
     """Read the explicit request override or configured default point of sale."""
     return country if country is not None else _default_country
@@ -492,6 +507,26 @@ def _apply_country(url: str, country: Optional[str]) -> str:
 class _HTTPResponse:
     status_code: int
     text: str
+
+
+def _retry_after(headers: Any) -> Optional[float]:
+    """RFC Retry-After seconds or HTTP date; invalid values do not change policy."""
+    from datetime import datetime, timezone
+    from email.utils import parsedate_to_datetime
+    import math
+    value = headers.get("retry-after") or headers.get("Retry-After")
+    if value is None:
+        return None
+    if isinstance(value, (bytes, bytearray, memoryview)):
+        value = bytes(value).decode("ascii", errors="replace")
+    try:
+        seconds = float(value)
+    except (ValueError, TypeError):
+        try:
+            seconds = (parsedate_to_datetime(value) - datetime.now(timezone.utc)).total_seconds()
+        except (ValueError, TypeError, OverflowError):
+            return None
+    return max(0.0, seconds) if math.isfinite(seconds) else None
 
 
 def _post_with_retry(
@@ -519,11 +554,15 @@ def _post_with_retry(
 
     short_url = url.split("/")[-1]
     deadline = transport_deadline(transport.timeout, _deadline)
+    if transport._operation_deadline is not None:
+        deadline = min(deadline, transport._operation_deadline)
     # Always make at least one attempt: a negative `retries` (e.g. a stray
     # `--retries -1` from the CLI, which has no lower bound) would otherwise
     # make range() empty, fall off the end, and return None — crashing callers
     # that dereference `res.text`.
     for attempt in range(max(1, 1 + transport.retries)):
+        if transport._cancel_check:
+            transport._cancel_check()
         timeout = remaining_timeout(deadline)
         operation = rpc_operation(url)
         try:
@@ -544,11 +583,12 @@ def _post_with_retry(
         if status_code == 200:
             logger.debug("HTTP 200 from %s (%d bytes)", short_url, len(text))
             return _HTTPResponse(status_code=status_code, text=text)
+        retry_after = _retry_after(getattr(res, "headers", {}))
         if status_code == 429 and attempt < transport.retries:
             remaining = deadline - time.monotonic()
             if remaining <= 0:
                 raise SwoopRateLimitError()
-            delay = (2 ** attempt) + random.uniform(0, 1)
+            delay = max(retry_after or 0, (2 ** attempt) + random.uniform(0, 1))
             if delay >= remaining:
                 # A wait that leaves no time to dispatch cannot buy a retry.
                 # Return the remaining budget to caller-controlled failover.
@@ -561,9 +601,9 @@ def _post_with_retry(
             if time.monotonic() >= deadline:
                 raise SwoopRateLimitError()
             continue
-        if status_code == 429:
-            raise SwoopRateLimitError()
-        raise SwoopHTTPError(status_code)
+        error = SwoopRateLimitError() if status_code == 429 else SwoopHTTPError(status_code)
+        error.retry_after = retry_after
+        raise error
 
 
 def _http_post(
@@ -588,13 +628,18 @@ def _http_post(
         SwoopHTTPError: If a non-200/non-429 response is received.
     """
     deadline = transport_deadline(transport.timeout, _deadline)
+    if transport._operation_deadline is not None:
+        deadline = min(deadline, transport._operation_deadline)
     remaining_timeout(deadline)
     url = _apply_country(url, transport.country)
-    client = _get_client(transport.proxy, transport.impersonate)
     headers = {"content-type": "application/x-www-form-urlencoded;charset=UTF-8"}
     if transport.currency is not None:
         country = transport.country if transport.country is not None else _default_country
         headers["x-goog-ext-259736195-jspb"] = _currency_header(country, transport.currency)
+    if transport.fallback_proxies:
+        from ._adaptive import post
+        return post(url, content, headers, transport=transport, deadline=deadline)
+    client = _get_transport_client(transport)
     return _post_with_retry(client, url, content, headers, transport=transport, _deadline=deadline)
 
 

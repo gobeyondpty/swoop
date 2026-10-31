@@ -29,6 +29,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+native = ["wreq==0.13.0"]
 validation = [
     # Last Python 3.10 release; pin because YYYY.M.D sorts below older YYYYMMDD versions.
     "airportsdata==2026.6.24; python_version < '3.11'",

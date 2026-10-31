@@ -9,7 +9,7 @@ install: ## Install swoop with extras (validation + cli)
 	python -m pip install -e ".[validation,cli]"
 
 install-dev: ## Install swoop with extras + test/typecheck/build deps (one pip resolve)
-	python -m pip install -e ".[validation,cli]" pytest hypothesis pytest-benchmark pyright build
+	python -m pip install -e ".[validation,cli,native]" pytest hypothesis pytest-benchmark pyright build
 
 test: ## Run offline test suite (skip live Google Flights tests)
 	python -m pytest tests/ -v -m "not live"

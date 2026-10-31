@@ -27,6 +27,12 @@ class TransportConfig:
     ``timeout`` is one total RPC budget, including HTTP 429 backoff and retries.
     Shopping POSTs and their optional page fallback share that same budget.
 
+    ``address_family="ipv6"`` (or ``"ipv4"``) opts into the optional native
+    wreq client for direct connections, ignoring environment/default proxies.
+    ``fallback_proxies`` enables exact-RPC failover to at most two trusted exits
+    using primp, shared route cooldowns and one half-open recovery probe.
+    Adaptive calls disable page fallback and HTTP backoff to bound dispatches.
+
     HTTP settings. ``country`` selects the point of sale; ``currency``
     independently selects the display currency (ISO 4217), when provided.
     """
@@ -41,8 +47,18 @@ class TransportConfig:
     _diagnostics_query_id: Optional[int] = field(default=None, repr=False, compare=False)
 
     currency: Optional[str] = None
+    address_family: Literal["auto", "ipv4", "ipv6"] = "auto"
+    fallback_proxies: tuple[str, ...] = field(default=(), repr=False)
+    _operation_deadline: Optional[float] = field(default=None, repr=False, compare=False)
+    _cancel_check: Optional[Callable[[], None]] = field(default=None, repr=False, compare=False)
 
     def __post_init__(self) -> None:
+        if self.address_family not in ("auto", "ipv4", "ipv6"):
+            raise ValueError("address_family must be auto, ipv4 or ipv6")
+        if not isinstance(self.fallback_proxies, tuple) or len(self.fallback_proxies) > 2 or any(not isinstance(proxy, str) or not proxy for proxy in self.fallback_proxies):
+            raise ValueError("fallback_proxies must be a tuple of at most two proxy URLs")
+        if self.fallback_proxies and (self.address_family == "auto" or self.proxy):
+            raise ValueError("fallback_proxies requires a family-controlled direct primary")
         if self.country is not None and not isinstance(self.country, str):
             raise ValueError("country must be a string when provided")
         if self.currency is not None:
