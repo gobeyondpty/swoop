@@ -186,6 +186,30 @@ until `is_resolved=True`, then price that exact selector. The CLI supports
 flight is listed by Google. The discovery
 price is never an outbound-only fare and must not be added to a return price.
 
+To steer the next unselected bound upstream, pass `next_leg_filters`:
+
+```python
+next_choices = search_next_leg(option.selector, next_leg_filters={
+    "exclude_connecting_airports": ["MIA"],
+    "min_layover_duration": 180,
+    "earliest_departure": 8,
+    "latest_departure": 14,
+})
+```
+
+Supported fields: `airlines`, `max_stops`, `max_duration`,
+`connecting_airports`, `exclude_connecting_airports`, `min_layover_duration`,
+`max_layover_duration`, `earliest_departure`, `latest_departure`,
+`earliest_arrival`, `latest_arrival`. Durations use minutes; hours use local
+airport time (earliest 0–23, latest 1–24). Allowed connection airports also allow
+nonstops. These filters intersect the stored constraints; they cannot widen the
+original search or change an already selected bound. Empty intersections fail
+before any RPC. Airline intersections compare literal codes (including alliance
+names), without guessing alliance membership. Returned selectors retain the
+narrowed constraints for continuation and pricing. Search admission checks both
+airports of a ground transfer and reports `routing_mismatch` if Google returns
+an incompatible routing.
+
 Each price-check call costs ~2 RPCs (one search, one booking lookup) — including one-way trips, so `PriceResult.booking_options` is populated and `booking_url` is available. For high-volume scoring of many fares, expect rate-limit pressure to scale accordingly; increase `retries` or pace your calls.
 
 <details>
