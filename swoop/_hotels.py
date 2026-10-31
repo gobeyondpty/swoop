@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 import json
 import logging
-import random
 import re
-import time
 import urllib.parse
 from typing import Any, Optional
 
@@ -25,8 +25,8 @@ from .models import (
     HotelSearchResult,
     TransportConfig,
 )
+from ._session import client_for_session, get_page, routed_session
 from .rpc import _apply_country, _get_client
-from .response_observer import read_response_body
 
 logger = logging.getLogger(__name__)
 
@@ -450,27 +450,16 @@ def _post_travel_rpc(
         "referer": page_url,
     }
 
-    for attempt in range(1 + transport.retries):
-        res = client.post(url, content=body, headers=headers, timeout=transport.timeout)
-        text = read_response_body(res, transport, operation="hotels", phase="rpc",
-            method="POST", retry_index=attempt, required=res.status_code == 200) if res.status_code == 200 or transport.response_observer else ""
-        if res.status_code == 200:
-            return _parse_batchexecute_response(text, rpc_id=rpc_id)
-        if res.status_code == 429 and attempt < transport.retries:
-            delay = (2 ** attempt) + random.uniform(0, 1)
-            logger.info(
-                "HTTP 429 from Hotels RPC, retrying in %.1fs (attempt %d/%d)",
-                delay,
-                attempt + 1,
-                transport.retries,
-            )
-            time.sleep(delay)
-            continue
-        if res.status_code == 429:
-            raise SwoopRateLimitError()
-        raise SwoopHTTPError(res.status_code)
-
-    raise SwoopParseError("Hotels RPC did not return a response")
+    from .rpc import _post_with_retry
+    from ._adaptive import note_failure, validated_response
+    try:
+        response = _post_with_retry(client, url, body, headers, transport=replace(transport, _session_scope="hotels"))
+        payload = _parse_batchexecute_response(response.text, rpc_id=rpc_id)
+        validated_response(transport)
+        return payload
+    except Exception as error:
+        note_failure(transport, error)
+        raise
 
 
 def _build_occupancy(adults: int, child_ages: Optional[list[int]], rooms: int) -> list[Any]:
@@ -787,7 +776,7 @@ def _build_hotels_results_payload(
 
     while len(filters) <= 18:
         filters.append(None)
-    filters[3] = context.get("currency") if isinstance(context.get("currency"), str) else currency
+    filters[3] = currency
     filters[4] = [_date_triplet(check_in), _date_triplet(check_out), adults, rooms]
     if child_ages:
         while len(filters) <= 13:
@@ -803,6 +792,7 @@ def _build_hotel_detail_payload(
     check_in: str,
     check_out: str,
     adults: int = 2,
+    child_ages: Optional[list[int]] = None,
     rooms: int = 1,
     currency: str = "USD",
     hotel_entity_id: Optional[str] = None,
@@ -822,8 +812,10 @@ def _build_hotel_detail_payload(
 
     while len(filters) <= 18:
         filters.append(None)
-    filters[3] = context.get("currency") if isinstance(context.get("currency"), str) else currency
+    filters[3] = currency
     filters[4] = [_date_triplet(check_in), _date_triplet(check_out), adults, rooms]
+    if child_ages:
+        filters[13] = [3, [child_ages], rooms]
     filters[16] = None
 
     hotel_filter: list[Any] = [None] * 14
@@ -1294,6 +1286,7 @@ def _build_reviews_payload(hotel_token: str) -> list[Any]:
     return [None, None, None, None, None, None, None, None, hotel_token, None, None, [[]]]
 
 
+@routed_session("hotels", inventory=lambda result: bool(result.hotels), primary_budget=5.0)
 def fetch_hotels(
     query: str,
     *,
@@ -1324,7 +1317,7 @@ def fetch_hotels(
     transport: TransportConfig = TransportConfig(),
 ) -> HotelSearchResult:
     """Fetch Google Travel hotel search results."""
-    client = _get_client(transport.proxy, transport.impersonate)
+    client = client_for_session(transport, _get_client)
     page_params = {
         "q": query,
         "check_in_date": check_in,
@@ -1336,12 +1329,8 @@ def fetch_hotels(
         f"{HOTELS_PAGE_URL}?{urllib.parse.urlencode(page_params)}",
         transport.country,
     )
-    page_res = client.get(
-        page_url,
-        headers={"accept": "text/html", "accept-language": "en-US,en;q=0.9"},
-        timeout=transport.timeout,
-    )
-    page_text = read_response_body(page_res, transport, operation="hotels", phase="page", method="GET")
+    page_text = get_page(client, page_url, transport=transport, operation="hotels",
+                         headers={"accept": "text/html", "accept-language": "en-US,en;q=0.9"})
     browser_params = _extract_browser_params(page_text)
     page_result = _parse_hotels_page_html(
         page_text,
@@ -1600,6 +1589,7 @@ def fetch_hotels(
     )
 
 
+@routed_session("hotels", inventory=lambda result: bool(result.providers), primary_budget=5.0)
 def fetch_hotel_prices(
     hotel_token: str,
     *,
@@ -1613,17 +1603,13 @@ def fetch_hotel_prices(
     transport: TransportConfig = TransportConfig(),
 ) -> Hotel:
     """Fetch provider prices for a hotel token from Google Travel."""
-    client = _get_client(transport.proxy, transport.impersonate)
+    client = client_for_session(transport, _get_client)
     page_url = _apply_country(
         f"{HOTELS_PAGE_URL}?{urllib.parse.urlencode({'q': query or hotel_token})}",
         transport.country,
     )
-    page_res = client.get(
-        page_url,
-        headers={"accept": "text/html", "accept-language": "en-US,en;q=0.9"},
-        timeout=transport.timeout,
-    )
-    page_text = read_response_body(page_res, transport, operation="hotels", phase="page", method="GET")
+    page_text = get_page(client, page_url, transport=transport, operation="hotels",
+                         headers={"accept": "text/html", "accept-language": "en-US,en;q=0.9"})
     browser_params = _extract_browser_params(page_text)
     universal_data = _post_travel_rpc(
         client,
@@ -1658,6 +1644,7 @@ def fetch_hotel_prices(
         check_in=check_in,
         check_out=check_out,
         adults=adults,
+        child_ages=child_ages,
         rooms=rooms,
         currency=currency,
         hotel_entity_id=hotel_entity_id,
@@ -1677,20 +1664,17 @@ def fetch_hotel_prices(
     return _merge_seed_hotel(hotel, seed_hotel, hotel_token=hotel_token)
 
 
+@routed_session("hotels", inventory=lambda result: bool(result.reviews), primary_budget=5.0)
 def fetch_hotel_reviews(
     hotel_token: str,
     *,
     transport: TransportConfig = TransportConfig(),
 ) -> HotelReviewsResult:
     """Fetch reviews for a Google Travel hotel token."""
-    client = _get_client(transport.proxy, transport.impersonate)
+    client = client_for_session(transport, _get_client)
     page_url = _apply_country(HOTELS_PAGE_URL, transport.country)
-    page_res = client.get(
-        page_url,
-        headers={"accept": "text/html", "accept-language": "en-US,en;q=0.9"},
-        timeout=transport.timeout,
-    )
-    page_text = read_response_body(page_res, transport, operation="hotels", phase="page", method="GET")
+    page_text = get_page(client, page_url, transport=transport, operation="hotels",
+                         headers={"accept": "text/html", "accept-language": "en-US,en;q=0.9"})
     data = _post_travel_rpc(
         client,
         HOTEL_REVIEWS_RPC,

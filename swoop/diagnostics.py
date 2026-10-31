@@ -21,7 +21,7 @@ class HTTPAttempt:
     """One actual HTTP dispatch; bytes describe decoded UTF-8, not wire bytes."""
 
     query_id: Optional[int]
-    operation: Literal["shopping", "booking", "calendar", "other"]
+    operation: Literal["shopping", "booking", "calendar", "deals", "explore", "hotels", "other"]
     transport: Literal["rpc", "page"]
     method: Literal["POST", "GET"]
     retry_index: int
@@ -198,7 +198,7 @@ class _HTTPMeasurement:
 
 
 @contextmanager
-def measure_http(transport: Any, operation: Literal["shopping", "booking", "calendar", "other"],
+def measure_http(transport: Any, operation: Literal["shopping", "booking", "calendar", "deals", "explore", "hotels", "other"],
                  phase: Literal["rpc", "page"], method: Literal["POST", "GET"],
                  retry_index: int = 0) -> Iterator[_HTTPMeasurement]:
     recorder = transport.diagnostics
@@ -244,7 +244,7 @@ def measure_retry_wait(transport: Any, wait: Callable[[], None]) -> None:
         transport.diagnostics._waited(started, perf_counter())
 
 
-def rpc_operation(url: str) -> Literal["shopping", "booking", "calendar", "other"]:
+def rpc_operation(url: str) -> Literal["shopping", "booking", "calendar", "deals", "explore", "hotels", "other"]:
     endpoint = url.split("?")[0].rsplit("/", 1)[-1]
     if endpoint == "GetShoppingResults":
         return "shopping"

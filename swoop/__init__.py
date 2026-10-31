@@ -801,7 +801,9 @@ def _fetch_deals_per_origin(
         kwargs: dict = {"impersonate": transport.impersonate or "chrome"}
         if transport.proxy:
             kwargs["proxy"] = transport.proxy
-        worker_client = Client(**kwargs)
+        native = transport.address_family != "auto" or bool(transport.fallback_proxies)
+        worker_client = None if native else Client(**kwargs)
+        worker_transport = replace(transport, _session_isolated=True) if native else transport
         return fetch_deals(
             origin_code,
             cabin=cabin,
@@ -809,7 +811,7 @@ def _fetch_deals_per_origin(
             airlines=airlines,
             passengers=passengers,
             include_basic_economy=include_basic_economy,
-            transport=transport,
+            transport=worker_transport,
             _client=worker_client,
             exclude_separate_tickets=exclude_separate_tickets,
         )
@@ -1807,3 +1809,15 @@ __all__ = [
 # is curated to __all__.
 def __dir__() -> list[str]:
     return sorted(__all__)
+
+
+# Capability metadata is SDK-owned and carries no request or tenant state.
+# Adapters can admit all implemented paths without duplicating endpoint policy.
+from ._session import mark_policy as _mark_policy
+for _entrypoint in (search, search_legs, search_raw, search_next_leg, check_price,
+                    price_selector, price_legs, deals, explore, search_deal, price_deal,
+                    price_explore, price_explore_all, calendar_prices, get_calendar,
+                    get_price_graph, get_booking_results, hotels, hotel_prices, hotel_reviews):
+    globals()[_entrypoint.__name__] = _mark_policy(_entrypoint)
+from . import rpc as _policy_rpc
+_policy_rpc.get_trip_booking_results = _mark_policy(_policy_rpc.get_trip_booking_results)

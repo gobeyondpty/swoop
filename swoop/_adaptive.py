@@ -5,9 +5,10 @@ from collections import OrderedDict
 from dataclasses import dataclass, replace
 import threading
 import time
-from typing import Any
+import random
+from typing import Any, Callable, TypeVar
 
-from ._transport_budget import remaining_timeout
+from ._transport_budget import remaining_timeout, request_timeout, transport_deadline
 from .exceptions import SwoopHTTPError, SwoopParseError, SwoopTransportError, SwoopUpstreamError
 from .models import TransportConfig
 
@@ -24,6 +25,7 @@ class _Route:
     active: int = 0
     probing: bool = False
     reason: str | None = None
+    failures: int = 0
 
 
 _routes: OrderedDict[tuple[str, str, str], _Route] = OrderedDict()
@@ -61,10 +63,15 @@ def _finish(lease: tuple[_Route, int, bool], reason: str | None, delay: float = 
             return  # A late in-flight success must not erase a newer failure.
         if reason:
             route.reason = reason
-            route.until = time.monotonic() + max(_COOLDOWN, delay)
+            route.failures += 1
+            cooldown = min(300.0, _COOLDOWN * 2 ** min(route.failures - 1, 4))
+            route.until = time.monotonic() + max(cooldown * random.uniform(1.0, 1.1), delay)
             route.generation += 1
+        elif half_open and not healthy:
+            route.until = max(route.until, time.monotonic() + _COOLDOWN)
         elif half_open and healthy:
             route.reason = None
+            route.failures = 0
             route.until = 0.0
             route.generation += 1
 
@@ -121,64 +128,135 @@ def _validate(text: str, operation: str) -> tuple[bool, bool]:
     return False, True
 
 
-def post(url: str, body: bytes, headers: dict[str, str], *, transport: TransportConfig, deadline: float) -> Any:
-    """At most three dispatches, same bytes/headers/URL and one deadline."""
-    from .rpc import _get_transport_client, _post_with_retry
-    operation = url.split("?")[0].rsplit("/", 1)[-1]
-    primary_key = (transport.address_family, transport.impersonate or "chrome", operation)
-    proxies = (None, *dict.fromkeys(transport.fallback_proxies))
-    ambiguous_response = None
+class AmbiguousResponse(SwoopParseError):
+    """No protocol inventory statement; compare once without poisoning health."""
+
+
+@dataclass
+class RouteAttempt:
+    pooled: Any
+    deadline: float
+    probe_deadline: float
+    index: int
+    operation: str
+    failure: Exception | None = None
+    validated: bool = False
+    ambiguity: AmbiguousResponse | None = None
+
+
+def note_failure(transport: TransportConfig, error: Exception) -> None:
+    state = transport._route_state
+    if state is not None and isinstance(error, AmbiguousResponse):
+        state.ambiguity = error
+    elif state is not None and state.failure is None and _failure(error) is not None:
+        state.failure = error
+
+
+def validated_response(transport: TransportConfig) -> None:
+    """A parsed RPC, including valid no-inventory, permits remaining session work."""
+    state = transport._route_state
+    if state is not None:
+        state.validated = True
+
+
+T = TypeVar("T")
+
+
+def run(operation: str, *, transport: TransportConfig, action: Callable[[TransportConfig], T],
+        inventory: Callable[[T], bool] = bool, deadline: float | None = None,
+        primary_budget: float = 2.0) -> T:
+    """Shared route choice/health for RPCs and complete route-bound sessions.
+
+    Session actions rebuild their own bootstrap/params on each selected route.
+    The outer deadline never moves; a short initial proof budget is released
+    only after an actual RPC parses successfully, never on an HTTP 200 alone.
+    """
+    from .rpc import _get_transport_client
+    from ._session import RouteBusy
+    if transport._route_state is not None:
+        return action(transport)
+    deadline = transport_deadline(transport.timeout, deadline)
+    if transport._operation_deadline is not None:
+        deadline = min(deadline, transport._operation_deadline)
+    proxies = (transport.proxy, *dict.fromkeys(transport.fallback_proxies))
+    ambiguous = False
     last_error: Exception | None = None
+    primary_key = (transport.address_family, transport.impersonate or "chrome", "google")
     for index, proxy in enumerate(proxies):
-        if index > 1 and ambiguous_response is not None:
+        if ambiguous and index > 1:
             break
-        if transport._cancel_check:
-            transport._cancel_check()
-        remaining_timeout(deadline)
-        lease = _acquire(primary_key) if index == 0 else _acquire((proxy or "", transport.impersonate or "chrome", operation), probe=ambiguous_response is None)
-        if lease is None:
+        request_timeout(transport, deadline)
+        key = primary_key if index == 0 else (proxy or "", transport.impersonate or "chrome", "google")
+        lease = _acquire(key, probe=not ambiguous) if transport.fallback_proxies else None
+        if transport.fallback_proxies and lease is None:
             continue
-        failure = None
+        reason = None
         healthy = False
         delay = _COOLDOWN
         try:
             remaining = remaining_timeout(deadline)
-            # Share the remaining operation budget among the bounded remaining routes.
             attempt_deadline = time.monotonic() + remaining / (len(proxies) - index)
             selected = replace(transport, proxy=proxy, address_family=transport.address_family if index == 0 else "auto",
                                fallback_proxies=(), retries=0, _operation_deadline=deadline)
-            response = _post_with_retry(_get_transport_client(selected), url, body, headers,
-                                       transport=selected, _deadline=attempt_deadline)
-            ambiguous, inventory = _validate(response.text, operation)
-            if transport._cancel_check:
-                transport._cancel_check()
-            remaining_timeout(deadline)
-            if index == 0 and ambiguous:
-                ambiguous_response = response
-                continue  # Only one identical-query comparison on a healthy fallback.
-            healthy = not ambiguous
-            if index > 0 and ambiguous_response is not None and inventory:
+            pooled = _get_transport_client(selected)
+            probe_deadline = attempt_deadline
+            if index == 0 and transport.fallback_proxies:
+                probe_deadline = min(probe_deadline, time.monotonic() + (transport.primary_timeout or primary_budget))
+            state = RouteAttempt(pooled, attempt_deadline, probe_deadline, index, operation)
+            selected = replace(selected, _route_state=state)
+            result = action(selected)
+            if state.failure is not None:
+                raise state.failure
+            if state.ambiguity is not None:
+                raise state.ambiguity
+            request_timeout(selected, attempt_deadline)
+            healthy = True
+            if ambiguous and inventory(result):
                 with _lock:
-                    route = _routes.get(primary_key)
-                    if route is not None:
-                        route.reason = "hidden_inventory"
-                        route.until = time.monotonic() + _COOLDOWN
-                        route.generation += 1
-            if ambiguous:
-                raise SwoopParseError("RPC routes returned ambiguous empty bodies")
-            return response
+                    primary = _routes.get(primary_key)
+                    if primary is not None:
+                        primary.reason = "hidden_inventory"
+                        primary.until = time.monotonic() + _COOLDOWN
+                        primary.generation += 1
+            return result
+        except RouteBusy:
+            continue
+        except AmbiguousResponse as error:
+            last_error = error
+            if index == 0:
+                ambiguous = True
+            else:
+                break
         except Exception as error:
             if transport._cancel_check:
                 transport._cancel_check()
-            failure = _failure(error)
-            if failure is None:
+            reason = _failure(error)
+            if reason is None:
                 raise
             delay = getattr(error, "retry_after", None) or _COOLDOWN
             last_error = error
         finally:
-            _finish(lease, failure, delay, healthy=healthy)
+            if lease is not None:
+                _finish(lease, reason, delay, healthy=healthy)
     if last_error is not None:
         raise last_error
-    if ambiguous_response is not None:
-        raise SwoopParseError("RPC response empty and no healthy comparison route available")
-    raise SwoopTransportError("Google Flights routes cooling down or at concurrency limit")
+    raise SwoopTransportError("Google routes cooling down or at concurrency limit")
+
+
+def post(url: str, body: bytes, headers: dict[str, str], *, transport: TransportConfig, deadline: float) -> Any:
+    """Exact-RPC replay using the same policy as session-based entry points."""
+    from .rpc import _post_with_retry
+    inventory = [False]
+    operation = url.split("?")[0].rsplit("/", 1)[-1]
+    def action(selected: TransportConfig) -> Any:
+        from ._session import BudgetedClient
+        response = _post_with_retry(BudgetedClient(selected._route_state.pooled, selected), url, body, headers,
+                                    transport=selected, _deadline=selected._route_state.deadline)
+        ambiguous, inventory[0] = _validate(response.text, operation)
+        if ambiguous:
+            raise AmbiguousResponse("RPC response contains no inventory statement")
+        request_timeout(selected)
+        validated_response(selected)
+        return response
+    return run(operation, transport=transport, action=action, deadline=deadline,
+               inventory=lambda response: inventory[0])

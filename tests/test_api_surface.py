@@ -659,7 +659,7 @@ class TestFrozenDefaults:
 
     def test_transport_config_fields(self):
         from dataclasses import fields as dc_fields
-        expected = {"timeout", "retries", "country", "proxy", "impersonate", "diagnostics", "response_observer", "_diagnostics_query_id", "currency", "address_family", "fallback_proxies", "_operation_deadline", "_cancel_check"}
+        expected = {"timeout", "retries", "country", "proxy", "impersonate", "diagnostics", "response_observer", "_diagnostics_query_id", "currency", "address_family", "fallback_proxies", "_operation_deadline", "_cancel_check", "request_timeout", "primary_timeout", "_session_scope", "_session_isolated", "_route_state"}
         actual = {f.name for f in dc_fields(TransportConfig)}
         assert actual == expected
 

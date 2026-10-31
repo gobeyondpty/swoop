@@ -45,7 +45,7 @@ from .exceptions import (
 )
 from .models import CalendarResult, Passengers, TransportConfig
 from .response_observer import read_response_body, response_operation
-from ._transport_budget import remaining_timeout, transport_deadline
+from ._transport_budget import remaining_timeout, transport_deadline, request_timeout
 from .diagnostics import measure_decode, measure_http, measure_retry_wait, observe_query, rpc_operation
 
 logger = logging.getLogger(__name__)
@@ -475,14 +475,34 @@ def _get_client(proxy: Optional[str] = None, impersonate: Optional[str] = None) 
 
 
 def _get_transport_client(transport: TransportConfig) -> Any:
-    if transport.address_family == "auto":
+    if transport._route_state is not None:
+        from ._session import BudgetedClient
+        return BudgetedClient(transport._route_state.pooled, transport)
+    if transport.address_family == "auto" and not transport._session_scope:
         return _get_client(transport.proxy, transport.impersonate)
     from ._native import NativeClient
+    from ._session import SessionClient, SessionPool
 
+    # Snapshot only transport identity into cached factories, not diagnostics,
+    # cancellation, query, tenant or operation-deadline state.
+    family, proxy, profile = transport.address_family, transport.proxy, transport.impersonate or "chrome"
+    def create() -> Any:
+        if family == "auto":
+            from primp import Client
+            kwargs: dict[str, Any] = {"impersonate": profile}
+            if proxy:
+                kwargs["proxy"] = proxy
+            return Client(**kwargs)
+        return NativeClient(family, profile, proxy)
+
+    if transport._session_isolated:
+        return SessionClient(create()) if transport._session_scope else create()
     key = f"{transport.proxy or ''}|{transport.impersonate or 'chrome'}|{transport.address_family}|native"
+    if transport._session_scope:
+        key += f"|{transport._session_scope}|{transport.country or _default_country or ''}|{transport.currency or ''}"
     with _clients_lock:
         if key not in _clients:
-            client = NativeClient(transport.address_family, transport.impersonate or "chrome", transport.proxy)
+            client = SessionPool(create) if transport._session_scope else create()
             if len(_clients) >= _MAX_CLIENTS:
                 _clients.pop(next(iter(_clients)))
             _clients[key] = client
@@ -553,7 +573,7 @@ def _post_with_retry(
     import time
 
     short_url = url.split("/")[-1]
-    deadline = transport_deadline(transport.timeout, _deadline)
+    deadline = transport_deadline(transport.request_timeout or transport.timeout, _deadline)
     if transport._operation_deadline is not None:
         deadline = min(deadline, transport._operation_deadline)
     # Always make at least one attempt: a negative `retries` (e.g. a stray
@@ -563,24 +583,35 @@ def _post_with_retry(
     for attempt in range(max(1, 1 + transport.retries)):
         if transport._cancel_check:
             transport._cancel_check()
-        timeout = remaining_timeout(deadline)
-        operation = rpc_operation(url)
+        timeout = request_timeout(transport, deadline)
+        operation = transport._session_scope if transport._session_scope in ("deals", "explore", "hotels") else rpc_operation(url)
         try:
             with measure_http(transport, operation, "rpc", "POST", attempt) as measurement:
                 res = client.post(url, content=body, headers=headers, timeout=timeout)
                 status_code = res.status_code
                 measurement.status_code = status_code
                 # Cache a deferred body read inside the typed transport boundary.
-                text = read_response_body(res, transport, operation=response_operation(url), phase="rpc",
+                text = read_response_body(res, transport, operation=operation, phase="rpc",
                     method="POST", retry_index=attempt, required=status_code == 200) if status_code == 200 or transport.response_observer else ""
                 if status_code == 200:
                     measurement.body(text)
                     remaining_timeout(deadline)
-        except SwoopError:
+        except SwoopError as error:
+            from ._adaptive import note_failure
+            note_failure(transport, error)
             raise
         except Exception as exc:
-            raise SwoopTransportError("Google Flights transport failed while sending or reading a response") from exc
+            from ._adaptive import note_failure
+            error = SwoopTransportError("Google Flights transport failed while sending or reading a response")
+            error.__cause__ = exc
+            note_failure(transport, error)
+            raise error from exc
         if status_code == 200:
+            if transport._route_state is not None and text.strip().removeprefix(")]}'").strip() in ("", "[]"):
+                from ._adaptive import AmbiguousResponse, note_failure
+                error = AmbiguousResponse("RPC response contains no inventory statement")
+                note_failure(transport, error)
+                raise error
             logger.debug("HTTP 200 from %s (%d bytes)", short_url, len(text))
             return _HTTPResponse(status_code=status_code, text=text)
         retry_after = _retry_after(getattr(res, "headers", {}))
@@ -603,6 +634,8 @@ def _post_with_retry(
             continue
         error = SwoopRateLimitError() if status_code == 429 else SwoopHTTPError(status_code)
         error.retry_after = retry_after
+        from ._adaptive import note_failure
+        note_failure(transport, error)
         raise error
 
 
@@ -627,7 +660,7 @@ def _http_post(
         SwoopRateLimitError: If 429 persists after all retries.
         SwoopHTTPError: If a non-200/non-429 response is received.
     """
-    deadline = transport_deadline(transport.timeout, _deadline)
+    deadline = transport_deadline(transport.request_timeout or transport.timeout, _deadline)
     if transport._operation_deadline is not None:
         deadline = min(deadline, transport._operation_deadline)
     remaining_timeout(deadline)

@@ -27,6 +27,7 @@ URL = rpc.SHOPPING_RPC_URL
 def clean(monkeypatch):
     adaptive._routes.clear()
     rpc._clients.clear()
+    monkeypatch.setattr(adaptive.random, "uniform", lambda low, high: 1.0)
     monkeypatch.setattr(adaptive.time, "monotonic", lambda: 100.0)
     # time is a module singleton, so rpc/budget see the same clock.
     yield

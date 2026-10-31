@@ -17,6 +17,7 @@ from .decoder import _safe_get, raise_if_error_envelope
 from .exceptions import SwoopParseError
 from .models import Deal, DealsResult, Passengers, TransportConfig
 from .response_observer import read_response_body
+from ._session import client_for_session, get_page, routed_session
 from .rpc import _apply_country, _encode_f_req_payload, _get_client, _post_with_retry
 
 logger = logging.getLogger(__name__)
@@ -41,13 +42,9 @@ def _establish_session(
     """GET the deals page to establish session cookies on the client."""
     url = _apply_country(DEALS_PAGE_URL, transport.country)
     logger.debug("Establishing deals session via GET %s", url)
-    response = client.get(
-        url,
-        headers={"accept": "text/html", "accept-language": "en-US,en;q=0.9"},
-        timeout=transport.timeout,
-    )
-    if transport.response_observer is not None:
-        read_response_body(response, transport, operation="deals", phase="page", method="GET", required=False)
+    get_page(client, url, transport=transport, operation="deals",
+             headers={"accept": "text/html", "accept-language": "en-US,en;q=0.9"})
+
 
 
 # ---------------------------------------------------------------------------
@@ -343,6 +340,7 @@ def _parse_deal(
 # Main entry point
 # ---------------------------------------------------------------------------
 
+@routed_session("deals", inventory=lambda result: bool(result.deals))
 def fetch_deals(
     origin: str | list[str],
     *,
@@ -365,9 +363,7 @@ def fetch_deals(
     multiple parallel calls don't share one cookie jar. When ``None``,
     falls back to the shared, lock-protected ``_get_client`` cache.
     """
-    client = _client if _client is not None else _get_client(
-        transport.proxy, transport.impersonate,
-    )
+    client = _client if _client is not None and transport._route_state is None else client_for_session(transport, _get_client)
 
     # Step 1: Establish session cookies
     _establish_session(client, transport=transport)
@@ -401,6 +397,11 @@ def fetch_deals(
     origin_label = origin if isinstance(origin, str) else ",".join(origin)
 
     # Step 3: Parse streaming response
+    if transport._route_state is not None:
+        # Legacy parsing tolerates missing chunks; routing needs protocol proof
+        # before treating a no-deal result as a healthy empty inventory.
+        from ._adaptive import _validate
+        _validate(res.text, "GetFlightDealsStreaming")
     raw_deals = _parse_streaming_response(res.text)
     if not raw_deals:
         logger.debug("No deals found in response")

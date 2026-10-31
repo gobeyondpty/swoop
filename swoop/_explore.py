@@ -33,6 +33,7 @@ from .decoder import _safe_get, raise_if_error_envelope
 from .exceptions import SwoopHTTPError, SwoopParseError, SwoopRateLimitError
 from .models import ExploreDestination, ExploreResult, Passengers, TransportConfig
 from .response_observer import read_response_body
+from ._session import client_for_session, get_page, routed_session, session_lock
 from .rpc import _apply_country, _encode_f_req_payload, _get_client, _post_with_retry
 
 logger = logging.getLogger(__name__)
@@ -264,6 +265,9 @@ _browser_params_lock = threading.Lock()
 # for the same key wait for the first page fetch and then hit the cache,
 # instead of each issuing a redundant GET (and racing on the write).
 _browser_params_key_locks: dict[str, threading.Lock] = {}
+_MAX_BROWSER_SESSIONS = 32
+_MAX_BROWSER_LOCKS = 64
+_browser_params_overflow_lock = threading.Lock()
 
 
 def _params_complete(params: dict[str, str]) -> bool:
@@ -281,6 +285,8 @@ def _key_lock(key: str) -> threading.Lock:
     with _browser_params_lock:
         lock = _browser_params_key_locks.get(key)
         if lock is None:
+            if len(_browser_params_key_locks) >= _MAX_BROWSER_LOCKS:
+                return _browser_params_overflow_lock
             lock = threading.Lock()
             _browser_params_key_locks[key] = lock
         return lock
@@ -303,21 +309,19 @@ def _get_browser_params(
             return cached, True
     # Single-flight per key: one cold caller fetches the page; the rest block
     # here and then find the populated cache on the re-check below.
-    with _key_lock(key):
+    with session_lock(_key_lock(key), transport):
         if not force_refresh:
             with _browser_params_lock:
                 cached = _browser_params_cache.get(key)
             if cached:
                 return cached, True
-        page = client.get(
-            page_url,
-            headers={"accept": "text/html", "accept-language": "en-US,en;q=0.9"},
-            timeout=transport.timeout,
-        )
-        params = _browser_params(read_response_body(page, transport,
-            operation="explore", phase="page", method="GET"))
+        page = get_page(client, page_url, transport=transport, operation="explore",
+                        headers={"accept": "text/html", "accept-language": "en-US,en;q=0.9"})
+        params = _browser_params(page)
         if _params_complete(params):
             with _browser_params_lock:
+                if key not in _browser_params_cache and len(_browser_params_cache) >= _MAX_BROWSER_SESSIONS:
+                    _browser_params_cache.pop(next(iter(_browser_params_cache)))
                 _browser_params_cache[key] = params
         return params, False
 
@@ -338,6 +342,7 @@ def _explore_rpc_url(rpc_url: str, params: dict[str, str]) -> str:
     return f"{rpc_url}{separator}{query}"
 
 
+@routed_session("explore", inventory=lambda result: bool(result.destinations))
 def fetch_explore(
     origin: str,
     *,
@@ -348,10 +353,13 @@ def fetch_explore(
     transport: TransportConfig = TransportConfig(),
 ) -> ExploreResult:
     """Fetch Explore destination suggestions from Google Flights."""
-    client = _get_client(transport.proxy, transport.impersonate)
+    client = client_for_session(transport, _get_client)
     page_url = _apply_country(EXPLORE_PAGE_URL, transport.country)
     rpc_base = _apply_country(EXPLORE_RPC_URL, transport.country)
     cache_key = f"{transport.proxy or ''}|{transport.impersonate or ''}|{transport.country or ''}"
+
+    if transport._route_state is not None:
+        cache_key = "route-session:" + client.session_id
 
     body = _encode_explore_f_req(
         _build_explore_payload(
@@ -387,12 +395,12 @@ def fetch_explore(
     # mislead the retry. A hard block (HTML/consent interstitial) or a rate limit
     # is not a stale-session symptom, so both propagate without a wasted retry.
     try:
-        return _attempt(force_refresh=False)
+        return _attempt(force_refresh=transport._route_state is not None and transport._route_state.index > 0)
     except (SwoopRateLimitError, _ExploreBlockedError):
         raise
     except (SwoopParseError, SwoopHTTPError):
         with _browser_params_lock:
             _browser_params_cache.pop(cache_key, None)
-        if not used_cache:
+        if transport._route_state is not None or not used_cache:
             raise  # params were already fresh — the failure is real, not stale
     return _attempt(force_refresh=True)

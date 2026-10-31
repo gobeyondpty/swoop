@@ -2,7 +2,7 @@
 
 import hashlib
 from dataclasses import dataclass, field
-from typing import Callable, Literal, Optional
+from typing import Any, Callable, Literal, Optional
 
 from ._regions import Region
 from .decoder import BookingOption, Itinerary, PriceInsights, PriceRange, _flight_summary_repr
@@ -24,14 +24,17 @@ class Passengers:
 class TransportConfig:
     """HTTP transport configuration for API requests.
 
-    ``timeout`` is one total RPC budget, including HTTP 429 backoff and retries.
-    Shopping POSTs and their optional page fallback share that same budget.
+    ``timeout`` bounds each legacy RPC, including HTTP retries. With explicit
+    family routing it bounds the public operation, including staged/session
+    work and failover. ``request_timeout`` optionally caps each HTTP exchange.
+    ``primary_timeout`` caps the initial direct proof (default 2s for RPCs; session bootstrap plus first RPC 5s).
 
     ``address_family="ipv6"`` (or ``"ipv4"``) opts into the optional native
     wreq client for direct connections, ignoring environment/default proxies.
-    ``fallback_proxies`` enables exact-RPC failover to at most two trusted exits
-    using primp, shared route cooldowns and one half-open recovery probe.
-    Adaptive calls disable page fallback and HTTP backoff to bound dispatches.
+    ``fallback_proxies`` enables failover to at most two trusted exits using
+    primp, shared Google route cooldowns and one half-open recovery probe. RPC
+    bytes are replayed exactly; Deals/Explore/Hotels rebuild route-owned sessions
+    from the original query. Adaptive calls disable local HTTP retry loops.
 
     HTTP settings. ``country`` selects the point of sale; ``currency``
     independently selects the display currency (ISO 4217), when provided.
@@ -51,8 +54,17 @@ class TransportConfig:
     fallback_proxies: tuple[str, ...] = field(default=(), repr=False)
     _operation_deadline: Optional[float] = field(default=None, repr=False, compare=False)
     _cancel_check: Optional[Callable[[], None]] = field(default=None, repr=False, compare=False)
+    request_timeout: Optional[float] = None
+    primary_timeout: Optional[float] = None
+    _session_isolated: bool = field(default=False, repr=False, compare=False)
+    _session_scope: str = field(default="", repr=False, compare=False)
+    _route_state: Any = field(default=None, repr=False, compare=False)
 
     def __post_init__(self) -> None:
+        import math
+        for name, value in (("request_timeout", self.request_timeout), ("primary_timeout", self.primary_timeout)):
+            if value is not None and (not math.isfinite(value) or value <= 0):
+                raise ValueError(f"{name} must be positive and finite")
         if self.address_family not in ("auto", "ipv4", "ipv6"):
             raise ValueError("address_family must be auto, ipv4 or ipv6")
         if not isinstance(self.fallback_proxies, tuple) or len(self.fallback_proxies) > 2 or any(not isinstance(proxy, str) or not proxy for proxy in self.fallback_proxies):
