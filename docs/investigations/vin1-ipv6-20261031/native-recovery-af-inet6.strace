@@ -1,0 +1,16 @@
+2068703 connect(9, {sa_family=AF_INET, sin_port=htons(1082), sin_addr=inet_addr("10.0.0.10")}, 16) = -1 EINPROGRESS (Operation now in progress)
+2068966 connect(13, {sa_family=AF_INET6, sin6_port=htons(443), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "2001:4860:482a:7700::", &sin6_addr), sin6_scope_id=0}, 28) = -1 EINPROGRESS (Operation now in progress)
+2068966 getsockname(13, {sa_family=AF_INET6, sin6_port=htons(43443), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "2604:2dc0:100:2437::17", &sin6_addr), sin6_scope_id=0}, [128 => 28]) = 0
+2068972 +++ exited with 0 +++
+2068971 +++ exited with 0 +++
+2068970 +++ exited with 0 +++
+2068969 +++ exited with 0 +++
+2068967 +++ exited with 0 +++
+2068965 +++ exited with 0 +++
+2068964 +++ exited with 0 +++
+2068963 +++ exited with 0 +++
+2068962 +++ exited with 0 +++
+2068961 +++ exited with 0 +++
+2068968 +++ exited with 0 +++
+2068966 +++ exited with 0 +++
+2068703 +++ exited with 0 +++

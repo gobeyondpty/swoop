@@ -1,0 +1,330 @@
+{
+  "release": "/srv/ndcterm/releases/events-dba364a90b17/ndcterm",
+  "native_client": "wreq==0.13.0",
+  "rows": [
+    {
+      "label": "injected_primary_403_actual_mia1",
+      "count": 128,
+      "elapsed_ms": 625.3779410617426,
+      "health": [
+        {
+          "operation": "GetShoppingResults",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "http_403",
+          "retry_in": 29.378217614023015,
+          "active": 0
+        },
+        {
+          "operation": "GetShoppingResults",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ],
+      "diagnostics": {
+        "http_attempts": 2,
+        "rpc_attempts": 2,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 623.3788250247017,
+        "network_ms": 513.5515459114686,
+        "decode_ms": 13.434525113552809,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 474482,
+        "responses_with_unknown_bytes": 1,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 403,
+            "network_ms": 0.013020006008446217,
+            "response_bytes": null,
+            "error_type": null
+          },
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 513.5385259054601,
+            "response_bytes": 474482,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 128,
+            "decoded_result_count": 128,
+            "result_scope": "all",
+            "decode_ms": 13.434525113552809,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "label": "cooldown_actual_mia1",
+      "count": 128,
+      "elapsed_ms": 382.56243092473596,
+      "health": [
+        {
+          "operation": "GetShoppingResults",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "http_403",
+          "retry_in": 28.99548646993935,
+          "active": 0
+        },
+        {
+          "operation": "GetShoppingResults",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ],
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 382.34110397752374,
+        "network_ms": 314.78082097601146,
+        "decode_ms": 13.971782987937331,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 473962,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 314.78082097601146,
+            "response_bytes": 473962,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 128,
+            "decoded_result_count": 128,
+            "result_scope": "all",
+            "decode_ms": 13.971782987937331,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "label": "natural_half_open_1",
+      "count": 128,
+      "elapsed_ms": 3024.7177130077034,
+      "health": [
+        {
+          "operation": "GetShoppingResults",
+          "route": "ipv6",
+          "state": "open",
+          "reason": "timeout",
+          "retry_in": 29.64584587898571,
+          "active": 0
+        },
+        {
+          "operation": "GetShoppingResults",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ],
+      "diagnostics": {
+        "http_attempts": 2,
+        "rpc_attempts": 2,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 3014.519671094604,
+        "network_ms": 2949.1280311485752,
+        "decode_ms": 13.548683025874197,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 474743,
+        "responses_with_unknown_bytes": 1,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": null,
+            "network_ms": 2660.2478170534596,
+            "response_bytes": null,
+            "error_type": "TimeoutError"
+          },
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 288.88021409511566,
+            "response_bytes": 474743,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 128,
+            "decoded_result_count": 128,
+            "result_scope": "all",
+            "decode_ms": 13.548683025874197,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "label": "natural_half_open_2",
+      "count": 128,
+      "elapsed_ms": 399.272080976516,
+      "health": [
+        {
+          "operation": "GetShoppingResults",
+          "route": "fallback",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        },
+        {
+          "operation": "GetShoppingResults",
+          "route": "ipv6",
+          "state": "closed",
+          "reason": null,
+          "retry_in": 0.0,
+          "active": 0
+        }
+      ],
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 398.9572690334171,
+        "network_ms": 330.2336490014568,
+        "decode_ms": 14.196024974808097,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 475402,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 330.2336490014568,
+            "response_bytes": 475402,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 128,
+            "decoded_result_count": 128,
+            "result_scope": "all",
+            "decode_ms": 14.196024974808097,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    }
+  ],
+  "fault": "one injected direct HTTP403; all fallback and recovery HTTP calls real; natural 31-second cooldowns",
+  "direct_recovered": true
+}

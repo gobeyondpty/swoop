@@ -1,0 +1,922 @@
+{
+  "release": "/srv/ndcterm/releases/events-dba364a90b17/ndcterm",
+  "native_client": "wreq==0.13.0",
+  "profile": "Chrome137",
+  "results": [
+    {
+      "operation": "calendar",
+      "route": "direct",
+      "sample": 0,
+      "count": 30,
+      "elapsed_ms": 243.73095796909183,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 143.61451601143926,
+        "network_ms": 137.98035809304565,
+        "decode_ms": 5.457188002765179,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 5524,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 137.98035809304565,
+            "response_bytes": 5524,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "calendar",
+      "route": "direct",
+      "sample": 1,
+      "error": "SwoopTransportError",
+      "cause": "TimeoutError",
+      "message": "Google Flights transport failed while sending or reading a response"
+    },
+    {
+      "operation": "calendar",
+      "route": "mia1",
+      "sample": 0,
+      "count": 30,
+      "elapsed_ms": 308.7401990778744,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 306.2625030288473,
+        "network_ms": 301.09345610253513,
+        "decode_ms": 5.04412897862494,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 5525,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 301.09345610253513,
+            "response_bytes": 5525,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "calendar",
+      "route": "mia1",
+      "sample": 1,
+      "count": 30,
+      "elapsed_ms": 140.35581797361374,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 139.81120800599456,
+        "network_ms": 128.41564300470054,
+        "decode_ms": 11.285883956588805,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 5521,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 128.41564300470054,
+            "response_bytes": 5521,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "shopping",
+      "route": "direct",
+      "sample": 0,
+      "count": 128,
+      "elapsed_ms": 318.077999050729,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 316.6102149989456,
+        "network_ms": 300.9040199685842,
+        "decode_ms": 15.66707796882838,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 475402,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 300.9040199685842,
+            "response_bytes": 475402,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 128,
+            "decoded_result_count": 128,
+            "result_scope": "all",
+            "decode_ms": 15.66707796882838,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "shopping",
+      "route": "direct",
+      "sample": 1,
+      "error": "SwoopHTTPError",
+      "cause": "NoneType",
+      "message": "Google Flights returned HTTP 302"
+    },
+    {
+      "operation": "shopping",
+      "route": "mia1",
+      "sample": 0,
+      "count": 128,
+      "elapsed_ms": 305.78124802559614,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 305.17000996042043,
+        "network_ms": 292.30959503911436,
+        "decode_ms": 12.821117998100817,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 474883,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 292.30959503911436,
+            "response_bytes": 474883,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 128,
+            "decoded_result_count": 128,
+            "result_scope": "all",
+            "decode_ms": 12.821117998100817,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "shopping",
+      "route": "mia1",
+      "sample": 1,
+      "count": 128,
+      "elapsed_ms": 410.0241820560768,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 409.11594696808606,
+        "network_ms": 362.8904119832441,
+        "decode_ms": 46.10288597177714,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 475402,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 362.8904119832441,
+            "response_bytes": 475402,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 128,
+            "decoded_result_count": 128,
+            "result_scope": "all",
+            "decode_ms": 46.10288597177714,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    }
+  ],
+  "failover": {
+    "actual_mia1_success": true,
+    "after_refusal": [
+      {
+        "operation": "GetShoppingResults",
+        "route": "ipv6",
+        "state": "open",
+        "reason": "http_403",
+        "retry_in": 29.282069123000838,
+        "active": 0
+      },
+      {
+        "operation": "GetShoppingResults",
+        "route": "fallback",
+        "state": "closed",
+        "reason": null,
+        "retry_in": 0.0,
+        "active": 0
+      }
+    ],
+    "cooldown_mia1_success": true,
+    "after_probe_success": true,
+    "after_probe": [
+      {
+        "operation": "GetShoppingResults",
+        "route": "ipv6",
+        "state": "open",
+        "reason": "timeout",
+        "retry_in": 29.69841392908711,
+        "active": 0
+      },
+      {
+        "operation": "GetShoppingResults",
+        "route": "fallback",
+        "state": "closed",
+        "reason": null,
+        "retry_in": 0.0,
+        "active": 0
+      }
+    ],
+    "direct_recovered": false,
+    "one_way_calendar_error": "SwoopHTTPError"
+  },
+  "fault": "injected direct HTTP403 only; fallback and recovery use actual clients; isolated cooldown clock advanced once",
+  "network_phases": {
+    "dns_ms": null,
+    "connect_ms": null,
+    "tls_ms": null,
+    "ttfb_ms": null
+  },
+  "health": [
+    {
+      "operation": "GetShoppingResults",
+      "route": "ipv6",
+      "state": "open",
+      "reason": "timeout",
+      "retry_in": 21.97573009307962,
+      "active": 0
+    },
+    {
+      "operation": "GetShoppingResults",
+      "route": "fallback",
+      "state": "closed",
+      "reason": null,
+      "retry_in": 0.0,
+      "active": 0
+    }
+  ],
+  "successful_calendars_match": true,
+  "calendar_price_variants": [
+    [
+      {
+        "departure_date": "2026-11-01",
+        "return_date": "2026-11-06",
+        "price": 647,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-02",
+        "return_date": "2026-11-07",
+        "price": 647,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-03",
+        "return_date": "2026-11-08",
+        "price": 560,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-04",
+        "return_date": "2026-11-09",
+        "price": 560,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-05",
+        "return_date": "2026-11-10",
+        "price": 647,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-06",
+        "return_date": "2026-11-11",
+        "price": 597,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-07",
+        "return_date": "2026-11-12",
+        "price": 552,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-08",
+        "return_date": "2026-11-13",
+        "price": 597,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-09",
+        "return_date": "2026-11-14",
+        "price": 517,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-10",
+        "return_date": "2026-11-15",
+        "price": 527,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-11",
+        "return_date": "2026-11-16",
+        "price": 517,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-12",
+        "return_date": "2026-11-17",
+        "price": 517,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-13",
+        "return_date": "2026-11-18",
+        "price": 517,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-14",
+        "return_date": "2026-11-19",
+        "price": 470,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-15",
+        "return_date": "2026-11-20",
+        "price": 480,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-16",
+        "return_date": "2026-11-21",
+        "price": 503,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-17",
+        "return_date": "2026-11-22",
+        "price": 483,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-18",
+        "return_date": "2026-11-23",
+        "price": 433,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-19",
+        "return_date": "2026-11-24",
+        "price": 476,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-20",
+        "return_date": "2026-11-25",
+        "price": 425,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-21",
+        "return_date": "2026-11-26",
+        "price": 352,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-22",
+        "return_date": "2026-11-27",
+        "price": 429,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-23",
+        "return_date": "2026-11-28",
+        "price": 685,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-24",
+        "return_date": "2026-11-29",
+        "price": 708,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-25",
+        "return_date": "2026-11-30",
+        "price": 583,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-26",
+        "return_date": "2026-12-01",
+        "price": 490,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-27",
+        "return_date": "2026-12-02",
+        "price": 503,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-28",
+        "return_date": "2026-12-03",
+        "price": 730,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-29",
+        "return_date": "2026-12-04",
+        "price": 694,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-30",
+        "return_date": "2026-12-05",
+        "price": 436,
+        "currency": "USD"
+      }
+    ],
+    [
+      {
+        "departure_date": "2026-11-01",
+        "return_date": "2026-11-06",
+        "price": 647,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-02",
+        "return_date": "2026-11-07",
+        "price": 647,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-03",
+        "return_date": "2026-11-08",
+        "price": 560,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-04",
+        "return_date": "2026-11-09",
+        "price": 560,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-05",
+        "return_date": "2026-11-10",
+        "price": 647,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-06",
+        "return_date": "2026-11-11",
+        "price": 597,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-07",
+        "return_date": "2026-11-12",
+        "price": 552,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-08",
+        "return_date": "2026-11-13",
+        "price": 597,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-09",
+        "return_date": "2026-11-14",
+        "price": 517,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-10",
+        "return_date": "2026-11-15",
+        "price": 527,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-11",
+        "return_date": "2026-11-16",
+        "price": 517,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-12",
+        "return_date": "2026-11-17",
+        "price": 517,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-13",
+        "return_date": "2026-11-18",
+        "price": 517,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-14",
+        "return_date": "2026-11-19",
+        "price": 470,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-15",
+        "return_date": "2026-11-20",
+        "price": 480,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-16",
+        "return_date": "2026-11-21",
+        "price": 503,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-17",
+        "return_date": "2026-11-22",
+        "price": 483,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-18",
+        "return_date": "2026-11-23",
+        "price": 433,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-19",
+        "return_date": "2026-11-24",
+        "price": 476,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-20",
+        "return_date": "2026-11-25",
+        "price": 425,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-21",
+        "return_date": "2026-11-26",
+        "price": 352,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-22",
+        "return_date": "2026-11-27",
+        "price": 429,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-23",
+        "return_date": "2026-11-28",
+        "price": 685,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-24",
+        "return_date": "2026-11-29",
+        "price": 708,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-25",
+        "return_date": "2026-11-30",
+        "price": 583,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-26",
+        "return_date": "2026-12-01",
+        "price": 490,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-27",
+        "return_date": "2026-12-02",
+        "price": 503,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-28",
+        "return_date": "2026-12-03",
+        "price": 730,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-29",
+        "return_date": "2026-12-04",
+        "price": 694,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-30",
+        "return_date": "2026-12-05",
+        "price": 436,
+        "currency": "USD"
+      }
+    ],
+    [
+      {
+        "departure_date": "2026-11-01",
+        "return_date": "2026-11-06",
+        "price": 647,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-02",
+        "return_date": "2026-11-07",
+        "price": 647,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-03",
+        "return_date": "2026-11-08",
+        "price": 560,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-04",
+        "return_date": "2026-11-09",
+        "price": 560,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-05",
+        "return_date": "2026-11-10",
+        "price": 647,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-06",
+        "return_date": "2026-11-11",
+        "price": 597,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-07",
+        "return_date": "2026-11-12",
+        "price": 552,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-08",
+        "return_date": "2026-11-13",
+        "price": 597,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-09",
+        "return_date": "2026-11-14",
+        "price": 517,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-10",
+        "return_date": "2026-11-15",
+        "price": 527,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-11",
+        "return_date": "2026-11-16",
+        "price": 517,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-12",
+        "return_date": "2026-11-17",
+        "price": 517,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-13",
+        "return_date": "2026-11-18",
+        "price": 517,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-14",
+        "return_date": "2026-11-19",
+        "price": 470,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-15",
+        "return_date": "2026-11-20",
+        "price": 480,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-16",
+        "return_date": "2026-11-21",
+        "price": 503,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-17",
+        "return_date": "2026-11-22",
+        "price": 483,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-18",
+        "return_date": "2026-11-23",
+        "price": 433,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-19",
+        "return_date": "2026-11-24",
+        "price": 476,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-20",
+        "return_date": "2026-11-25",
+        "price": 425,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-21",
+        "return_date": "2026-11-26",
+        "price": 352,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-22",
+        "return_date": "2026-11-27",
+        "price": 429,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-23",
+        "return_date": "2026-11-28",
+        "price": 685,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-24",
+        "return_date": "2026-11-29",
+        "price": 708,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-25",
+        "return_date": "2026-11-30",
+        "price": 583,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-26",
+        "return_date": "2026-12-01",
+        "price": 490,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-27",
+        "return_date": "2026-12-02",
+        "price": 503,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-28",
+        "return_date": "2026-12-03",
+        "price": 730,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-29",
+        "return_date": "2026-12-04",
+        "price": 694,
+        "currency": "USD"
+      },
+      {
+        "departure_date": "2026-11-30",
+        "return_date": "2026-12-05",
+        "price": 436,
+        "currency": "USD"
+      }
+    ]
+  ]
+}
