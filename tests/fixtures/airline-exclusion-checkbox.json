@@ -1,0 +1,78 @@
+{
+  "captured_at": "2026-11-01T00:29:38.364928+00:00",
+  "origin": "JFK",
+  "destination": "LAX",
+  "date": "2026-12-15",
+  "transition": {
+    "carrier": "AA",
+    "before_checked": true,
+    "after_checked": false
+  },
+  "rpc_legs": {
+    "initial": [
+      [
+        [
+          [
+            "JFK",
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "LAX",
+            0
+          ]
+        ]
+      ],
+      null,
+      0,
+      null,
+      null,
+      "2026-12-15",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      3
+    ],
+    "exclude-american": [
+      [
+        [
+          [
+            "JFK",
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            "LAX",
+            0
+          ]
+        ]
+      ],
+      null,
+      0,
+      null,
+      [
+        "AA"
+      ],
+      "2026-12-15",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      3
+    ]
+  },
+  "tfs_excluded_url": "CBwQAhoiEgoyMDI2LTEyLTE1OgJBQWoHCAESA0pGS3IHCAESA0xBWEABSAFwAYIBCwj___________8BiAEBmAEC"
+}

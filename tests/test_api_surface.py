@@ -470,7 +470,7 @@ class TestSearchSignature:
             "origin", "destination", "date",
             "return_date", "cabin", "passengers",
             "max_stops", "sort",
-            "airlines", "flight_number", "include_basic_economy",
+            "airlines", "exclude_airlines", "flight_number", "include_basic_economy",
             "earliest_departure", "latest_departure",
             "earliest_arrival", "latest_arrival",
             "return_earliest_departure", "return_latest_departure",
@@ -513,6 +513,7 @@ class TestSearchSignature:
             "min_layover_duration",
             "max_layover_duration",
         ]
+        expected.append("exclude_airlines")
         assert param_names == expected
 
     def test_check_price_params(self):
@@ -785,6 +786,7 @@ class TestCalendarSurface:
             "to_airport",
             "max_stops",
             "airlines",
+            "exclude_airlines",
             "max_duration",
             "connecting_airports",
             "exclude_connecting_airports",
@@ -798,6 +800,7 @@ class TestCalendarSurface:
             "passengers",
             "max_stops",
             "airlines",
+            "exclude_airlines",
             "exclude_basic_economy",
             "exclude_separate_tickets",
             "carry_on_bags",

@@ -47,6 +47,7 @@ class FlightData:
     to_flight: _RepeatedAirports
     max_stops: int
     airlines: List[str]
+    exclude_airlines: List[str]
     max_duration: int
     connecting_airports: List[str]
     exclude_connecting_airports: List[str]

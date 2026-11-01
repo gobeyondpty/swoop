@@ -4,10 +4,11 @@ from typing import Any
 from .builders import AIRLINE_ALLIANCES
 from .decoder import Itinerary
 from ._pricing import _validate_routing
+from ._airlines import normalize_exclusions
 
 _MINIMUMS = {"min_layover_duration", "earliest_departure", "earliest_arrival"}
 _MAXIMUMS = {"max_stops", "max_duration", "max_layover_duration", "latest_departure", "latest_arrival"}
-_LISTS = {"airlines", "connecting_airports", "exclude_connecting_airports"}
+_LISTS = {"airlines", "exclude_airlines", "connecting_airports", "exclude_connecting_airports"}
 
 
 def narrow_next_leg(original: dict[str, Any], filters: dict[str, Any]) -> dict[str, Any]:
@@ -21,6 +22,8 @@ def narrow_next_leg(original: dict[str, Any], filters: dict[str, Any]) -> dict[s
             if key == "airlines":
                 if any(not (len(v) == 2 and v.isascii() and v.isalnum() or v in AIRLINE_ALLIANCES) for v in value):
                     raise ValueError("invalid next-leg airline")
+            elif key == "exclude_airlines":
+                normalize_exclusions(value)
             elif any(len(v) != 3 or not v.isascii() or not v.isalpha() for v in value):
                 raise ValueError("invalid next-leg airport")
             supplied[key] = list(dict.fromkeys(v.upper() for v in value))
@@ -44,6 +47,10 @@ def narrow_next_leg(original: dict[str, Any], filters: dict[str, Any]) -> dict[s
         if not narrowed:
             raise ValueError("next-leg filter has no allowed intersection")
         result[key] = narrowed
+    excluded_airlines = normalize_exclusions([*(original.get("exclude_airlines") or []),
+                                              *(supplied.get("exclude_airlines") or [])], result.get("airlines"))
+    if excluded_airlines:
+        result["exclude_airlines"] = excluded_airlines
     excluded = list(dict.fromkeys([*(original.get("exclude_connecting_airports") or []),
                                   *(supplied.get("exclude_connecting_airports") or [])]))
     if result.get("connecting_airports"):
@@ -61,6 +68,11 @@ def narrow_next_leg(original: dict[str, Any], filters: dict[str, Any]) -> dict[s
                       result.get("exclude_connecting_airports"), result.get("min_layover_duration"),
                       result.get("max_layover_duration"))
     return result
+
+
+def airline_exclusions_match(itinerary: Itinerary, leg: dict[str, Any]) -> bool:
+    excluded = set(leg.get("exclude_airlines") or [])
+    return itinerary.airline_code not in excluded and all(segment.airline not in excluded for segment in itinerary.segments)
 
 
 def routing_matches(itinerary: Itinerary, leg: dict[str, Any]) -> bool:

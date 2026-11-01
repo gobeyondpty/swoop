@@ -197,7 +197,7 @@ next_choices = search_next_leg(option.selector, next_leg_filters={
 })
 ```
 
-Supported fields: `airlines`, `max_stops`, `max_duration`,
+Supported fields: `airlines`, `exclude_airlines`, `max_stops`, `max_duration`,
 `connecting_airports`, `exclude_connecting_airports`, `min_layover_duration`,
 `max_layover_duration`, `earliest_departure`, `latest_departure`,
 `earliest_arrival`, `latest_arrival`. Durations use minutes; hours use local
@@ -517,6 +517,7 @@ Search Google Flights and return a `SearchResult`.
 | `max_stops` | `int \| None` | `None` | `None`=any, `0`=nonstop, `1`=1 stop, `2`=2 stops |
 | `sort` | `int` | `SORT_DEPARTURE_TIME` | Sort order constant |
 | `airlines` | `list[str] \| None` | `None` | Filter by airline codes |
+| `exclude_airlines` | `list[str] \| None` | `None` | Native two-character airline exclusions, independent of the displayed result roster |
 | `flight_number` | `str \| None` | `None` | Filter to a specific flight number; carrier is also added to the first-leg airline filter |
 | `include_basic_economy` | `bool` | `False` | Include basic economy fares (excluded by default so prices reflect Main Cabin) |
 | `timeout` | `float` | `90` | Total RPC timeout in seconds, including retry waits and shopping page fallback |
@@ -848,3 +849,22 @@ shopping estimates; use a dated search and its selector for bookable offers.
 swoop calendar JFK LAX 2026-12-03 2026-12-04 --checked-bags 1 -o json
 swoop calendar JFK LAX 2026-12-03 2026-12-04 --mode graph --min-stay 5
 ```
+
+### Native airline exclusions
+
+`search(..., exclude_airlines=["AA"])` sends explicit negative intent to Google,
+using the same per-bound RPC slot 5 and TFS field 7 captured when unchecking
+American in Google Flights. `SearchLeg`, `search_raw`, calendar APIs and
+`get_booking_results` accept the same control. The CLI exposes repeatable
+`--exclude-airline AA` on search and calendar. This is not a complement built
+from the airlines in a capped result list.
+
+Selectors retain exclusions through continuation and pricing.
+`search_next_leg(selector, next_leg_filters={"exclude_airlines": ["AA"]})`
+adds the exclusion only to the next unselected bound; it leaves the selected
+prefix intact. Exclusions accumulate with saved restrictions, and excluding
+every explicitly included carrier fails before I/O. Marketing-carrier
+violations in a response are rejected with an explicit incomplete-coverage
+reason. This does not assert exclusion of every operating codeshare alias.
+The sanitized checkbox capture is `tests/fixtures/airline-exclusion-checkbox.json`.
+Deals and Explore use separate RPCs and do not expose this control.
