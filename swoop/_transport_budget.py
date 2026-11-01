@@ -30,6 +30,8 @@ def request_timeout(transport: object, deadline: Optional[float] = None) -> floa
     config = cast(Any, transport)
     if config._cancel_check:
         config._cancel_check()
+    if config._source_lease is not None:
+        config._source_lease.check()
     state = config._route_state
     if state is not None:
         if state.failure is not None:

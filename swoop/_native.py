@@ -8,7 +8,7 @@ from typing import Any
 class NativeClient:
     """Small primp-shaped facade over wreq's Rust client (no subprocesses)."""
 
-    def __init__(self, family: str, impersonate: str = "chrome", proxy: str | None = None):
+    def __init__(self, family: str, impersonate: str = "chrome", proxy: str | None = None, *, local_address: str | None = None):
         try:
             import wreq
             from wreq.blocking import Client
@@ -30,10 +30,13 @@ class NativeClient:
         else:
             # Explicit direct must ignore both Swoop's default and environment proxies.
             options["no_proxy"] = True
-            options["local_address"] = "::" if family == "ipv6" else "0.0.0.0"
+            options["local_address"] = local_address or ("::" if family == "ipv6" else "0.0.0.0")
             strategy = wreq.LookupIpStrategy.IPV6_ONLY if family == "ipv6" else wreq.LookupIpStrategy.IPV4_ONLY
             options["dns_options"] = wreq.DnsOptions(lookup_ip_strategy=strategy)
         self._client = Client(**options)
+
+    def close(self) -> None:
+        self._client.close()
 
     def post(self, url: str, *, content: bytes, headers: dict[str, str], timeout: float) -> Any:
         return self._request("post", url, body=content, headers=headers, timeout=timeout)
@@ -50,13 +53,22 @@ class NativeClient:
 class NativeResponse:
     def __init__(self, response: Any):
         self._response = response
+        self._consumed = False
         self.status_code = response.status.as_int()
         self.headers = response.headers
+
+    def close(self) -> None:
+        # wreq.close() tears down the connection even after a fully read body.
+        # Keep consumed responses eligible for pooling; abort unread errors.
+        if not self._consumed:
+            self._response.close()
 
     @property
     def text(self) -> str:
         try:
-            return self._response.text()
+            text = self._response.text()
+            self._consumed = True
+            return text
         except Exception as error:
             # wreq reports a body deadline as BodyError with a TimedOut source.
             # Normalize it without classifying every body failure as a timeout.

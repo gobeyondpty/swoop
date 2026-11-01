@@ -122,7 +122,11 @@ def test_real_native_ipv6_deals_session_socks_fallback_and_recovery(monkeypatch)
         assert all(c[4][0] == posts[0][4][0] and c[4][2] == posts[0][4][2] for c in posts)
         assert all(c[4][1] == 'route='+c[0] for c in posts)
         assert all(c[2][0] == '::1' for c in calls)
-        assert len({c[2][1] for c in calls if c[0]=='direct'}) == 1
+        # The unread rejected response is explicitly aborted; recovery gets a
+        # new connection. Healthy page/RPC work still pools within each session.
+        assert calls[0][2] == calls[1][2]
+        assert calls[-2][2] == calls[-1][2]
+        assert calls[0][2] != calls[-1][2]
         assert len({c[2][1] for c in calls if c[0]=='mia-fixture'}) == 1
         assert proxy_targets == [('::1',direct.server_port)]
     finally:

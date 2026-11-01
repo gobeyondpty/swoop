@@ -486,6 +486,7 @@ def _get_transport_client(transport: TransportConfig) -> Any:
     # Snapshot only transport identity into cached factories, not diagnostics,
     # cancellation, query, tenant or operation-deadline state.
     family, proxy, profile = transport.address_family, transport.proxy, transport.impersonate or "chrome"
+    local_address = transport.local_address
     def create() -> Any:
         if family == "auto":
             from primp import Client
@@ -493,13 +494,20 @@ def _get_transport_client(transport: TransportConfig) -> Any:
             if proxy:
                 kwargs["proxy"] = proxy
             return Client(**kwargs)
-        return NativeClient(family, profile, proxy)
+        return NativeClient(family, profile, proxy, **({"local_address": local_address} if local_address else {}))
 
     if transport._session_isolated:
-        return SessionClient(create()) if transport._session_scope else create()
+        client = SessionClient(create()) if transport._session_scope else create()
+        return transport._source_lease.keep(client) if transport._source_lease is not None and family == "ipv6" else client
     key = f"{transport.proxy or ''}|{transport.impersonate or 'chrome'}|{transport.address_family}|native"
+    if local_address:
+        key += f"|{local_address}"
     if transport._session_scope:
         key += f"|{transport._session_scope}|{transport.country or _default_country or ''}|{transport.currency or ''}"
+    if transport._source_lease is not None and family == "ipv6":
+        # Even reuse-mode addresses can be quarantined/retired on release.
+        # Pool within the operation, then close before returning the lease.
+        return transport._source_lease.client(key, lambda: SessionPool(create) if transport._session_scope else create())
     with _clients_lock:
         if key not in _clients:
             client = SessionPool(create) if transport._session_scope else create()
@@ -572,6 +580,10 @@ def _post_with_retry(
     import random
     import time
 
+    if transport._source_lease is not None and transport.address_family == "ipv6":
+        from ._session import BudgetedClient
+        if not isinstance(client, BudgetedClient):
+            client = BudgetedClient(client, transport)
     short_url = url.split("/")[-1]
     deadline = transport_deadline(transport.request_timeout or transport.timeout, _deadline)
     if transport._operation_deadline is not None:
@@ -585,6 +597,7 @@ def _post_with_retry(
             transport._cancel_check()
         timeout = request_timeout(transport, deadline)
         operation = transport._session_scope if transport._session_scope in ("deals", "explore", "hotels") else rpc_operation(url)
+        res = None
         try:
             with measure_http(transport, operation, "rpc", "POST", attempt) as measurement:
                 res = client.post(url, content=body, headers=headers, timeout=timeout)
@@ -606,6 +619,10 @@ def _post_with_retry(
             error.__cause__ = exc
             note_failure(transport, error)
             raise error from exc
+        finally:
+            from ._session import BudgetedResponse
+            if isinstance(res, BudgetedResponse):
+                res.close()
         if status_code == 200:
             if transport._route_state is not None and text.strip().removeprefix(")]}'").strip() in ("", "[]"):
                 from ._adaptive import AmbiguousResponse, note_failure
@@ -660,6 +677,10 @@ def _http_post(
         SwoopRateLimitError: If 429 persists after all retries.
         SwoopHTTPError: If a non-200/non-429 response is received.
     """
+    if transport.local_ipv6_socket and transport._source_lease is None and not transport._skip_primary:
+        from ._local_ipv6 import operation
+        with operation(transport) as chosen:
+            return _http_post(url, content, transport=chosen, _deadline=_deadline)
     deadline = transport_deadline(transport.request_timeout or transport.timeout, _deadline)
     if transport._operation_deadline is not None:
         deadline = min(deadline, transport._operation_deadline)
@@ -669,7 +690,7 @@ def _http_post(
     if transport.currency is not None:
         country = transport.country if transport.country is not None else _default_country
         headers["x-goog-ext-259736195-jspb"] = _currency_header(country, transport.currency)
-    if transport.fallback_proxies:
+    if transport.fallback_proxies or transport.local_address:
         from ._adaptive import post
         return post(url, content, headers, transport=transport, deadline=deadline)
     client = _get_transport_client(transport)

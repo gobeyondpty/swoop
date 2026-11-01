@@ -59,6 +59,12 @@ class TransportConfig:
     _session_isolated: bool = field(default=False, repr=False, compare=False)
     _session_scope: str = field(default="", repr=False, compare=False)
     _route_state: Any = field(default=None, repr=False, compare=False)
+    local_address: Optional[str] = None
+    local_ipv6_socket: Optional[str] = field(default=None, repr=False)
+    local_ipv6_prefix: Optional[str] = None
+    local_ipv6_mode: Literal["fresh", "reuse"] = "fresh"
+    _source_lease: Any = field(default=None, repr=False, compare=False)
+    _skip_primary: bool = field(default=False, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         import math
@@ -71,6 +77,33 @@ class TransportConfig:
             raise ValueError("fallback_proxies must be a tuple of at most two proxy URLs")
         if self.fallback_proxies and (self.address_family == "auto" or self.proxy):
             raise ValueError("fallback_proxies requires a family-controlled direct primary")
+        import ipaddress
+        import os
+        if self.local_ipv6_mode not in ("fresh", "reuse"):
+            raise ValueError("local_ipv6_mode must be fresh or reuse")
+        if self.local_address is not None:
+            try:
+                address = ipaddress.IPv6Address(self.local_address)
+            except (ValueError, TypeError) as error:
+                raise ValueError("local_address must be an IPv6 address") from error
+            if address.scope_id is not None or address.is_unspecified or address.is_multicast or address.ipv4_mapped:
+                raise ValueError("local_address must be a concrete native IPv6 source")
+            if self.address_family != "ipv6" or self.proxy:
+                raise ValueError("local_address requires direct IPv6")
+            self.local_address = str(address)
+        if bool(self.local_ipv6_socket) != bool(self.local_ipv6_prefix):
+            raise ValueError("local_ipv6_socket and local_ipv6_prefix are required together")
+        if self.local_ipv6_socket:
+            if (not isinstance(self.local_ipv6_socket, str) or not os.path.isabs(self.local_ipv6_socket)
+                    or len(os.fsencode(self.local_ipv6_socket)) >= 108 or self.address_family != "ipv6" or self.proxy):
+                raise ValueError("local_ipv6_socket requires an absolute Unix path and direct IPv6")
+            try:
+                prefix = ipaddress.IPv6Network(str(self.local_ipv6_prefix), strict=True)
+            except ValueError as error:
+                raise ValueError("local_ipv6_prefix must be an IPv6 network") from error
+            if not 64 <= prefix.prefixlen <= 112:
+                raise ValueError("local_ipv6_prefix must be /64 through /112")
+            self.local_ipv6_prefix = str(prefix)
         if self.country is not None and not isinstance(self.country, str):
             raise ValueError("country must be a string when provided")
         if self.currency is not None:

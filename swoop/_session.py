@@ -23,6 +23,9 @@ class SessionClient:
         self._client = client
         self.session_id = uuid4().hex
 
+    def close(self) -> None:
+        self._client.close()
+
     def get(self, *args: Any, **kwargs: Any) -> Any:
         return self._client.get(*args, **kwargs)
 
@@ -45,6 +48,15 @@ class SessionPool:
         self._factory = factory
         self._slots: list[tuple[SessionClient, bool]] = []
         self._lock = threading.Lock()
+
+    def close(self) -> None:
+        with self._lock:
+            if any(busy for _, busy in self._slots):
+                raise RuntimeError("Cannot close a borrowed session jar")
+            clients = [client for client, _ in self._slots]
+            self._slots.clear()
+        for client in clients:
+            client.close()
 
     @contextmanager
     def borrow(self, transport: TransportConfig) -> Iterator[SessionClient]:
@@ -85,30 +97,50 @@ def session_lock(lock: Any, transport: TransportConfig) -> Iterator[None]:
 
 
 class BudgetedResponse:
-    def __init__(self, response: Any, transport: TransportConfig):
+    def __init__(self, response: Any, transport: TransportConfig, release: Callable[[], None] | None = None):
+        self._release = release
         self._response, self._transport = response, transport
         self.status_code = response.status_code
         self.headers = getattr(response, "headers", {})
         self._text: str | None = None
 
+    def _done(self) -> None:
+        release, self._release = self._release, None
+        if release is not None:
+            release()
+
+    def close(self) -> None:
+        try:
+            close = getattr(self._response, "close", None)
+            if close is not None:
+                close()
+        finally:
+            self._done()
+
+    def __del__(self) -> None:
+        self._done()
+
     @property
     def text(self) -> str:
         from ._adaptive import note_failure
-        request_timeout(self._transport)
-        if self._text is None:
-            try:
-                self._text = self._response.text
-            except SwoopError as error:
-                note_failure(self._transport, error)
-                raise
-            except Exception as error:
-                wrapped = SwoopTransportError("Google response body read failed")
-                wrapped.__cause__ = error
-                note_failure(self._transport, wrapped)
-                raise wrapped from error
-        request_timeout(self._transport)
-        assert self._text is not None
-        return self._text
+        try:
+            request_timeout(self._transport)
+            if self._text is None:
+                try:
+                    self._text = self._response.text
+                except SwoopError as error:
+                    note_failure(self._transport, error)
+                    raise
+                except Exception as error:
+                    wrapped = SwoopTransportError("Google response body read failed")
+                    wrapped.__cause__ = error
+                    note_failure(self._transport, wrapped)
+                    raise wrapped from error
+            request_timeout(self._transport)
+            assert self._text is not None
+            return self._text
+        finally:
+            self._done()
 
 
 class BudgetedClient:
@@ -127,17 +159,27 @@ class BudgetedClient:
         from ._adaptive import note_failure
         timeout = request_timeout(self._transport)
         kwargs["timeout"] = min(kwargs.get("timeout", timeout), timeout)
+        owner = self._transport._source_lease if self._transport.address_family == "ipv6" else None
+        release = owner.retain() if owner is not None else None
         try:
             response = getattr(self._client, method)(*args, **kwargs)
-            return BudgetedResponse(response, self._transport)
+            return BudgetedResponse(response, self._transport, release)
         except SwoopError as error:
+            if release is not None:
+                release()
             note_failure(self._transport, error)
             raise
         except Exception as error:
+            if release is not None:
+                release()
             wrapped = SwoopTransportError("Google transport failed while sending a request")
             wrapped.__cause__ = error
             note_failure(self._transport, wrapped)
             raise wrapped from error
+        except BaseException:
+            if release is not None:
+                release()
+            raise
 
 
 def client_for_session(transport: TransportConfig, legacy_factory: Callable[..., Any]) -> Any:
@@ -163,6 +205,7 @@ def get_page(client: Any, url: str, *, transport: TransportConfig,
                                   required=required) if required or transport.response_observer else ""
     for redirect in range(3):
         timeout = request_timeout(transport)
+        response = None
         try:
             with measure_http(transport, operation, "page", "GET", redirect) as measurement:
                 response = client.get(url, headers=headers, timeout=timeout)
@@ -195,6 +238,9 @@ def get_page(client: Any, url: str, *, transport: TransportConfig,
             wrapped.__cause__ = error
             note_failure(transport, wrapped)
             raise wrapped from error
+        finally:
+            if isinstance(response, BudgetedResponse):
+                response.close()
     raise SwoopHTTPError(302)
 
 
@@ -210,7 +256,12 @@ def routed_session(scope: str, *, inventory: Callable[[Any], bool], primary_budg
             transport = kwargs.get("transport", default)
             if transport.address_family == "auto" and not transport.fallback_proxies or transport._route_state is not None:
                 return function(*args, **kwargs)
+            from ._local_ipv6 import operation
+            with operation(transport) as chosen:
+                return execute(*args, **{**kwargs, "transport": chosen})
+        def execute(*args: Any, **kwargs: Any) -> Any:
             from ._adaptive import run
+            transport = kwargs.get("transport", default)
             selected = replace(transport, _session_scope=scope)
             def action(config: TransportConfig) -> Any:
                 state = config._route_state
@@ -249,6 +300,8 @@ def mark_policy(function: F) -> F:
         if budget is not None:
             deadline = min(deadline, transport_deadline(budget))
         selected = replace(transport, _operation_deadline=deadline)
-        return function(*args, **{**kwargs, "transport": selected})
+        from ._local_ipv6 import operation
+        with operation(selected) as chosen:
+            return function(*args, **{**kwargs, "transport": chosen})
     setattr(bounded, "_swoop_shared_routing", True)
     return cast(F, bounded)

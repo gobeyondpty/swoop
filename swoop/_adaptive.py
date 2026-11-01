@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 import threading
 import time
 import random
@@ -26,6 +26,7 @@ class _Route:
     probing: bool = False
     reason: str | None = None
     failures: int = 0
+    recent: list[tuple[float, str]] = field(default_factory=list)
 
 
 _routes: OrderedDict[tuple[str, str, str], _Route] = OrderedDict()
@@ -72,20 +73,59 @@ def _finish(lease: tuple[_Route, int, bool], reason: str | None, delay: float = 
         elif half_open and healthy:
             route.reason = None
             route.failures = 0
+            route.recent.clear()
             route.until = 0.0
             route.generation += 1
 
 
 def health() -> list[dict[str, Any]]:
-    """Bounded, credential-free operational state. No selectors or query data."""
+    """Bounded, credential-free state; source IDs are opaque, never query data."""
+    from ._local_ipv6 import source_id
     with _lock:
-        return [{"operation": key[2], "route": key[0] if key[0] in ("ipv6", "ipv4") else "fallback",
-                 "state": "half_open" if route.probing else "open" if route.reason else "closed",
-                 "reason": route.reason, "retry_in": max(0.0, route.until - time.monotonic()),
-                 "active": route.active} for key, route in _routes.items()]
+        result = []
+        for key, route in _routes.items():
+            item = dict(operation=key[2], route="ipv6" if key[0].startswith("ipv6") else "ipv4" if key[0] == "ipv4" else "fallback",
+                state="half_open" if route.probing else "open" if route.reason else "closed",
+                reason=route.reason, retry_in=max(0.0, route.until - time.monotonic()), active=route.active)
+            if key[0].startswith("ipv6@"):
+                item.update(scope="address", source_id=source_id(key[0][5:]))
+            elif key[0].startswith("ipv6-prefix:"):
+                item.update(scope="prefix")
+            result.append(item)
+        return result
+
+
+def _prefix_key(transport: TransportConfig) -> tuple[str, str, str] | None:
+    if not transport.local_ipv6_prefix:
+        return None
+    return ("ipv6-prefix:" + transport.local_ipv6_prefix, transport.impersonate or "chrome", "google")
+
+
+def source_prefix_available(transport: TransportConfig) -> bool:
+    key = _prefix_key(transport)
+    if key is None:
+        return True
+    with _lock:
+        route = _routes.get(key)
+        return route is None or (not route.probing and route.active < _MAX_ACTIVE
+            and (route.reason is None or route.until <= time.monotonic()))
+
+
+def _prefix_failure(lease: tuple[_Route, int, bool], address: str, reason: str) -> str | None:
+    """A single bad source does not disable the bank; correlated failures do."""
+    route, generation, half_open = lease
+    with _lock:
+        if generation != route.generation:
+            return None
+        now = time.monotonic()
+        route.recent = [(when, source) for when, source in route.recent if now - when <= 15.0]
+        route.recent = [*route.recent[-7:], (now, address)]
+        return reason if half_open or reason == "http_429" or len({source for _, source in route.recent}) >= 3 else None
 
 
 def _failure(error: Exception) -> str | None:
+    if getattr(error, "_local_only", False):
+        return None
     if isinstance(error, SwoopHTTPError):
         if error.status_code in (403, 429):
             return f"http_{error.status_code}"
@@ -181,14 +221,26 @@ def run(operation: str, *, transport: TransportConfig, action: Callable[[Transpo
     proxies = (transport.proxy, *dict.fromkeys(transport.fallback_proxies))
     ambiguous = False
     last_error: Exception | None = None
-    primary_key = (transport.address_family, transport.impersonate or "chrome", "google")
+    primary_key = ("ipv6@" + transport.local_address if transport.local_address else transport.address_family, transport.impersonate or "chrome", "google")
+    gated = bool(transport.fallback_proxies or transport.local_address)
     for index, proxy in enumerate(proxies):
         if ambiguous and index > 1:
             break
+        if index == 0 and transport._skip_primary:
+            continue
         request_timeout(transport, deadline)
         key = primary_key if index == 0 else (proxy or "", transport.impersonate or "chrome", "google")
-        lease = _acquire(key, probe=not ambiguous) if transport.fallback_proxies else None
-        if transport.fallback_proxies and lease is None:
+        prefix_lease = None
+        prefix_reason = None
+        prefix_key = _prefix_key(transport) if index == 0 else None
+        if gated and prefix_key is not None:
+            prefix_lease = _acquire(prefix_key, probe=not ambiguous)
+            if prefix_lease is None:
+                continue
+        lease = _acquire(key, probe=not ambiguous) if gated else None
+        if gated and lease is None:
+            if prefix_lease is not None:
+                _finish(prefix_lease, None)
             continue
         reason = None
         healthy = False
@@ -197,7 +249,10 @@ def run(operation: str, *, transport: TransportConfig, action: Callable[[Transpo
             remaining = remaining_timeout(deadline)
             attempt_deadline = time.monotonic() + remaining / (len(proxies) - index)
             selected = replace(transport, proxy=proxy, address_family=transport.address_family if index == 0 else "auto",
-                               fallback_proxies=(), retries=0, _operation_deadline=deadline)
+                               fallback_proxies=(), retries=0, _operation_deadline=deadline,
+                               local_address=transport.local_address if index == 0 else None,
+                               local_ipv6_socket=transport.local_ipv6_socket if index == 0 else None,
+                               local_ipv6_prefix=transport.local_ipv6_prefix if index == 0 else None)
             pooled = _get_transport_client(selected)
             probe_deadline = attempt_deadline
             if index == 0 and transport.fallback_proxies:
@@ -218,6 +273,13 @@ def run(operation: str, *, transport: TransportConfig, action: Callable[[Transpo
                         primary.reason = "hidden_inventory"
                         primary.until = time.monotonic() + _COOLDOWN
                         primary.generation += 1
+                if transport._source_lease is not None:
+                    transport._source_lease.failed("hidden_inventory", _COOLDOWN)
+                    prefix_key = _prefix_key(transport)
+                    comparison = _acquire(prefix_key, probe=False) if prefix_key is not None else None
+                    if comparison is not None:
+                        correlated = _prefix_failure(comparison, transport.local_address or "", "hidden_inventory")
+                        _finish(comparison, correlated)
             return result
         except RouteBusy:
             continue
@@ -234,10 +296,16 @@ def run(operation: str, *, transport: TransportConfig, action: Callable[[Transpo
             if reason is None:
                 raise
             delay = getattr(error, "retry_after", None) or _COOLDOWN
+            if index == 0 and transport._source_lease is not None:
+                transport._source_lease.failed(reason, delay)
+            if prefix_lease is not None:
+                prefix_reason = _prefix_failure(prefix_lease, transport.local_address or "", reason)
             last_error = error
         finally:
             if lease is not None:
                 _finish(lease, reason, delay, healthy=healthy)
+            if prefix_lease is not None:
+                _finish(prefix_lease, prefix_reason, delay, healthy=healthy)
     if last_error is not None:
         raise last_error
     raise SwoopTransportError("Google routes cooling down or at concurrency limit")

@@ -91,3 +91,67 @@ seed-result behavior is preserved while the RPC rejection remains unresolved.
 Invalid arguments do not open route health. Compact gRPC 13/availability failures
 restart the session on fallback, including when an optional follow-up catches
 the exception. See the investigation report and JSON for measured limits.
+
+## Local source-address bank (opt-in)
+
+`local_address` binds a particular already assigned native IPv6 source. For one
+fresh address per public operation, configure the root-owned address broker:
+
+```python
+transport = TransportConfig(
+    address_family="ipv6", timeout=30, request_timeout=8,
+    fallback_proxies=("socks5h://trusted-exit:1082",),
+    local_ipv6_socket="/run/swoop-ipv6/pool.sock",
+    local_ipv6_prefix="2604:2dc0:100:2437:5a00::/80",
+    local_ipv6_mode="fresh",
+)
+```
+
+The SDK authenticates the Unix peer as root, bounds the handshake to one second,
+validates the returned address against the configured prefix and validates its
+mode/token. The broker returns an already assigned, ready /128 immediately; no
+address provisioning runs on the search path. Busy/unavailable brokers select
+configured fallback directly. They never cause an unbound native request or
+poison Google health. Without fallback a typed local availability error is raised.
+Unconfigured callers retain their existing routing behavior.
+
+A public search, continuation, pricing, calendar, Deals, Explore or Hotels call
+holds one source through nested calls and fan-out work. Different top-level calls
+lease separately. Fresh mode never reissues a consumed source; reuse mode uses the
+broker's bounded healthy bank. Both modes pool native connections and isolate
+cookies by operation/service/POS/currency. Native clients close before the lease
+returns, since even a reusable address can be quarantined or retired. Sources
+never enter the process-wide client cache. Existing sticky mia1 clients remain
+pooled. On failover, sessions bootstrap again on mia1 with route-specific cookies
+and parameters; original query, POS/currency, filters and selectors are retained.
+
+Cancellation/deadlines stop further dispatch. Active body reads and worker
+activity retain the source until they finish, even after their caller returns.
+An unread rejected response is explicitly closed. A fully consumed response keeps
+its connection available for pooling. A native-close failure retains its broker
+socket through the immutable operation deadline plus 30 seconds. Broker leases
+are bounded to 600 seconds; the Infra journal retains live PID/starttime/boot
+identity through that bound plus grace after a daemon crash. The SDK sends only
+its lease's release reason/Retry-After, never network-configuration commands.
+
+Per-address health uses opaque source IDs. One address failure permits another
+fresh source on the next operation, while mia1 handles the failed operation.
+Three distinct source failures in 15 seconds open the shared prefix gate; a 429
+opens it immediately and honors Retry-After. This prevents a fresh-IP loop during
+prefix-wide refusal. Prefix concurrency is eight, cooldown/recovery uses the
+existing bounded single-probe/backoff policy, and protocol-valid empty inventory
+remains healthy. No evidence establishes Google's throttling scope or that a new
+address fixes it. Addresses in this bank remain in one routed /64.
+
+Infra owns provisioning and the opt-in NixOS module. Its 64-address limit includes
+pending, leased, draining and quarantined addresses; failed deletions retain their
+slots. Existing base/legacy aliases and proxies remain outside the owned bank.
+No global nonlocal-bind or NDP changes are needed. Deployment requires a separate
+reviewed activation under the existing promotion owner.
+
+`python scripts/verify_local_ipv6_netns.py /path/to/infra-checkout --report /tmp/report.json`
+runs the actual bank, SDK native client, session builders/parsers, C47 selectors,
+SOCKS fallback/recovery and drain checks in a disposable user+network namespace.
+It refuses the original namespace and uses only local HTTP. Reported latency is
+local-fixture latency, not provider performance. Provider timing and throttling
+claims require separately authorized, certification-mode traffic.
