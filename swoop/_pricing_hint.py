@@ -14,6 +14,7 @@ from dataclasses import asdict, replace
 from datetime import datetime
 from typing import Any, Callable, Optional
 
+from ._airlines import normalize_exclusions
 from .builders import ItinerarySummary
 from ._pricing import _validate_pricing, _validate_routing
 from ._validate import parse_flight_number, validate_cabin, validate_date, validate_iata_code, validate_time_range
@@ -106,6 +107,7 @@ def _validate_context(payload: dict[str, Any]) -> None:
         stops = leg.get("max_stops")
         if stops is not None and (type(stops) is not int or stops < 0):
             raise ValueError("invalid selected stop filter")
+        normalize_exclusions(leg.get("exclude_airlines"), leg.get("airlines"))
         airlines = leg.get("airlines")
         if airlines is not None and (not isinstance(airlines, list) or not airlines
                 or not all(isinstance(code, str) and re.fullmatch(r"[A-Z0-9]{2,3}", code) for code in airlines)):
@@ -162,6 +164,8 @@ def _snapshot_itineraries(payload: dict[str, Any], hint: dict[str, Any]) -> list
                     raise ValueError("invalid selected clock")
                 values[key] = tuple(values[key])
             segment = Segment(**values, codeshares=codeshares)
+            if segment.airline in (leg.get("exclude_airlines") or []):
+                raise ValueError("selected snapshot contains an excluded airline")
             if flight != _selection(segment):
                 raise ValueError("selected snapshot changed flight lineage")
             if segments and segments[-1].arrival_airport_code != segment.departure_airport_code:

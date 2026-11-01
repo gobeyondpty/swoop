@@ -2,6 +2,15 @@
 
 Upgrade notes for swoop. Each section shows the old call shape, the new one, and what (if anything) you have to change.
 
+## Unreleased — native airline exclusions
+
+`exclude_airlines=["AA"]` is an optional keyword on shopping, `SearchLeg`,
+calendar and booking requests. The low-level `search_raw` parameter is appended
+to preserve existing positional arguments. Selectors preserve the field; old
+selectors without it still work. Next-leg exclusions affect only the next
+bound and accumulate with saved restrictions. An include list completely
+removed by exclusions is rejected before provider I/O.
+
 ## Unreleased — trip discovery and exact selectors
 
 Roundtrip and two-bound open-jaw searches still default to quick discovery: one

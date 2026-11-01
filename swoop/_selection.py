@@ -10,8 +10,9 @@ from dataclasses import replace
 from typing import Any, Optional
 
 from .builders import CabinClass
+from ._airlines import normalize_exclusions
 from ._pricing import _validate_pricing, _validate_routing
-from ._continuation import narrow_next_leg, routing_matches
+from ._continuation import narrow_next_leg, routing_matches, airline_exclusions_match
 from ._validate import parse_flight_number, validate_cabin, validate_date, validate_iata_code, validate_adults, validate_time_range
 from .decoder import Itinerary, RawSearchResult, itinerary_matches_flight
 from .exceptions import SwoopError, SwoopTransportError, SwoopUpstreamError
@@ -41,9 +42,21 @@ def _iter_raw_itineraries(result: Optional[RawSearchResult]) -> list[Itinerary]:
     return [*result.best, *result.other]
 
 
+def _admit_candidates(candidates: list[Itinerary], leg: dict[str, Any], coverage: _Coverage) -> list[Itinerary]:
+    admitted = []
+    for itinerary in candidates:
+        if not routing_matches(itinerary, leg):
+            coverage.reason("routing_mismatch")
+        elif not airline_exclusions_match(itinerary, leg):
+            coverage.reason("airline_exclusion_mismatch")
+        else:
+            admitted.append(itinerary)
+    return admitted
+
+
 def _copy_request_leg(leg: dict[str, Any]) -> dict[str, Any]:
     copied = dict(leg)
-    for key in ("airlines", "connecting_airports", "exclude_connecting_airports"):
+    for key in ("airlines", "exclude_airlines", "connecting_airports", "exclude_connecting_airports"):
         if copied.get(key) is not None:
             copied[key] = list(copied[key])
     if copied.get("selected_legs") is not None:
@@ -58,6 +71,7 @@ def _selector_query_leg(leg: dict[str, Any]) -> dict[str, Any]:
         "date",
         "max_stops",
         "airlines",
+        "exclude_airlines",
         "earliest_departure",
         "latest_departure",
         "earliest_arrival",
@@ -69,7 +83,7 @@ def _selector_query_leg(leg: dict[str, Any]) -> dict[str, Any]:
         "max_layover_duration",
     )
     payload = {key: v for key in keys if (v := leg.get(key)) is not None}
-    for key in ("airlines", "connecting_airports", "exclude_connecting_airports"):
+    for key in ("airlines", "exclude_airlines", "connecting_airports", "exclude_connecting_airports"):
         if payload.get(key) is not None:
             payload[key] = list(payload[key])
     return payload
@@ -431,10 +445,7 @@ def search_trip_options(
 
     first_pass = fetch(request_legs)
     first_candidates = _iter_raw_itineraries(first_pass)
-    admitted = [it for it in first_candidates if routing_matches(it, request_legs[0])]
-    if len(admitted) != len(first_candidates):
-        coverage.reason("routing_mismatch")
-    first_candidates = admitted
+    first_candidates = _admit_candidates(first_candidates, request_legs[0], coverage)
     if first_flight_filter is not None:
         carrier, number = first_flight_filter
         first_candidates = [itinerary for itinerary in first_candidates
@@ -481,10 +492,7 @@ def search_trip_options(
                 coverage.result.unexpanded_prefixes += 1
                 continue
             children = _iter_raw_itineraries(raw)
-            admitted = [it for it in children if routing_matches(it, request_legs[stage])]
-            if len(admitted) != len(children):
-                coverage.reason("routing_mismatch")
-            children = admitted
+            children = _admit_candidates(children, request_legs[stage], coverage)
             if children:
                 branches.append([prefix + [child] for child in children])
         size = sum(len(branch) for branch in branches)
@@ -576,6 +584,7 @@ def resolve_trip_selector(
             stops = leg.get("max_stops")
             if stops is not None and (type(stops) is not int or stops < 0):
                 raise ValueError("invalid selector stop filter")
+            normalize_exclusions(leg.get("exclude_airlines"), leg.get("airlines"))
             airlines = leg.get("airlines")
             if airlines is not None and (not isinstance(airlines, list)
                     or not all(isinstance(code, str) for code in airlines)):
@@ -642,7 +651,7 @@ def resolve_trip_selector(
         rpc_calls += 1
         candidates = _iter_raw_itineraries(stage_result)
         itinerary = _match_itinerary_by_selected_segments(candidates, selected_legs[index])
-        if itinerary is None:
+        if itinerary is None or not airline_exclusions_match(itinerary, request_legs[index]):
             raise ValueError("selector itinerary no longer available")
         resolved.append(itinerary)
 
@@ -685,9 +694,7 @@ def search_next_leg(
         exclude_separate_tickets=payload["exclude_separate_tickets"])
     coverage.add(raw)
     candidates = _iter_raw_itineraries(raw)
-    admitted = [it for it in candidates if routing_matches(it, legs[len(prefix)])]
-    if len(admitted) != len(candidates):
-        coverage.reason("routing_mismatch")
+    admitted = _admit_candidates(candidates, legs[len(prefix)], coverage)
     coverage.result.results = [_build_trip_option(legs, [*prefix, candidate], carry_on_bags=payload.get("carry_on_bags", 0), checked_bags=payload.get("checked_bags", 0), max_price=payload.get("max_price"),
         cabin=payload["cabin"], passengers=payload["passengers"], transport=transport,
         include_basic_economy=payload["include_basic_economy"],

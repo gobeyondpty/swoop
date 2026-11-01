@@ -138,7 +138,7 @@ def run(root):
             decoded = rpc._parse_rpc_response(out_text)
             assert decoded is not None
             legs = [rpc._normalize_rpc_leg('JFK', 'PTY', '2026-11-16'),
-                    rpc._normalize_rpc_leg('PTY', 'JFK', '2026-11-23', airlines=['AA', 'UA'], max_stops=1)]
+                    rpc._normalize_rpc_leg('PTY', 'JFK', '2026-11-23', airlines=['AA', 'UA'], exclude_airlines=['B6'], max_stops=1)]
             selector = _selection.encode_trip_selector(request_legs=legs, itineraries=[decoded.other[0]],
                 cabin='economy', include_basic_economy=True, exclude_separate_tickets=True,
                 transport=self.config())
@@ -148,11 +148,12 @@ def run(root):
                 segments.append(request)
                 return in_text if request[0][8] else out_text
             self.reply = reply
-            result = swoop.search_next_leg(selector, next_leg_filters={'airlines': ['AA'],
+            result = swoop.search_next_leg(selector, next_leg_filters={'airlines': ['AA'], 'exclude_airlines': ['DL'],
                 'exclude_connecting_airports': ['MIA']}, transport=self.config())
             self.assertEqual(len(result.results), 1)
             retained = _selection.decode_trip_selector(result.results[0].selector)
             self.assertEqual(retained['query_legs'][1]['airlines'], ['AA'])
+            self.assertEqual(retained['query_legs'][1]['exclude_airlines'], ['B6', 'DL'])
             self.assertEqual(retained['selected_legs'][0], _selection.decode_trip_selector(selector)['selected_legs'][0])
             first = {c[1][0] for c in self.calls}
             self.assertEqual(len(first), 1)
@@ -166,6 +167,7 @@ def run(root):
             self.assertEqual(len(second), 1)
             self.assertFalse(first & second)
             self.assertTrue(all(s[1][10] == ['MIA'] for s in segments[2:]))
+            self.assertTrue(all(s[1][5] == ['B6', 'DL'] for s in segments[1:]))
             self.wait(lambda: next(iter(second)) not in self.addresses())
 
         def test_actual_body_drain_keeps_address_after_caller_finishes(self):

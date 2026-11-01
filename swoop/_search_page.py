@@ -79,7 +79,7 @@ TFS encoding here; reject them rather than return flights ignoring the intent.
     for leg in legs:
         _apply_tfs_leg(
             info, date=leg["date"], origin=leg["origin"], destination=leg["destination"],
-            max_stops=leg.get("max_stops"), airlines=leg.get("airlines"),
+            max_stops=leg.get("max_stops"), airlines=leg.get("airlines"), exclude_airlines=leg.get("exclude_airlines"),
             max_duration=leg.get("max_duration"), connecting_airports=leg.get("connecting_airports"),
             exclude_connecting_airports=leg.get("exclude_connecting_airports"),
             min_layover_duration=leg.get("min_layover_duration"), max_layover_duration=leg.get("max_layover_duration"),

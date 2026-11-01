@@ -254,3 +254,11 @@ def test_detailed_internal_error_does_not_trigger_page_fetch(rejected_exit):
 ])
 def test_status_detection_does_not_mistake_payload_or_metadata_for_error(frame):
     assert detect_error_envelope(frame) is None
+
+
+def test_regression_2149_rpc_page_fallback_retains_airline_exclusion(rejected_exit):
+    swoop.search_raw('JFK', 'LAX', '2026-12-15', exclude_airlines=['AA'])
+    params = parse_qs(urlparse(rejected_exit.gets[0][0]).query)
+    info = PB.Info.FromString(base64.b64decode(params['tfs'][0]))
+    assert list(info.data[0].exclude_airlines) == ['AA']
+    assert not info.data[0].airlines

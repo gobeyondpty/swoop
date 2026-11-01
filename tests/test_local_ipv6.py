@@ -356,7 +356,7 @@ def test_real_c47_next_and_price_keep_wire_intent_with_fresh_source_leases(monke
     in_text=encode_rpc_outer(make_full_response(other_itins=[inbound]))
     decoded=rpc._parse_rpc_response(out_text)
     original_legs=[rpc._normalize_rpc_leg('JFK','PTY','2026-11-16'),
-        rpc._normalize_rpc_leg('PTY','JFK','2026-11-23',airlines=['AA','UA'],max_stops=1)]
+        rpc._normalize_rpc_leg('PTY','JFK','2026-11-23',airlines=['AA','UA'],exclude_airlines=['B6'],max_stops=1)]
     selector=_selection.encode_trip_selector(request_legs=original_legs,itineraries=[decoded.other[0]],
         cabin='economy',include_basic_economy=True,exclude_separate_tickets=True,
         transport=swoop.TransportConfig(country='PA',currency='EUR'))
@@ -367,16 +367,18 @@ def test_real_c47_next_and_price_keep_wire_intent_with_fresh_source_leases(monke
         requests.append((client.source,segments))
         return SimpleNamespace(status_code=200,text=in_text if segments[0][8] else out_text,headers={})
     edge=Edge(monkeypatch,reply)
-    result=swoop.search_next_leg(selector,next_leg_filters={'airlines':['AA'],'exclude_connecting_airports':['MIA']},transport=broker.config())
+    result=swoop.search_next_leg(selector,next_leg_filters={'airlines':['AA'],'exclude_airlines':['DL'],'exclude_connecting_airports':['MIA']},transport=broker.config())
     assert len(result.results)==1
     retained=_selection.decode_trip_selector(result.results[0].selector)
     assert retained['query_legs'][1]['airlines']==['AA']
+    assert retained['query_legs'][1]['exclude_airlines']==['B6','DL']
     assert retained['query_legs'][1]['exclude_connecting_airports']==['MIA']
     assert retained['selected_legs'][0]==_selection.decode_trip_selector(selector)['selected_legs'][0]
     assert all(source=='fd42:5357:1::a' for source,_ in requests)
     assert requests[0][1][1][10] is None and requests[1][1][1][10]==['MIA']
+    assert requests[0][1][1][5]==['B6'] and requests[1][1][1][5]==['B6','DL']
     start=len(requests)
     assert swoop.price_selector(result.results[0].selector,transport=broker.config()).price==350
-    assert all(source=='fd42:5357:1::b' and segments[1][10]==['MIA'] for source,segments in requests[start:])
+    assert all(source=='fd42:5357:1::b' and segments[1][10]==['MIA'] and segments[1][5]==['B6','DL'] for source,segments in requests[start:])
     broker.wait_releases(2)
     assert len(edge.clients)==2 and all(c.closed for c in edge.clients)

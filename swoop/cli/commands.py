@@ -133,7 +133,7 @@ def _run_search(
     origin, destination, date, *,
     return_date, cabin, passengers, children, infants_in_seat, infants_on_lap,
     sort, nonstop, max_stops,
-    airline, flight_number, include_basic,
+    airline, exclude_airline=(), flight_number, include_basic,
     depart_after, depart_before, arrive_after, arrive_before,
     return_depart_after, return_depart_before,
     timeout, retries,
@@ -190,6 +190,7 @@ def _run_search(
         sort=sort_val,
         max_stops=stops,
         airlines=airlines,
+        exclude_airlines=list(exclude_airline) or None,
         flight_number=flight_number,
         include_basic_economy=include_basic,
         earliest_departure=depart_after,
@@ -219,6 +220,7 @@ def _run_search_legs(
     nonstop,
     max_stops,
     airline,
+    exclude_airline=(),
     include_basic,
     timeout,
     retries,
@@ -261,6 +263,7 @@ def _run_search_legs(
             max_layover_duration=max_layover_duration,
             max_stops=stops,
             airlines=airlines,
+            exclude_airlines=list(exclude_airline) or None,
         )
         for leg_origin, leg_destination, leg_date in legs
     ]
@@ -403,6 +406,7 @@ def _search_options(f):
         click.option("-n", "--nonstop", is_flag=True, default=False, help="Nonstop flights only."),
         click.option("--max-stops", type=click.IntRange(0, 2), default=None, help="Max stops (0, 1, or 2)."),
         click.option("-a", "--airline", type=str, multiple=True, help="Filter by airline IATA code (repeatable)."),
+        click.option("--exclude-airline", multiple=True, help="Exclude an airline upstream (repeatable)."),
         click.option("--flight", "flight_number", type=str, default=None, help="Filter to specific flight number."),
         click.option("--include-basic", is_flag=True, default=False, help="Include basic economy fares."),
         # Time windows
@@ -462,7 +466,7 @@ def search_cmd(
     leg,
     return_date, cabin, passengers, children, infants_in_seat, infants_on_lap,
     sort, nonstop, max_stops,
-    airline, flight_number, include_basic,
+    airline, exclude_airline, flight_number, include_basic,
     depart_after, depart_before, arrive_after, arrive_before,
     return_depart_after, return_depart_before,
     country, currency, proxy,
@@ -552,6 +556,7 @@ def search_cmd(
                     nonstop=nonstop,
                     max_stops=max_stops,
                     airline=airline,
+                    exclude_airline=exclude_airline,
                     include_basic=include_basic,
                     carry_on_bags=carry_on_bags,
                     checked_bags=checked_bags,
@@ -586,6 +591,7 @@ def search_cmd(
                     nonstop=nonstop,
                     max_stops=max_stops,
                     airline=airline,
+                    exclude_airline=exclude_airline,
                     flight_number=flight_number,
                     include_basic=include_basic,
                     depart_after=depart_after,
@@ -1527,6 +1533,7 @@ def next_cmd(ctx, selector, timeout, time_budget, retries, country, proxy):
 @click.option("--max-stay", type=click.IntRange(0, 365), default=None)
 @click.option("--max-stops", type=click.IntRange(0, 2), default=None)
 @click.option("--airline", multiple=True, help="Airline IATA code (repeatable).")
+@click.option("--exclude-airline", multiple=True, help="Exclude an airline upstream (repeatable).")
 @click.option("--cabin", type=click.Choice(CABIN_CHOICES), default="economy")
 @click.option("--passengers", type=click.IntRange(1, 9), default=1)
 @click.option("--include-basic", is_flag=True, default=False)
@@ -1552,6 +1559,7 @@ def calendar_cmd(
     max_stay,
     max_stops,
     airline,
+    exclude_airline,
     cabin,
     passengers,
     include_basic,
@@ -1597,6 +1605,7 @@ def calendar_cmd(
         passengers=swoop.Passengers(adults=passengers),
         max_stops=max_stops,
         airlines=list(airline) or None,
+        exclude_airlines=list(exclude_airline) or None,
         exclude_basic_economy=not include_basic,
         exclude_separate_tickets=exclude_separate_tickets,
         carry_on_bags=carry_on_bags,

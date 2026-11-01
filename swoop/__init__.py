@@ -277,6 +277,7 @@ def search_legs(
             max_layover_duration=leg.max_layover_duration,
             max_stops=leg.max_stops,
             airlines=list(leg.airlines) if leg.airlines else None,
+            exclude_airlines=list(leg.exclude_airlines) if leg.exclude_airlines else None,
         )
         for leg in legs
     ]
@@ -311,6 +312,7 @@ def search(
     max_stops: Optional[int] = None,
     sort: int = SORT_DEPARTURE_TIME,
     airlines: Optional[list[str]] = None,
+    exclude_airlines: Optional[list[str]] = None,
     flight_number: Optional[str] = None,
     include_basic_economy: bool = False,
     earliest_departure: Optional[int] = None,
@@ -445,6 +447,7 @@ def search(
             max_layover_duration=max_layover_duration,
             max_stops=max_stops,
             airlines=first_leg_airlines,
+            exclude_airlines=exclude_airlines,
             earliest_departure=earliest_departure,
             latest_departure=latest_departure,
             earliest_arrival=earliest_arrival,
@@ -464,6 +467,7 @@ def search(
                 max_layover_duration=max_layover_duration,
                 max_stops=max_stops,
                 airlines=list(airlines) if airlines else None,
+                exclude_airlines=exclude_airlines,
                 earliest_departure=return_earliest_departure,
                 latest_departure=return_latest_departure,
             )
@@ -1611,6 +1615,7 @@ def calendar(
     passengers: Passengers = Passengers(),
     max_stops: Optional[int] = None,
     airlines: Optional[list[str]] = None,
+    exclude_airlines: Optional[list[str]] = None,
     exclude_basic_economy: bool = False,
     exclude_separate_tickets: bool = False,
     carry_on_bags: int = 0,
@@ -1692,6 +1697,7 @@ def calendar(
         passengers=passengers,
         max_stops=max_stops,
         airlines=airlines,
+        exclude_airlines=exclude_airlines,
         exclude_basic_economy=exclude_basic_economy,
         exclude_separate_tickets=exclude_separate_tickets,
         carry_on_bags=carry_on_bags,

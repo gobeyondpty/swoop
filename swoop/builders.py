@@ -16,6 +16,7 @@ from typing import List, Literal, Optional
 # instead of becoming a runtime AttributeError.
 from . import flights_pb2 as PB
 from ._pricing import _validate_routing, _validate_pricing
+from ._airlines import normalize_exclusions
 
 AIRLINE_ALLIANCES = ["SKYTEAM", "STAR_ALLIANCE", "ONEWORLD"]
 
@@ -53,6 +54,7 @@ def _apply_tfs_leg(
     info: PB.Info, *, date: str, origin: str | list[str],
     destination: str | list[str], max_stops: Optional[int] = None,
     airlines: Optional[List[str]] = None,
+    exclude_airlines: Optional[List[str]] = None,
     max_duration: Optional[int] = None,
     connecting_airports: Optional[list[str]] = None,
     exclude_connecting_airports: Optional[list[str]] = None,
@@ -75,6 +77,9 @@ def _apply_tfs_leg(
     normalized_airlines = _normalize_airlines(airlines)
     if normalized_airlines is not None:
         data.airlines.extend(normalized_airlines)
+    excluded = normalize_exclusions(exclude_airlines, normalized_airlines)
+    if excluded:
+        data.exclude_airlines.extend(excluded)
 
     _validate_routing(max_duration, connecting_airports, exclude_connecting_airports, min_layover_duration, max_layover_duration)
     if max_duration is not None:
@@ -115,6 +120,7 @@ class SearchLeg:
         "to_airport",
         "max_stops",
         "airlines",
+        "exclude_airlines",
         "max_duration",
         "connecting_airports",
         "exclude_connecting_airports",
@@ -130,6 +136,7 @@ class SearchLeg:
         to_airport: str | List[str],
         max_stops: Optional[int] = None,
         airlines: Optional[List[str]] = None,
+        exclude_airlines: Optional[List[str]] = None,
         max_duration: Optional[int] = None,
         connecting_airports: Optional[list[str]] = None,
         exclude_connecting_airports: Optional[list[str]] = None,
@@ -154,11 +161,12 @@ class SearchLeg:
         self.max_stops = max_stops
 
         self.airlines = _normalize_airlines(airlines)
+        self.exclude_airlines = normalize_exclusions(exclude_airlines, self.airlines)
 
     def apply_to(self, info: PB.Info) -> None:
         _apply_tfs_leg(
             info, date=self.date, origin=self.from_airport, destination=self.to_airport,
-            max_stops=self.max_stops, airlines=self.airlines,
+            max_stops=self.max_stops, airlines=self.airlines, exclude_airlines=self.exclude_airlines,
             max_duration=self.max_duration, connecting_airports=self.connecting_airports,
             exclude_connecting_airports=self.exclude_connecting_airports,
             min_layover_duration=self.min_layover_duration, max_layover_duration=self.max_layover_duration,

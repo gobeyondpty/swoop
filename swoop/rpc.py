@@ -33,6 +33,7 @@ from ._booking import (
 )
 from ._currency import _currency_header
 from ._pricing import _validate_pricing, _validate_routing
+from ._airlines import normalize_exclusions
 from .builders import CABIN_CLASS_MAP, CabinClass
 from .decoder import BookingOption, RawSearchResult, Itinerary, decode_result, _safe_get, raise_if_error_envelope
 from .exceptions import (
@@ -85,6 +86,7 @@ def _normalize_rpc_leg(
     *,
     max_stops: Optional[int] = None,
     airlines: Optional[list[str]] = None,
+    exclude_airlines: Optional[list[str]] = None,
     earliest_departure: Optional[int] = None,
     latest_departure: Optional[int] = None,
     earliest_arrival: Optional[int] = None,
@@ -121,6 +123,7 @@ def _normalize_rpc_leg(
         "date": date,
         "max_stops": max_stops,
         "airlines": sorted(airlines) if airlines else None,
+        "exclude_airlines": normalize_exclusions(exclude_airlines, airlines),
         "earliest_departure": earliest_departure,
         "latest_departure": latest_departure,
         "earliest_arrival": earliest_arrival,
@@ -188,7 +191,7 @@ def _build_segment_from_leg(leg: dict[str, Any]) -> list[Any]:
         ),
         stops_val,  # max stops
         leg.get("airlines"),  # airlines filter
-        None,  # placeholder
+        normalize_exclusions(leg.get("exclude_airlines"), leg.get("airlines")),  # excluded airlines
         leg["date"],  # travel date (YYYY-MM-DD)
         [leg["max_duration"]]
         if leg.get("max_duration") is not None
@@ -747,6 +750,7 @@ def search_raw(
     exclude_connecting_airports: Optional[list[str]] = None,
     min_layover_duration: Optional[int] = None,
     max_layover_duration: Optional[int] = None,
+    exclude_airlines: Optional[list[str]] = None,
 ) -> Optional[RawSearchResult]:
     """Search Google Flights via RPC endpoint and return decoded results.
 
@@ -792,6 +796,7 @@ def search_raw(
             max_layover_duration=max_layover_duration,
             max_stops=max_stops,
             airlines=airlines,
+            exclude_airlines=exclude_airlines,
             earliest_departure=earliest_departure,
             latest_departure=latest_departure,
             earliest_arrival=earliest_arrival,
@@ -812,6 +817,7 @@ def search_raw(
                 max_layover_duration=max_layover_duration,
                 max_stops=max_stops,
                 airlines=airlines,
+                exclude_airlines=exclude_airlines,
                 earliest_departure=return_earliest_departure,
                 latest_departure=return_latest_departure,
             )
@@ -868,6 +874,7 @@ def get_booking_results(
     passengers: Passengers = Passengers(),
     max_stops: Optional[int] = None,
     airlines: Optional[list[str]] = None,
+    exclude_airlines: Optional[list[str]] = None,
     earliest_departure: Optional[int] = None,
     latest_departure: Optional[int] = None,
     earliest_arrival: Optional[int] = None,
@@ -950,6 +957,7 @@ def get_booking_results(
             max_layover_duration=max_layover_duration,
             max_stops=max_stops,
             airlines=airlines,
+            exclude_airlines=exclude_airlines,
             earliest_departure=earliest_departure,
             latest_departure=latest_departure,
             earliest_arrival=earliest_arrival,
