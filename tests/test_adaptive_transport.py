@@ -1,4 +1,5 @@
 """Offline wire-preservation, route-health and native-family regressions."""
+import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from datetime import timedelta
@@ -351,3 +352,53 @@ def test_unexpired_retry_after_state_is_not_evicted():
         adaptive._finish(lease,'http_429',3600)
     assert adaptive._acquire(('ipv6','new','shopping')) is None
     assert len(adaptive._routes)==adaptive._MAX_ROUTES
+
+
+FALLBACK = "socks5h://trusted:1082"
+PRIMARY_KEY = ("ipv6", "chrome", "google")
+FALLBACK_KEY = (FALLBACK, "chrome", "google")
+
+
+def deadline_client(monkeypatch, effects):
+    """A real client deadline fires exactly at the bound the caller gave it."""
+    now = [100.0]
+    monkeypatch.setattr(adaptive.time, "monotonic", lambda: now[0])
+    timeouts = []
+    def post(url, *, timeout, **kwargs):
+        timeouts.append(timeout)
+        effect = effects.pop(0)
+        if effect == "deadline":
+            now[0] += timeout
+            raise TimeoutError("operation timed out")
+        if isinstance(effect, BaseException):
+            raise effect
+        return SimpleNamespace(status_code=200, text=effect, headers={})
+    monkeypatch.setattr(rpc, "_get_transport_client", lambda transport: SimpleNamespace(post=post))
+    # The ndcterm metadata shape: a 7.5 s caller budget under an 8 s per-RPC timeout.
+    send = lambda: adaptive.post(URL, b"x", {}, deadline=now[0] + 7.5, transport=TransportConfig(
+        address_family="ipv6", fallback_proxies=(FALLBACK,), timeout=7.5, request_timeout=8.0))
+    return send, timeouts
+
+
+def test_regression_3175_own_budget_timeouts_do_not_cool_shared_routes(monkeypatch):
+    send, timeouts = deadline_client(monkeypatch, ["deadline", "deadline", EMPTY])
+    with pytest.raises(SwoopTransportError):
+        send()
+    # Our 2 s primary proof and the rest of our 7.5 s budget cut both replies short.
+    assert timeouts == [2.0, 5.5]
+    assert [route["reason"] for route in adaptive.health()] == [None, None]
+    # The next concurrent lookup is dispatched instead of failing as "cooling down".
+    assert send().text == EMPTY
+    assert len(timeouts) == 3
+
+
+@pytest.mark.parametrize("effect", ["deadline", asyncio.CancelledError()])
+def test_regression_3175_half_open_probe_cut_by_us_does_not_extend_cooldown(monkeypatch, effect):
+    adaptive._routes[PRIMARY_KEY] = adaptive._Route(until=200.0, reason="http_403", failures=1)
+    adaptive._routes[FALLBACK_KEY] = adaptive._Route(until=100.0, reason="network", failures=1)
+    send, timeouts = deadline_client(monkeypatch, [effect])
+    with pytest.raises((SwoopTransportError, asyncio.CancelledError)):
+        send()
+    assert timeouts == [7.5]
+    # The probe told us nothing about the route: another lookup may probe at once.
+    assert adaptive._acquire(FALLBACK_KEY) is not None

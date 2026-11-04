@@ -244,7 +244,8 @@ def test_primary_bootstrap_and_rpc_share_short_proof_budget(monkeypatch):
     swoop.deals('JFK', transport=config())
     assert timeouts[:2] == [('ipv6','GET',5), ('ipv6','POST',1.75)]
     assert timeouts[2][0] == MIA and timeouts[2][2] <= 8
-    assert policy.health()[0]['reason'] == 'timeout'
+    # Our proof cap ended the reply, not the route: health stays closed (#3175).
+    assert policy.health()[0]['reason'] is None
 
 
 def test_cancel_after_bootstrap_never_dispatches_rpc_or_fallback(monkeypatch):

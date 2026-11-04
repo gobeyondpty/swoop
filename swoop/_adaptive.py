@@ -54,7 +54,8 @@ def _acquire(key: tuple[str, str, str], *, probe: bool = True) -> tuple[_Route, 
         return route, route.generation, half_open
 
 
-def _finish(lease: tuple[_Route, int, bool], reason: str | None, delay: float = _COOLDOWN, *, healthy: bool = False) -> None:
+def _finish(lease: tuple[_Route, int, bool], reason: str | None, delay: float = _COOLDOWN, *,
+            healthy: bool = False, inconclusive: bool = False) -> None:
     route, generation, half_open = lease
     with _lock:
         route.active -= 1
@@ -68,7 +69,7 @@ def _finish(lease: tuple[_Route, int, bool], reason: str | None, delay: float = 
             cooldown = min(300.0, _COOLDOWN * 2 ** min(route.failures - 1, 4))
             route.until = time.monotonic() + max(cooldown * random.uniform(1.0, 1.1), delay)
             route.generation += 1
-        elif half_open and not healthy:
+        elif half_open and not healthy and not inconclusive:
             route.until = max(route.until, time.monotonic() + _COOLDOWN)
         elif half_open and healthy:
             route.reason = None
@@ -244,7 +245,10 @@ def run(operation: str, *, transport: TransportConfig, action: Callable[[Transpo
             continue
         reason = None
         healthy = False
+        ours = False  # our own deadline or cancellation ended the attempt
         delay = _COOLDOWN
+        state: RouteAttempt | None = None
+        probe_deadline = deadline
         try:
             remaining = remaining_timeout(deadline)
             attempt_deadline = time.monotonic() + remaining / (len(proxies) - index)
@@ -290,22 +294,33 @@ def run(operation: str, *, transport: TransportConfig, action: Callable[[Transpo
             else:
                 break
         except Exception as error:
+            ours = True  # a cancellation raised by this check is ours too
             if transport._cancel_check:
                 transport._cancel_check()
             reason = _failure(error)
+            # A transport error at our own attempt bound is our budget cutting the
+            # reply short, not evidence that the shared route is unhealthy (#3175).
+            bound = state.deadline if state is not None and state.validated else probe_deadline
+            ours = reason is not None and isinstance(error, SwoopTransportError) and time.monotonic() >= bound
             if reason is None:
                 raise
-            delay = getattr(error, "retry_after", None) or _COOLDOWN
-            if index == 0 and transport._source_lease is not None:
-                transport._source_lease.failed(reason, delay)
-            if prefix_lease is not None:
-                prefix_reason = _prefix_failure(prefix_lease, transport.local_address or "", reason)
+            if ours:
+                reason = None
+            else:
+                delay = getattr(error, "retry_after", None) or _COOLDOWN
+                if index == 0 and transport._source_lease is not None:
+                    transport._source_lease.failed(reason, delay)
+                if prefix_lease is not None:
+                    prefix_reason = _prefix_failure(prefix_lease, transport.local_address or "", reason)
             last_error = error
+        except BaseException:
+            ours = True  # caller cancellation
+            raise
         finally:
             if lease is not None:
-                _finish(lease, reason, delay, healthy=healthy)
+                _finish(lease, reason, delay, healthy=healthy, inconclusive=ours)
             if prefix_lease is not None:
-                _finish(prefix_lease, prefix_reason, delay, healthy=healthy)
+                _finish(prefix_lease, prefix_reason, delay, healthy=healthy, inconclusive=ours)
     if last_error is not None:
         raise last_error
     raise SwoopTransportError("Google routes cooling down or at concurrency limit")

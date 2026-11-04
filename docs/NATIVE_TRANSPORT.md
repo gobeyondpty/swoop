@@ -43,6 +43,9 @@ cancellation prevents subsequent dispatches and interrupts cache-lock waits.
 
 HTTP 403, 429 (including Retry-After), redirects, 5xx, compact gRPC INTERNAL,
 network failures, timeouts and malformed responses have separate health reasons.
+A send/read cut short at our own proof cap, attempt share or operation deadline,
+or by caller cancellation, still fails over but records no health and does not
+extend a probe's cooldown: it is not evidence about the route.
 Compact INTERNAL is an upstream refusal, not evidence of an IP ban. Detailed
 gRPC errors and invalid arguments propagate immediately. Protocol-valid empty
 inventory is healthy and does not trigger failover. An ambiguous body permits
