@@ -1,0 +1,43 @@
+{
+  "release": "/srv/ndcterm/releases/events-1f1e4b0be589/ndcterm",
+  "rows": [
+    {
+      "operation": "calendar_one_way",
+      "timestamp": "2026-10-31T22:12:45.179908+00:00",
+      "diagnostic_timeout_seconds": 12,
+      "status": 200,
+      "headers_returned_ms": 66.57847308088094,
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "[2001:4860:482b:7700::]:443",
+      "local_addr": "[2604:2dc0:100:2437::17]:55003",
+      "server": "ESF",
+      "content_type": "application/json; charset=utf-8",
+      "decoded_utf8_bytes": 95,
+      "unusual_traffic_marker": false,
+      "sorry_redirect": false,
+      "error_type": "SwoopUpstreamError",
+      "grpc_code": 13,
+      "grpc_type_url": null,
+      "elapsed_ms": 67.1163130318746
+    },
+    {
+      "operation": "shopping",
+      "timestamp": "2026-10-31T22:12:45.247431+00:00",
+      "diagnostic_timeout_seconds": 12,
+      "status": 200,
+      "headers_returned_ms": 93.74723699875176,
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "[2001:4860:482b:7700::]:443",
+      "local_addr": "[2604:2dc0:100:2437::17]:55003",
+      "server": "ESF",
+      "content_type": "application/json; charset=utf-8",
+      "decoded_utf8_bytes": 94,
+      "unusual_traffic_marker": false,
+      "sorry_redirect": false,
+      "error_type": "SwoopUpstreamError",
+      "grpc_code": 13,
+      "grpc_type_url": null,
+      "elapsed_ms": 95.03300208598375
+    }
+  ]
+}

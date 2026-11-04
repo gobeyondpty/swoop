@@ -1,0 +1,5845 @@
+{
+  "started_at": "2026-10-31T21:55:51.839841+00:00",
+  "release": "/srv/ndcterm/releases/events-1f1e4b0be589/ndcterm",
+  "sdk_commit": "82bd0e1b9e9d0e41556d34f333e36d09a76ee712",
+  "samples": 5,
+  "api_samples": 3,
+  "query": {
+    "origin": "JFK",
+    "destination": "LAX",
+    "date": "2026-11-30",
+    "window": [
+      "2026-11-01",
+      "2026-11-30"
+    ],
+    "country": "US",
+    "currency": "USD",
+    "adults": 1,
+    "cabin": "economy",
+    "include_basic_economy": true,
+    "exclude_separate_tickets": true
+  },
+  "raw_rows": [
+    {
+      "operation": "calendar_one_way",
+      "route": "native_direct",
+      "sample": 0,
+      "client_state": "cold",
+      "request_sha256": "e42e1698c707c714ff14e4341e6bb07b7b32281cef1ba6ba1d03e02317ab56e4",
+      "success": false,
+      "error_type": "SwoopTransportError",
+      "cause_type": "TimeoutError",
+      "grpc_code": null,
+      "http_status": null,
+      "elapsed_ms": 4001.628512982279,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 4001.4669749652967,
+        "network_ms": 4001.4669749652967,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 0,
+        "responses_with_unknown_bytes": 1,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": null,
+            "network_ms": 4001.4669749652967,
+            "response_bytes": null,
+            "error_type": "TimeoutError"
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "calendar_one_way",
+      "route": "native_mia1",
+      "sample": 0,
+      "client_state": "cold",
+      "request_sha256": "e42e1698c707c714ff14e4341e6bb07b7b32281cef1ba6ba1d03e02317ab56e4",
+      "http_status": 200,
+      "count": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "return_date": null,
+          "price": 254,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "return_date": null,
+          "price": 209,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "return_date": null,
+          "price": 229,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "return_date": null,
+          "price": 219,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "return_date": null,
+          "price": 219,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "return_date": null,
+          "price": 209,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "return_date": null,
+          "price": 242,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "return_date": null,
+          "price": 240,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "return_date": null,
+          "price": 204,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "return_date": null,
+          "price": 215,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "return_date": null,
+          "price": 184,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "return_date": null,
+          "price": 225,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "return_date": null,
+          "price": 240,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "return_date": null,
+          "price": 229,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "return_date": null,
+          "price": 325,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "return_date": null,
+          "price": 413,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "return_date": null,
+          "price": 693,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "return_date": null,
+          "price": 283,
+          "currency": "USD"
+        }
+      ],
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 305.0947960000485,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 300.5858879769221,
+        "network_ms": 300.5858879769221,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4622,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 300.5858879769221,
+            "response_bytes": 4622,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "10.0.0.10:1082",
+      "local_addr": "10.0.0.17:58102",
+      "connection_reused": false
+    },
+    {
+      "operation": "calendar_one_way",
+      "route": "primp_mia1",
+      "sample": 0,
+      "client_state": "cold",
+      "request_sha256": "e42e1698c707c714ff14e4341e6bb07b7b32281cef1ba6ba1d03e02317ab56e4",
+      "http_status": 200,
+      "count": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "return_date": null,
+          "price": 254,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "return_date": null,
+          "price": 209,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "return_date": null,
+          "price": 229,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "return_date": null,
+          "price": 219,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "return_date": null,
+          "price": 219,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "return_date": null,
+          "price": 209,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "return_date": null,
+          "price": 242,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "return_date": null,
+          "price": 240,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "return_date": null,
+          "price": 204,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "return_date": null,
+          "price": 215,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "return_date": null,
+          "price": 184,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "return_date": null,
+          "price": 225,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "return_date": null,
+          "price": 240,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "return_date": null,
+          "price": 229,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "return_date": null,
+          "price": 325,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "return_date": null,
+          "price": 413,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "return_date": null,
+          "price": 693,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "return_date": null,
+          "price": 283,
+          "currency": "USD"
+        }
+      ],
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 333.31014099530876,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 328.0110190389678,
+        "network_ms": 328.0110190389678,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4622,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 328.0110190389678,
+            "response_bytes": 4622,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "calendar_one_way",
+      "route": "primp_mia1",
+      "sample": 1,
+      "client_state": "pooled",
+      "request_sha256": "e42e1698c707c714ff14e4341e6bb07b7b32281cef1ba6ba1d03e02317ab56e4",
+      "http_status": 200,
+      "count": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "return_date": null,
+          "price": 254,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "return_date": null,
+          "price": 209,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "return_date": null,
+          "price": 229,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "return_date": null,
+          "price": 219,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "return_date": null,
+          "price": 219,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "return_date": null,
+          "price": 209,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "return_date": null,
+          "price": 242,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "return_date": null,
+          "price": 240,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "return_date": null,
+          "price": 204,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "return_date": null,
+          "price": 215,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "return_date": null,
+          "price": 184,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "return_date": null,
+          "price": 225,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "return_date": null,
+          "price": 240,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "return_date": null,
+          "price": 229,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "return_date": null,
+          "price": 325,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "return_date": null,
+          "price": 413,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "return_date": null,
+          "price": 693,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "return_date": null,
+          "price": 283,
+          "currency": "USD"
+        }
+      ],
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 127.53203406464309,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 121.82585499249399,
+        "network_ms": 121.82585499249399,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4620,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 121.82585499249399,
+            "response_bytes": 4620,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "calendar_one_way",
+      "route": "native_mia1",
+      "sample": 1,
+      "client_state": "pooled",
+      "request_sha256": "e42e1698c707c714ff14e4341e6bb07b7b32281cef1ba6ba1d03e02317ab56e4",
+      "http_status": 200,
+      "count": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "return_date": null,
+          "price": 254,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "return_date": null,
+          "price": 209,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "return_date": null,
+          "price": 229,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "return_date": null,
+          "price": 219,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "return_date": null,
+          "price": 219,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "return_date": null,
+          "price": 209,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "return_date": null,
+          "price": 242,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "return_date": null,
+          "price": 240,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "return_date": null,
+          "price": 204,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "return_date": null,
+          "price": 215,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "return_date": null,
+          "price": 184,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "return_date": null,
+          "price": 225,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "return_date": null,
+          "price": 240,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "return_date": null,
+          "price": 229,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "return_date": null,
+          "price": 325,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "return_date": null,
+          "price": 413,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "return_date": null,
+          "price": 693,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "return_date": null,
+          "price": 283,
+          "currency": "USD"
+        }
+      ],
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 139.41055501345545,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 134.31451399810612,
+        "network_ms": 134.31451399810612,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4621,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 134.31451399810612,
+            "response_bytes": 4621,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "10.0.0.10:1082",
+      "local_addr": "10.0.0.17:58102",
+      "connection_reused": true
+    },
+    {
+      "operation": "calendar_one_way",
+      "route": "native_direct",
+      "sample": 1,
+      "client_state": "pooled",
+      "request_sha256": "e42e1698c707c714ff14e4341e6bb07b7b32281cef1ba6ba1d03e02317ab56e4",
+      "success": false,
+      "error_type": "SwoopTransportError",
+      "cause_type": "TimeoutError",
+      "grpc_code": null,
+      "http_status": null,
+      "elapsed_ms": 4001.541205914691,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 4001.427637063898,
+        "network_ms": 4001.427637063898,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 0,
+        "responses_with_unknown_bytes": 1,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": null,
+            "network_ms": 4001.427637063898,
+            "response_bytes": null,
+            "error_type": "TimeoutError"
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "calendar_one_way",
+      "route": "native_mia1",
+      "sample": 2,
+      "client_state": "pooled",
+      "request_sha256": "e42e1698c707c714ff14e4341e6bb07b7b32281cef1ba6ba1d03e02317ab56e4",
+      "http_status": 200,
+      "count": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "return_date": null,
+          "price": 254,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "return_date": null,
+          "price": 209,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "return_date": null,
+          "price": 229,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "return_date": null,
+          "price": 219,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "return_date": null,
+          "price": 219,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "return_date": null,
+          "price": 209,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "return_date": null,
+          "price": 242,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "return_date": null,
+          "price": 240,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "return_date": null,
+          "price": 204,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "return_date": null,
+          "price": 215,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "return_date": null,
+          "price": 184,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "return_date": null,
+          "price": 225,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "return_date": null,
+          "price": 240,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "return_date": null,
+          "price": 229,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "return_date": null,
+          "price": 325,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "return_date": null,
+          "price": 413,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "return_date": null,
+          "price": 693,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "return_date": null,
+          "price": 283,
+          "currency": "USD"
+        }
+      ],
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 137.5646609812975,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 132.85671593621373,
+        "network_ms": 132.85671593621373,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4622,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 132.85671593621373,
+            "response_bytes": 4622,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "10.0.0.10:1082",
+      "local_addr": "10.0.0.17:58102",
+      "connection_reused": true
+    },
+    {
+      "operation": "calendar_one_way",
+      "route": "primp_mia1",
+      "sample": 2,
+      "client_state": "pooled",
+      "request_sha256": "e42e1698c707c714ff14e4341e6bb07b7b32281cef1ba6ba1d03e02317ab56e4",
+      "http_status": 200,
+      "count": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "return_date": null,
+          "price": 254,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "return_date": null,
+          "price": 209,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "return_date": null,
+          "price": 229,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "return_date": null,
+          "price": 219,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "return_date": null,
+          "price": 219,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "return_date": null,
+          "price": 209,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "return_date": null,
+          "price": 242,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "return_date": null,
+          "price": 240,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "return_date": null,
+          "price": 204,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "return_date": null,
+          "price": 215,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "return_date": null,
+          "price": 184,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "return_date": null,
+          "price": 225,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "return_date": null,
+          "price": 240,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "return_date": null,
+          "price": 229,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "return_date": null,
+          "price": 325,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "return_date": null,
+          "price": 413,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "return_date": null,
+          "price": 693,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "return_date": null,
+          "price": 283,
+          "currency": "USD"
+        }
+      ],
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 119.87131705973297,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 114.65894000139087,
+        "network_ms": 114.65894000139087,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4622,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 114.65894000139087,
+            "response_bytes": 4622,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "calendar_one_way",
+      "route": "primp_mia1",
+      "sample": 3,
+      "client_state": "pooled",
+      "request_sha256": "e42e1698c707c714ff14e4341e6bb07b7b32281cef1ba6ba1d03e02317ab56e4",
+      "http_status": 200,
+      "count": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "return_date": null,
+          "price": 254,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "return_date": null,
+          "price": 209,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "return_date": null,
+          "price": 229,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "return_date": null,
+          "price": 219,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "return_date": null,
+          "price": 219,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "return_date": null,
+          "price": 209,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "return_date": null,
+          "price": 242,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "return_date": null,
+          "price": 240,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "return_date": null,
+          "price": 204,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "return_date": null,
+          "price": 215,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "return_date": null,
+          "price": 184,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "return_date": null,
+          "price": 225,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "return_date": null,
+          "price": 240,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "return_date": null,
+          "price": 229,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "return_date": null,
+          "price": 325,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "return_date": null,
+          "price": 413,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "return_date": null,
+          "price": 693,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "return_date": null,
+          "price": 283,
+          "currency": "USD"
+        }
+      ],
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 120.64045399893075,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 115.42702501174062,
+        "network_ms": 115.42702501174062,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4618,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 115.42702501174062,
+            "response_bytes": 4618,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "calendar_one_way",
+      "route": "native_mia1",
+      "sample": 3,
+      "client_state": "pooled",
+      "request_sha256": "e42e1698c707c714ff14e4341e6bb07b7b32281cef1ba6ba1d03e02317ab56e4",
+      "http_status": null,
+      "success": false,
+      "error_type": "SwoopUpstreamError",
+      "cause_type": "NoneType",
+      "grpc_code": 13,
+      "elapsed_ms": 91.12778806593269,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 90.32190206926316,
+        "network_ms": 90.32190206926316,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 324,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 90.32190206926316,
+            "response_bytes": 324,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "10.0.0.10:1082",
+      "local_addr": "10.0.0.17:58102",
+      "connection_reused": true
+    },
+    {
+      "operation": "calendar_one_way",
+      "route": "native_mia1",
+      "sample": 4,
+      "client_state": "pooled",
+      "request_sha256": "e42e1698c707c714ff14e4341e6bb07b7b32281cef1ba6ba1d03e02317ab56e4",
+      "http_status": 200,
+      "count": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "return_date": null,
+          "price": 349,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "return_date": null,
+          "price": 254,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "return_date": null,
+          "price": 299,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "return_date": null,
+          "price": 209,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "return_date": null,
+          "price": 229,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "return_date": null,
+          "price": 219,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "return_date": null,
+          "price": 219,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "return_date": null,
+          "price": 209,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "return_date": null,
+          "price": 242,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "return_date": null,
+          "price": 240,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "return_date": null,
+          "price": 204,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "return_date": null,
+          "price": 215,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "return_date": null,
+          "price": 184,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "return_date": null,
+          "price": 225,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "return_date": null,
+          "price": 240,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "return_date": null,
+          "price": 229,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "return_date": null,
+          "price": 325,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "return_date": null,
+          "price": 413,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "return_date": null,
+          "price": 693,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "return_date": null,
+          "price": 283,
+          "currency": "USD"
+        }
+      ],
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 124.15470101404935,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 118.93042700830847,
+        "network_ms": 118.93042700830847,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4620,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 118.93042700830847,
+            "response_bytes": 4620,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "10.0.0.10:1082",
+      "local_addr": "10.0.0.17:58102",
+      "connection_reused": true
+    },
+    {
+      "operation": "calendar_one_way",
+      "route": "primp_mia1",
+      "sample": 4,
+      "client_state": "pooled",
+      "request_sha256": "e42e1698c707c714ff14e4341e6bb07b7b32281cef1ba6ba1d03e02317ab56e4",
+      "http_status": null,
+      "success": false,
+      "error_type": "SwoopUpstreamError",
+      "cause_type": "NoneType",
+      "grpc_code": 13,
+      "elapsed_ms": 89.2180260270834,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 88.59926392324269,
+        "network_ms": 88.59926392324269,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 324,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 88.59926392324269,
+            "response_bytes": 324,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "native_direct",
+      "sample": 0,
+      "client_state": "cold",
+      "request_sha256": "7c630a11add0e02cdd33da1b20a7640b214a9862af54e692a6e7ca4ebade06e9",
+      "success": false,
+      "error_type": "SwoopTransportError",
+      "cause_type": "TimeoutError",
+      "grpc_code": null,
+      "http_status": null,
+      "elapsed_ms": 4002.5718699907884,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 4002.3843849776313,
+        "network_ms": 4002.3843849776313,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 0,
+        "responses_with_unknown_bytes": 1,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": null,
+            "network_ms": 4002.3843849776313,
+            "response_bytes": null,
+            "error_type": "TimeoutError"
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "native_mia1",
+      "sample": 0,
+      "client_state": "cold",
+      "request_sha256": "7c630a11add0e02cdd33da1b20a7640b214a9862af54e692a6e7ca4ebade06e9",
+      "http_status": 200,
+      "count": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "return_date": "2026-11-06",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "return_date": "2026-11-07",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "return_date": "2026-11-08",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "return_date": "2026-11-09",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "return_date": "2026-11-10",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "return_date": "2026-11-11",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "return_date": "2026-11-12",
+          "price": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "return_date": "2026-11-13",
+          "price": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "return_date": "2026-11-14",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "return_date": "2026-11-15",
+          "price": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "return_date": "2026-11-16",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "return_date": "2026-11-17",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "return_date": "2026-11-18",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "return_date": "2026-11-19",
+          "price": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "return_date": "2026-11-20",
+          "price": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "return_date": "2026-11-21",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "return_date": "2026-11-22",
+          "price": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "return_date": "2026-11-23",
+          "price": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "return_date": "2026-11-24",
+          "price": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "return_date": "2026-11-25",
+          "price": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "return_date": "2026-11-26",
+          "price": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "return_date": "2026-11-27",
+          "price": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "return_date": "2026-11-28",
+          "price": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "return_date": "2026-11-29",
+          "price": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "return_date": "2026-11-30",
+          "price": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "return_date": "2026-12-01",
+          "price": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "return_date": "2026-12-02",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "return_date": "2026-12-03",
+          "price": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "return_date": "2026-12-04",
+          "price": 893,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "return_date": "2026-12-05",
+          "price": 436,
+          "currency": "USD"
+        }
+      ],
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 299.5915529318154,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 294.70340500120074,
+        "network_ms": 294.70340500120074,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 5521,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 294.70340500120074,
+            "response_bytes": 5521,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "10.0.0.10:1082",
+      "local_addr": "10.0.0.17:52458",
+      "connection_reused": false
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "primp_mia1",
+      "sample": 0,
+      "client_state": "cold",
+      "request_sha256": "7c630a11add0e02cdd33da1b20a7640b214a9862af54e692a6e7ca4ebade06e9",
+      "http_status": 200,
+      "count": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "return_date": "2026-11-06",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "return_date": "2026-11-07",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "return_date": "2026-11-08",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "return_date": "2026-11-09",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "return_date": "2026-11-10",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "return_date": "2026-11-11",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "return_date": "2026-11-12",
+          "price": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "return_date": "2026-11-13",
+          "price": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "return_date": "2026-11-14",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "return_date": "2026-11-15",
+          "price": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "return_date": "2026-11-16",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "return_date": "2026-11-17",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "return_date": "2026-11-18",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "return_date": "2026-11-19",
+          "price": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "return_date": "2026-11-20",
+          "price": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "return_date": "2026-11-21",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "return_date": "2026-11-22",
+          "price": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "return_date": "2026-11-23",
+          "price": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "return_date": "2026-11-24",
+          "price": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "return_date": "2026-11-25",
+          "price": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "return_date": "2026-11-26",
+          "price": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "return_date": "2026-11-27",
+          "price": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "return_date": "2026-11-28",
+          "price": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "return_date": "2026-11-29",
+          "price": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "return_date": "2026-11-30",
+          "price": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "return_date": "2026-12-01",
+          "price": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "return_date": "2026-12-02",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "return_date": "2026-12-03",
+          "price": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "return_date": "2026-12-04",
+          "price": 893,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "return_date": "2026-12-05",
+          "price": 436,
+          "currency": "USD"
+        }
+      ],
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 318.84913705289364,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 312.87114100996405,
+        "network_ms": 312.87114100996405,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 5523,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 312.87114100996405,
+            "response_bytes": 5523,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "primp_mia1",
+      "sample": 1,
+      "client_state": "pooled",
+      "request_sha256": "7c630a11add0e02cdd33da1b20a7640b214a9862af54e692a6e7ca4ebade06e9",
+      "http_status": 200,
+      "count": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "return_date": "2026-11-06",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "return_date": "2026-11-07",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "return_date": "2026-11-08",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "return_date": "2026-11-09",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "return_date": "2026-11-10",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "return_date": "2026-11-11",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "return_date": "2026-11-12",
+          "price": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "return_date": "2026-11-13",
+          "price": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "return_date": "2026-11-14",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "return_date": "2026-11-15",
+          "price": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "return_date": "2026-11-16",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "return_date": "2026-11-17",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "return_date": "2026-11-18",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "return_date": "2026-11-19",
+          "price": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "return_date": "2026-11-20",
+          "price": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "return_date": "2026-11-21",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "return_date": "2026-11-22",
+          "price": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "return_date": "2026-11-23",
+          "price": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "return_date": "2026-11-24",
+          "price": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "return_date": "2026-11-25",
+          "price": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "return_date": "2026-11-26",
+          "price": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "return_date": "2026-11-27",
+          "price": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "return_date": "2026-11-28",
+          "price": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "return_date": "2026-11-29",
+          "price": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "return_date": "2026-11-30",
+          "price": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "return_date": "2026-12-01",
+          "price": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "return_date": "2026-12-02",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "return_date": "2026-12-03",
+          "price": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "return_date": "2026-12-04",
+          "price": 893,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "return_date": "2026-12-05",
+          "price": 436,
+          "currency": "USD"
+        }
+      ],
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 145.58620005846024,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 144.158466020599,
+        "network_ms": 144.158466020599,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 5525,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 144.158466020599,
+            "response_bytes": 5525,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "native_mia1",
+      "sample": 1,
+      "client_state": "pooled",
+      "request_sha256": "7c630a11add0e02cdd33da1b20a7640b214a9862af54e692a6e7ca4ebade06e9",
+      "http_status": null,
+      "success": false,
+      "error_type": "SwoopUpstreamError",
+      "cause_type": "NoneType",
+      "grpc_code": 13,
+      "elapsed_ms": 84.47509398683906,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 84.00559506844729,
+        "network_ms": 84.00559506844729,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 322,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 84.00559506844729,
+            "response_bytes": 322,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "10.0.0.10:1082",
+      "local_addr": "10.0.0.17:52458",
+      "connection_reused": true
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "native_direct",
+      "sample": 1,
+      "client_state": "pooled",
+      "request_sha256": "7c630a11add0e02cdd33da1b20a7640b214a9862af54e692a6e7ca4ebade06e9",
+      "success": false,
+      "error_type": "SwoopTransportError",
+      "cause_type": "TimeoutError",
+      "grpc_code": null,
+      "http_status": null,
+      "elapsed_ms": 4003.8686629850417,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 4003.757843049243,
+        "network_ms": 4003.757843049243,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 0,
+        "responses_with_unknown_bytes": 1,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": null,
+            "network_ms": 4003.757843049243,
+            "response_bytes": null,
+            "error_type": "TimeoutError"
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "native_mia1",
+      "sample": 2,
+      "client_state": "pooled",
+      "request_sha256": "7c630a11add0e02cdd33da1b20a7640b214a9862af54e692a6e7ca4ebade06e9",
+      "http_status": 200,
+      "count": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "return_date": "2026-11-06",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "return_date": "2026-11-07",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "return_date": "2026-11-08",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "return_date": "2026-11-09",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "return_date": "2026-11-10",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "return_date": "2026-11-11",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "return_date": "2026-11-12",
+          "price": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "return_date": "2026-11-13",
+          "price": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "return_date": "2026-11-14",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "return_date": "2026-11-15",
+          "price": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "return_date": "2026-11-16",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "return_date": "2026-11-17",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "return_date": "2026-11-18",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "return_date": "2026-11-19",
+          "price": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "return_date": "2026-11-20",
+          "price": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "return_date": "2026-11-21",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "return_date": "2026-11-22",
+          "price": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "return_date": "2026-11-23",
+          "price": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "return_date": "2026-11-24",
+          "price": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "return_date": "2026-11-25",
+          "price": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "return_date": "2026-11-26",
+          "price": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "return_date": "2026-11-27",
+          "price": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "return_date": "2026-11-28",
+          "price": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "return_date": "2026-11-29",
+          "price": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "return_date": "2026-11-30",
+          "price": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "return_date": "2026-12-01",
+          "price": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "return_date": "2026-12-02",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "return_date": "2026-12-03",
+          "price": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "return_date": "2026-12-04",
+          "price": 893,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "return_date": "2026-12-05",
+          "price": 436,
+          "currency": "USD"
+        }
+      ],
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 129.7119549708441,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 128.7651970051229,
+        "network_ms": 128.7651970051229,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 5521,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 128.7651970051229,
+            "response_bytes": 5521,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "10.0.0.10:1082",
+      "local_addr": "10.0.0.17:52458",
+      "connection_reused": true
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "primp_mia1",
+      "sample": 2,
+      "client_state": "pooled",
+      "request_sha256": "7c630a11add0e02cdd33da1b20a7640b214a9862af54e692a6e7ca4ebade06e9",
+      "http_status": 200,
+      "count": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "return_date": "2026-11-06",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "return_date": "2026-11-07",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "return_date": "2026-11-08",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "return_date": "2026-11-09",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "return_date": "2026-11-10",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "return_date": "2026-11-11",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "return_date": "2026-11-12",
+          "price": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "return_date": "2026-11-13",
+          "price": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "return_date": "2026-11-14",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "return_date": "2026-11-15",
+          "price": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "return_date": "2026-11-16",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "return_date": "2026-11-17",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "return_date": "2026-11-18",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "return_date": "2026-11-19",
+          "price": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "return_date": "2026-11-20",
+          "price": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "return_date": "2026-11-21",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "return_date": "2026-11-22",
+          "price": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "return_date": "2026-11-23",
+          "price": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "return_date": "2026-11-24",
+          "price": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "return_date": "2026-11-25",
+          "price": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "return_date": "2026-11-26",
+          "price": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "return_date": "2026-11-27",
+          "price": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "return_date": "2026-11-28",
+          "price": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "return_date": "2026-11-29",
+          "price": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "return_date": "2026-11-30",
+          "price": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "return_date": "2026-12-01",
+          "price": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "return_date": "2026-12-02",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "return_date": "2026-12-03",
+          "price": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "return_date": "2026-12-04",
+          "price": 893,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "return_date": "2026-12-05",
+          "price": 436,
+          "currency": "USD"
+        }
+      ],
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 132.7742129797116,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 131.83992402628064,
+        "network_ms": 131.83992402628064,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 5522,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 131.83992402628064,
+            "response_bytes": 5522,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "primp_mia1",
+      "sample": 3,
+      "client_state": "pooled",
+      "request_sha256": "7c630a11add0e02cdd33da1b20a7640b214a9862af54e692a6e7ca4ebade06e9",
+      "http_status": 200,
+      "count": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "return_date": "2026-11-06",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "return_date": "2026-11-07",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "return_date": "2026-11-08",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "return_date": "2026-11-09",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "return_date": "2026-11-10",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "return_date": "2026-11-11",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "return_date": "2026-11-12",
+          "price": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "return_date": "2026-11-13",
+          "price": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "return_date": "2026-11-14",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "return_date": "2026-11-15",
+          "price": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "return_date": "2026-11-16",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "return_date": "2026-11-17",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "return_date": "2026-11-18",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "return_date": "2026-11-19",
+          "price": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "return_date": "2026-11-20",
+          "price": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "return_date": "2026-11-21",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "return_date": "2026-11-22",
+          "price": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "return_date": "2026-11-23",
+          "price": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "return_date": "2026-11-24",
+          "price": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "return_date": "2026-11-25",
+          "price": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "return_date": "2026-11-26",
+          "price": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "return_date": "2026-11-27",
+          "price": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "return_date": "2026-11-28",
+          "price": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "return_date": "2026-11-29",
+          "price": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "return_date": "2026-11-30",
+          "price": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "return_date": "2026-12-01",
+          "price": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "return_date": "2026-12-02",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "return_date": "2026-12-03",
+          "price": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "return_date": "2026-12-04",
+          "price": 893,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "return_date": "2026-12-05",
+          "price": 436,
+          "currency": "USD"
+        }
+      ],
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 120.73391699232161,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 119.80279895942658,
+        "network_ms": 119.80279895942658,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 5520,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 119.80279895942658,
+            "response_bytes": 5520,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "native_mia1",
+      "sample": 3,
+      "client_state": "pooled",
+      "request_sha256": "7c630a11add0e02cdd33da1b20a7640b214a9862af54e692a6e7ca4ebade06e9",
+      "http_status": 200,
+      "count": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "return_date": "2026-11-06",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "return_date": "2026-11-07",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "return_date": "2026-11-08",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "return_date": "2026-11-09",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "return_date": "2026-11-10",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "return_date": "2026-11-11",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "return_date": "2026-11-12",
+          "price": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "return_date": "2026-11-13",
+          "price": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "return_date": "2026-11-14",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "return_date": "2026-11-15",
+          "price": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "return_date": "2026-11-16",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "return_date": "2026-11-17",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "return_date": "2026-11-18",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "return_date": "2026-11-19",
+          "price": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "return_date": "2026-11-20",
+          "price": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "return_date": "2026-11-21",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "return_date": "2026-11-22",
+          "price": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "return_date": "2026-11-23",
+          "price": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "return_date": "2026-11-24",
+          "price": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "return_date": "2026-11-25",
+          "price": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "return_date": "2026-11-26",
+          "price": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "return_date": "2026-11-27",
+          "price": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "return_date": "2026-11-28",
+          "price": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "return_date": "2026-11-29",
+          "price": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "return_date": "2026-11-30",
+          "price": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "return_date": "2026-12-01",
+          "price": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "return_date": "2026-12-02",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "return_date": "2026-12-03",
+          "price": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "return_date": "2026-12-04",
+          "price": 893,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "return_date": "2026-12-05",
+          "price": 436,
+          "currency": "USD"
+        }
+      ],
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 176.46101396530867,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 175.49199401400983,
+        "network_ms": 175.49199401400983,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 5522,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 175.49199401400983,
+            "response_bytes": 5522,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "10.0.0.10:1082",
+      "local_addr": "10.0.0.17:52458",
+      "connection_reused": true
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "native_mia1",
+      "sample": 4,
+      "client_state": "pooled",
+      "request_sha256": "7c630a11add0e02cdd33da1b20a7640b214a9862af54e692a6e7ca4ebade06e9",
+      "http_status": 200,
+      "count": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "return_date": "2026-11-06",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "return_date": "2026-11-07",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "return_date": "2026-11-08",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "return_date": "2026-11-09",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "return_date": "2026-11-10",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "return_date": "2026-11-11",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "return_date": "2026-11-12",
+          "price": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "return_date": "2026-11-13",
+          "price": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "return_date": "2026-11-14",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "return_date": "2026-11-15",
+          "price": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "return_date": "2026-11-16",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "return_date": "2026-11-17",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "return_date": "2026-11-18",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "return_date": "2026-11-19",
+          "price": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "return_date": "2026-11-20",
+          "price": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "return_date": "2026-11-21",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "return_date": "2026-11-22",
+          "price": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "return_date": "2026-11-23",
+          "price": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "return_date": "2026-11-24",
+          "price": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "return_date": "2026-11-25",
+          "price": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "return_date": "2026-11-26",
+          "price": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "return_date": "2026-11-27",
+          "price": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "return_date": "2026-11-28",
+          "price": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "return_date": "2026-11-29",
+          "price": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "return_date": "2026-11-30",
+          "price": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "return_date": "2026-12-01",
+          "price": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "return_date": "2026-12-02",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "return_date": "2026-12-03",
+          "price": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "return_date": "2026-12-04",
+          "price": 893,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "return_date": "2026-12-05",
+          "price": 436,
+          "currency": "USD"
+        }
+      ],
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 161.19762393645942,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 160.21723300218582,
+        "network_ms": 160.21723300218582,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 5524,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 160.21723300218582,
+            "response_bytes": 5524,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "10.0.0.10:1082",
+      "local_addr": "10.0.0.17:52458",
+      "connection_reused": true
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "primp_mia1",
+      "sample": 4,
+      "client_state": "pooled",
+      "request_sha256": "7c630a11add0e02cdd33da1b20a7640b214a9862af54e692a6e7ca4ebade06e9",
+      "http_status": 200,
+      "count": 30,
+      "prices": [
+        {
+          "date": "2026-11-01",
+          "return_date": "2026-11-06",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-02",
+          "return_date": "2026-11-07",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-03",
+          "return_date": "2026-11-08",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-04",
+          "return_date": "2026-11-09",
+          "price": 560,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-05",
+          "return_date": "2026-11-10",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-06",
+          "return_date": "2026-11-11",
+          "price": 647,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-07",
+          "return_date": "2026-11-12",
+          "price": 552,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-08",
+          "return_date": "2026-11-13",
+          "price": 597,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-09",
+          "return_date": "2026-11-14",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-10",
+          "return_date": "2026-11-15",
+          "price": 527,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-11",
+          "return_date": "2026-11-16",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-12",
+          "return_date": "2026-11-17",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-13",
+          "return_date": "2026-11-18",
+          "price": 517,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-14",
+          "return_date": "2026-11-19",
+          "price": 470,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-15",
+          "return_date": "2026-11-20",
+          "price": 480,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-16",
+          "return_date": "2026-11-21",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-17",
+          "return_date": "2026-11-22",
+          "price": 483,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-18",
+          "return_date": "2026-11-23",
+          "price": 433,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-19",
+          "return_date": "2026-11-24",
+          "price": 476,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-20",
+          "return_date": "2026-11-25",
+          "price": 425,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-21",
+          "return_date": "2026-11-26",
+          "price": 352,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-22",
+          "return_date": "2026-11-27",
+          "price": 429,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-23",
+          "return_date": "2026-11-28",
+          "price": 685,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-24",
+          "return_date": "2026-11-29",
+          "price": 708,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-25",
+          "return_date": "2026-11-30",
+          "price": 583,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-26",
+          "return_date": "2026-12-01",
+          "price": 490,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-27",
+          "return_date": "2026-12-02",
+          "price": 503,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-28",
+          "return_date": "2026-12-03",
+          "price": 730,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-29",
+          "return_date": "2026-12-04",
+          "price": 893,
+          "currency": "USD"
+        },
+        {
+          "date": "2026-11-30",
+          "return_date": "2026-12-05",
+          "price": 436,
+          "currency": "USD"
+        }
+      ],
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 135.99986501503736,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 135.06850705016404,
+        "network_ms": 135.06850705016404,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 5520,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 135.06850705016404,
+            "response_bytes": 5520,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "shopping",
+      "route": "native_direct",
+      "sample": 0,
+      "client_state": "cold",
+      "request_sha256": "0ac920f19895f6c7f50c014f49433704993926129e4641dfec4cd4247e96832c",
+      "success": false,
+      "error_type": "SwoopTransportError",
+      "cause_type": "TimeoutError",
+      "grpc_code": null,
+      "http_status": null,
+      "elapsed_ms": 4000.9078229777515,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 4000.772243947722,
+        "network_ms": 4000.772243947722,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 0,
+        "responses_with_unknown_bytes": 1,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": null,
+            "network_ms": 4000.772243947722,
+            "response_bytes": null,
+            "error_type": "TimeoutError"
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "shopping",
+      "route": "native_mia1",
+      "sample": 0,
+      "client_state": "cold",
+      "request_sha256": "0ac920f19895f6c7f50c014f49433704993926129e4641dfec4cd4247e96832c",
+      "http_status": 200,
+      "count": 122,
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 398.7677249824628,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 386.7240509716794,
+        "network_ms": 386.7240509716794,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451484,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 386.7240509716794,
+            "response_bytes": 451484,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "10.0.0.10:1082",
+      "local_addr": "10.0.0.17:41282",
+      "connection_reused": false
+    },
+    {
+      "operation": "shopping",
+      "route": "primp_mia1",
+      "sample": 0,
+      "client_state": "cold",
+      "request_sha256": "0ac920f19895f6c7f50c014f49433704993926129e4641dfec4cd4247e96832c",
+      "http_status": 200,
+      "count": 122,
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 423.4298369847238,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 374.6756979962811,
+        "network_ms": 374.6756979962811,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451235,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 374.6756979962811,
+            "response_bytes": 451235,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "shopping",
+      "route": "primp_mia1",
+      "sample": 1,
+      "client_state": "pooled",
+      "request_sha256": "0ac920f19895f6c7f50c014f49433704993926129e4641dfec4cd4247e96832c",
+      "http_status": 200,
+      "count": 122,
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 375.0242340611294,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 328.87659897096455,
+        "network_ms": 328.87659897096455,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451485,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 328.87659897096455,
+            "response_bytes": 451485,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "shopping",
+      "route": "native_mia1",
+      "sample": 1,
+      "client_state": "pooled",
+      "request_sha256": "0ac920f19895f6c7f50c014f49433704993926129e4641dfec4cd4247e96832c",
+      "http_status": 200,
+      "count": 122,
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 307.46932001784444,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 283.1065219361335,
+        "network_ms": 283.1065219361335,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451236,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 283.1065219361335,
+            "response_bytes": 451236,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "10.0.0.10:1082",
+      "local_addr": "10.0.0.17:41282",
+      "connection_reused": true
+    },
+    {
+      "operation": "shopping",
+      "route": "native_direct",
+      "sample": 1,
+      "client_state": "pooled",
+      "request_sha256": "0ac920f19895f6c7f50c014f49433704993926129e4641dfec4cd4247e96832c",
+      "http_status": 200,
+      "count": 122,
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 393.70998297818005,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 347.9455530177802,
+        "network_ms": 347.9455530177802,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451484,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 347.9455530177802,
+            "response_bytes": 451484,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "[2001:4860:4828:7700::]:443",
+      "local_addr": "[2604:2dc0:100:2437::17]:53231",
+      "connection_reused": false
+    },
+    {
+      "operation": "shopping",
+      "route": "native_direct",
+      "sample": 2,
+      "client_state": "pooled",
+      "request_sha256": "0ac920f19895f6c7f50c014f49433704993926129e4641dfec4cd4247e96832c",
+      "success": false,
+      "error_type": "SwoopTransportError",
+      "cause_type": "TimeoutError",
+      "grpc_code": null,
+      "http_status": null,
+      "elapsed_ms": 4002.3578429827467,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 4002.220433088951,
+        "network_ms": 4002.220433088951,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 0,
+        "responses_with_unknown_bytes": 1,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": null,
+            "network_ms": 4002.220433088951,
+            "response_bytes": null,
+            "error_type": "TimeoutError"
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "shopping",
+      "route": "native_mia1",
+      "sample": 2,
+      "client_state": "pooled",
+      "request_sha256": "0ac920f19895f6c7f50c014f49433704993926129e4641dfec4cd4247e96832c",
+      "http_status": 200,
+      "count": 122,
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 308.2683850079775,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 260.7590560801327,
+        "network_ms": 260.7590560801327,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451980,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 260.7590560801327,
+            "response_bytes": 451980,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "10.0.0.10:1082",
+      "local_addr": "10.0.0.17:41282",
+      "connection_reused": true
+    },
+    {
+      "operation": "shopping",
+      "route": "primp_mia1",
+      "sample": 2,
+      "client_state": "pooled",
+      "request_sha256": "0ac920f19895f6c7f50c014f49433704993926129e4641dfec4cd4247e96832c",
+      "http_status": 200,
+      "count": 122,
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 322.03286804724485,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 278.00308098085225,
+        "network_ms": 278.00308098085225,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451485,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 278.00308098085225,
+            "response_bytes": 451485,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "shopping",
+      "route": "primp_mia1",
+      "sample": 3,
+      "client_state": "pooled",
+      "request_sha256": "0ac920f19895f6c7f50c014f49433704993926129e4641dfec4cd4247e96832c",
+      "http_status": 200,
+      "count": 122,
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 396.8589990399778,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 381.2667140737176,
+        "network_ms": 381.2667140737176,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451484,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 381.2667140737176,
+            "response_bytes": 451484,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "shopping",
+      "route": "native_mia1",
+      "sample": 3,
+      "client_state": "pooled",
+      "request_sha256": "0ac920f19895f6c7f50c014f49433704993926129e4641dfec4cd4247e96832c",
+      "http_status": 200,
+      "count": 122,
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 319.4379199994728,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 270.72154404595494,
+        "network_ms": 270.72154404595494,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451484,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 270.72154404595494,
+            "response_bytes": 451484,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "10.0.0.10:1082",
+      "local_addr": "10.0.0.17:41282",
+      "connection_reused": true
+    },
+    {
+      "operation": "shopping",
+      "route": "native_direct",
+      "sample": 3,
+      "client_state": "pooled",
+      "request_sha256": "0ac920f19895f6c7f50c014f49433704993926129e4641dfec4cd4247e96832c",
+      "http_status": 200,
+      "count": 122,
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 417.07233409397304,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 369.94674103334546,
+        "network_ms": 369.94674103334546,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451732,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 369.94674103334546,
+            "response_bytes": 451732,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "[2001:4860:4828:7700::]:443",
+      "local_addr": "[2604:2dc0:100:2437::17]:53231",
+      "connection_reused": true
+    },
+    {
+      "operation": "shopping",
+      "route": "native_direct",
+      "sample": 4,
+      "client_state": "pooled",
+      "request_sha256": "0ac920f19895f6c7f50c014f49433704993926129e4641dfec4cd4247e96832c",
+      "success": false,
+      "error_type": "SwoopTransportError",
+      "cause_type": "TimeoutError",
+      "grpc_code": null,
+      "http_status": null,
+      "elapsed_ms": 4001.2424890883267,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 4001.1805950198323,
+        "network_ms": 4001.1805950198323,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 0,
+        "responses_with_unknown_bytes": 1,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": null,
+            "network_ms": 4001.1805950198323,
+            "response_bytes": null,
+            "error_type": "TimeoutError"
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    },
+    {
+      "operation": "shopping",
+      "route": "native_mia1",
+      "sample": 4,
+      "client_state": "pooled",
+      "request_sha256": "0ac920f19895f6c7f50c014f49433704993926129e4641dfec4cd4247e96832c",
+      "http_status": 200,
+      "count": 122,
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 300.80283794086426,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 285.3197349468246,
+        "network_ms": 285.3197349468246,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451484,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 285.3197349468246,
+            "response_bytes": 451484,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "http_version": "Version.HTTP_2",
+      "remote_addr": "10.0.0.10:1082",
+      "local_addr": "10.0.0.17:41282",
+      "connection_reused": true
+    },
+    {
+      "operation": "shopping",
+      "route": "primp_mia1",
+      "sample": 4,
+      "client_state": "pooled",
+      "request_sha256": "0ac920f19895f6c7f50c014f49433704993926129e4641dfec4cd4247e96832c",
+      "http_status": 200,
+      "count": 122,
+      "bounds_match": true,
+      "success": true,
+      "elapsed_ms": 345.79064999707043,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 301.34834605269134,
+        "network_ms": 301.34834605269134,
+        "decode_ms": 0.0,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451484,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 301.34834605269134,
+            "response_bytes": 451484,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      }
+    }
+  ],
+  "api_rows": [
+    {
+      "operation": "calendar_one_way",
+      "route": "production_api",
+      "endpoint": "/calendar",
+      "success": false,
+      "error_type": "BrokenPipeError",
+      "elapsed_ms": 0.595538062043488,
+      "sample": 0
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "production_api",
+      "endpoint": "/calendar",
+      "http_status": 200,
+      "success": true,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 129.07413707580417,
+        "network_ms": 123.44568897970021,
+        "decode_ms": 0.7817000150680542,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 5520,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 123.44568897970021,
+            "response_bytes": 5520,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "count": 30,
+      "elapsed_ms": 131.65439094882458,
+      "sample": 0
+    },
+    {
+      "operation": "shopping",
+      "route": "production_api",
+      "endpoint": "/search",
+      "http_status": 200,
+      "success": true,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 354.47730706073344,
+        "network_ms": 289.7778319893405,
+        "decode_ms": 13.426164048723876,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451980,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 289.7778319893405,
+            "response_bytes": 451980,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 122,
+            "decoded_result_count": 122,
+            "result_scope": "all",
+            "decode_ms": 13.426164048723876,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "count": 122,
+      "is_complete": true,
+      "result_scope": "all",
+      "selector_context_match": true,
+      "elapsed_ms": 404.68919405248016,
+      "sample": 0
+    },
+    {
+      "operation": "calendar_one_way",
+      "route": "production_api",
+      "endpoint": "/calendar",
+      "http_status": 200,
+      "success": true,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 86.216512019746,
+        "network_ms": 81.68463397305459,
+        "decode_ms": 2.264243084937334,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4621,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 81.68463397305459,
+            "response_bytes": 4621,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "count": 30,
+      "elapsed_ms": 130.2386949537322,
+      "sample": 1
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "production_api",
+      "endpoint": "/calendar",
+      "http_status": 200,
+      "success": true,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 103.04811492096633,
+        "network_ms": 95.54766700603068,
+        "decode_ms": 3.123577916994691,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 5521,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 95.54766700603068,
+            "response_bytes": 5521,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "count": 30,
+      "elapsed_ms": 149.65410996228456,
+      "sample": 1
+    },
+    {
+      "operation": "shopping",
+      "route": "production_api",
+      "endpoint": "/search",
+      "http_status": 200,
+      "success": true,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 327.02645007520914,
+        "network_ms": 299.6694690082222,
+        "decode_ms": 10.544658056460321,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451484,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 299.6694690082222,
+            "response_bytes": 451484,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 122,
+            "decoded_result_count": 122,
+            "result_scope": "all",
+            "decode_ms": 10.544658056460321,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "count": 122,
+      "is_complete": true,
+      "result_scope": "all",
+      "selector_context_match": true,
+      "elapsed_ms": 374.9148929491639,
+      "sample": 1
+    },
+    {
+      "operation": "calendar_one_way",
+      "route": "production_api",
+      "endpoint": "/calendar",
+      "http_status": 200,
+      "success": true,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 99.50404800474644,
+        "network_ms": 89.28368403576314,
+        "decode_ms": 4.575858940370381,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 4621,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 89.28368403576314,
+            "response_bytes": 4621,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "count": 30,
+      "elapsed_ms": 144.03331698849797,
+      "sample": 2
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "production_api",
+      "endpoint": "/calendar",
+      "http_status": 200,
+      "success": true,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 119.74597198422998,
+        "network_ms": 109.62025902699679,
+        "decode_ms": 4.866942996159196,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 5520,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 109.62025902699679,
+            "response_bytes": 5520,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "count": 30,
+      "elapsed_ms": 168.70722395833582,
+      "sample": 2
+    },
+    {
+      "operation": "shopping",
+      "route": "production_api",
+      "endpoint": "/search",
+      "http_status": 200,
+      "success": true,
+      "diagnostics": {
+        "http_attempts": 2,
+        "rpc_attempts": 2,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 3204.550384078175,
+        "network_ms": 3173.315998981707,
+        "decode_ms": 10.66183007787913,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 451484,
+        "responses_with_unknown_bytes": 1,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": null,
+            "network_ms": 2668.1051370687783,
+            "response_bytes": null,
+            "error_type": "TimeoutError"
+          },
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 505.2108619129285,
+            "response_bytes": 451484,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 122,
+            "decoded_result_count": 122,
+            "result_scope": "all",
+            "decode_ms": 10.66183007787913,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "count": 122,
+      "is_complete": true,
+      "result_scope": "all",
+      "selector_context_match": true,
+      "elapsed_ms": 3272.0993120456114,
+      "sample": 2
+    }
+  ],
+  "functional": [
+    {
+      "operation": "calendar_grid",
+      "route": "production_api",
+      "endpoint": "/calendar",
+      "http_status": 200,
+      "success": true,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 86.89905307255685,
+        "network_ms": 85.17966605722904,
+        "decode_ms": 0.6229170830920339,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 677,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 85.17966605722904,
+            "response_bytes": 677,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "count": 3,
+      "elapsed_ms": 131.10134995076805
+    },
+    {
+      "operation": "calendar_graph",
+      "route": "production_api",
+      "endpoint": "/calendar",
+      "http_status": 200,
+      "success": true,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 69.86842001788318,
+        "network_ms": 68.16075695678592,
+        "decode_ms": 0.6169950356706977,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 767,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": null,
+            "operation": "calendar",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 68.16075695678592,
+            "response_bytes": 767,
+            "error_type": null
+          }
+        ],
+        "queries": [],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "count": 3,
+      "elapsed_ms": 118.28318901825696
+    },
+    {
+      "operation": "shopping_roundtrip",
+      "route": "production_api",
+      "endpoint": "/search",
+      "http_status": 200,
+      "success": true,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 268.86436191853136,
+        "network_ms": 255.70808595512062,
+        "decode_ms": 5.340692005120218,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 206742,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 255.70808595512062,
+            "response_bytes": 206742,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              },
+              {
+                "origin_airports": [
+                  "LAX"
+                ],
+                "destination_airports": [
+                  "JFK"
+                ],
+                "date": "2026-12-05"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 59,
+            "decoded_result_count": 59,
+            "result_scope": "all",
+            "decode_ms": 5.340692005120218,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "count": 59,
+      "is_complete": true,
+      "result_scope": "all",
+      "selector_context_match": true,
+      "elapsed_ms": 292.0543570071459
+    },
+    {
+      "operation": "continue_roundtrip",
+      "route": "production_api",
+      "endpoint": "/search-next",
+      "http_status": 200,
+      "success": true,
+      "diagnostics": {
+        "http_attempts": 2,
+        "rpc_attempts": 2,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 2814.2441799864173,
+        "network_ms": 2786.4705589599907,
+        "decode_ms": 9.732207981869578,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 465202,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 376.1855859775096,
+            "response_bytes": 206740,
+            "error_type": null
+          },
+          {
+            "query_id": 2,
+            "operation": "shopping",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 2410.284972982481,
+            "response_bytes": 258462,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              },
+              {
+                "origin_airports": [
+                  "LAX"
+                ],
+                "destination_airports": [
+                  "JFK"
+                ],
+                "date": "2026-12-05"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 59,
+            "decoded_result_count": 59,
+            "result_scope": "all",
+            "decode_ms": 4.6541269402951,
+            "error_type": null
+          },
+          {
+            "query_id": 2,
+            "operation": "shopping",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              },
+              {
+                "origin_airports": [
+                  "LAX"
+                ],
+                "destination_airports": [
+                  "JFK"
+                ],
+                "date": "2026-12-05"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": 38,
+            "decoded_result_count": 38,
+            "result_scope": "all",
+            "decode_ms": 5.078081041574478,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "count": 38,
+      "is_complete": true,
+      "result_scope": "all",
+      "selector_context_match": true,
+      "elapsed_ms": 2844.7204490657896
+    },
+    {
+      "operation": "selector_price",
+      "route": "production_api",
+      "endpoint": "/price",
+      "http_status": 200,
+      "success": true,
+      "diagnostics": {
+        "http_attempts": 1,
+        "rpc_attempts": 1,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 1646.1286039557308,
+        "network_ms": 1634.2396220425144,
+        "decode_ms": 4.694000934250653,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 38407,
+        "responses_with_unknown_bytes": 0,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "booking",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 1634.2396220425144,
+            "response_bytes": 38407,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "booking",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": null,
+            "decoded_result_count": 3,
+            "result_scope": null,
+            "decode_ms": 4.694000934250653,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "is_estimate": false,
+      "currency": "USD",
+      "price": 283,
+      "booking_options": 3,
+      "elapsed_ms": 1696.7995180748403
+    },
+    {
+      "operation": "selector_details",
+      "route": "production_api",
+      "endpoint": "/details",
+      "http_status": 200,
+      "success": true,
+      "diagnostics": {
+        "http_attempts": 2,
+        "rpc_attempts": 2,
+        "page_attempts": 0,
+        "retry_attempts": 0,
+        "elapsed_ms": 3574.7793699847534,
+        "network_ms": 3562.8984910435975,
+        "decode_ms": 4.565004957839847,
+        "retry_wait_ms": 0.0,
+        "response_bytes": 38566,
+        "responses_with_unknown_bytes": 1,
+        "attempts": [
+          {
+            "query_id": 1,
+            "operation": "booking",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": null,
+            "network_ms": 2501.5559650491923,
+            "response_bytes": null,
+            "error_type": "TimeoutError"
+          },
+          {
+            "query_id": 1,
+            "operation": "booking",
+            "transport": "rpc",
+            "method": "POST",
+            "retry_index": 0,
+            "status_code": 200,
+            "network_ms": 1061.3425259944052,
+            "response_bytes": 38566,
+            "error_type": null
+          }
+        ],
+        "queries": [
+          {
+            "query_id": 1,
+            "operation": "booking",
+            "bounds": [
+              {
+                "origin_airports": [
+                  "JFK"
+                ],
+                "destination_airports": [
+                  "LAX"
+                ],
+                "date": "2026-11-30"
+              }
+            ],
+            "bounds_available": true,
+            "cabin": "economy",
+            "outcome": "success",
+            "raw_result_count": null,
+            "decoded_result_count": 3,
+            "result_scope": null,
+            "decode_ms": 4.565004957839847,
+            "error_type": null
+          }
+        ],
+        "omitted_attempts": 0,
+        "omitted_queries": 0
+      },
+      "elapsed_ms": 3626.3300189748406
+    }
+  ],
+  "phase_timings": {
+    "dns_ms": null,
+    "connect_ms": null,
+    "tls_ms": null,
+    "ttfb_ms": null
+  },
+  "health_before": {
+    "status": "ok",
+    "proxy_count": 2,
+    "identity_pool": {
+      "size": 8,
+      "replaced": 0
+    },
+    "swoop_version": "0.7.0",
+    "swoop_commit": "82bd0e1b9e9d0e41556d34f333e36d09a76ee712",
+    "transport_primary": "native_ipv6",
+    "transport_health": [
+      {
+        "operation": "GetCalendarPicker",
+        "route": "ipv6",
+        "state": "open",
+        "reason": "http_redirect",
+        "retry_in": 0.0,
+        "active": 0
+      },
+      {
+        "operation": "GetShoppingResults",
+        "route": "ipv6",
+        "state": "open",
+        "reason": "timeout",
+        "retry_in": 0.0,
+        "active": 0
+      },
+      {
+        "operation": "GetShoppingResults",
+        "route": "fallback",
+        "state": "closed",
+        "reason": null,
+        "retry_in": 0.0,
+        "active": 0
+      },
+      {
+        "operation": "GetCalendarPicker",
+        "route": "fallback",
+        "state": "closed",
+        "reason": null,
+        "retry_in": 0.0,
+        "active": 0
+      }
+    ],
+    "native_client": "wreq==0.13.0",
+    "hotels": true
+  },
+  "client_init_ms": {
+    "calendar_one_way/native_direct": 4.474940011277795,
+    "calendar_one_way/native_mia1": 0.1410059630870819,
+    "calendar_one_way/primp_mia1": 16.08587591908872,
+    "calendar_roundtrip/native_direct": 0.5615379195660353,
+    "calendar_roundtrip/native_mia1": 0.4921260988339782,
+    "calendar_roundtrip/primp_mia1": 0.14552706852555275,
+    "shopping/native_direct": 0.16621395479887724,
+    "shopping/native_mia1": 0.08687993977218866,
+    "shopping/primp_mia1": 0.039658043533563614
+  },
+  "stopped_routes": [
+    {
+      "operation": "calendar_one_way",
+      "route": "native_direct",
+      "after_sample": 1,
+      "reason": "rate_limit_or_two_consecutive_failures"
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "native_direct",
+      "after_sample": 1,
+      "reason": "rate_limit_or_two_consecutive_failures"
+    }
+  ],
+  "health_after": {
+    "status": "ok",
+    "proxy_count": 2,
+    "identity_pool": {
+      "size": 8,
+      "replaced": 0
+    },
+    "swoop_version": "0.7.0",
+    "swoop_commit": "82bd0e1b9e9d0e41556d34f333e36d09a76ee712",
+    "transport_primary": "native_ipv6",
+    "transport_health": [
+      {
+        "operation": "GetCalendarPicker",
+        "route": "fallback",
+        "state": "closed",
+        "reason": null,
+        "retry_in": 0.0,
+        "active": 0
+      },
+      {
+        "operation": "GetCalendarPicker",
+        "route": "ipv6",
+        "state": "closed",
+        "reason": null,
+        "retry_in": 0.0,
+        "active": 0
+      },
+      {
+        "operation": "GetCalendarGrid",
+        "route": "ipv6",
+        "state": "closed",
+        "reason": null,
+        "retry_in": 0.0,
+        "active": 0
+      },
+      {
+        "operation": "GetCalendarGraph",
+        "route": "ipv6",
+        "state": "closed",
+        "reason": null,
+        "retry_in": 0.0,
+        "active": 0
+      },
+      {
+        "operation": "GetShoppingResults",
+        "route": "ipv6",
+        "state": "open",
+        "reason": "timeout",
+        "retry_in": 20.66222097002901,
+        "active": 0
+      },
+      {
+        "operation": "GetShoppingResults",
+        "route": "fallback",
+        "state": "closed",
+        "reason": null,
+        "retry_in": 0.0,
+        "active": 0
+      },
+      {
+        "operation": "GetBookingResults",
+        "route": "ipv6",
+        "state": "open",
+        "reason": "timeout",
+        "retry_in": 28.874311686959118,
+        "active": 0
+      },
+      {
+        "operation": "GetBookingResults",
+        "route": "fallback",
+        "state": "closed",
+        "reason": null,
+        "retry_in": 0.0,
+        "active": 0
+      }
+    ],
+    "native_client": "wreq==0.13.0",
+    "hotels": true
+  },
+  "finished_at": "2026-10-31T21:56:41.212198+00:00",
+  "summary": [
+    {
+      "operation": "calendar_one_way",
+      "route": "native_direct",
+      "attempts": 2,
+      "successes": 0,
+      "success_median_ms": null,
+      "pooled_success_median_ms": null,
+      "success_p95_ms": null,
+      "all_attempts_mean_ms": 4001.584859448485
+    },
+    {
+      "operation": "calendar_one_way",
+      "route": "native_mia1",
+      "attempts": 5,
+      "successes": 4,
+      "success_median_ms": 138.48760799737647,
+      "pooled_success_median_ms": 137.5646609812975,
+      "success_p95_ms": 305.0947960000485,
+      "all_attempts_mean_ms": 159.4705002149567
+    },
+    {
+      "operation": "calendar_one_way",
+      "route": "primp_mia1",
+      "attempts": 5,
+      "successes": 4,
+      "success_median_ms": 124.08624403178692,
+      "pooled_success_median_ms": 120.64045399893075,
+      "success_p95_ms": 333.31014099530876,
+      "all_attempts_mean_ms": 158.1143944291398
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "native_direct",
+      "attempts": 2,
+      "successes": 0,
+      "success_median_ms": null,
+      "pooled_success_median_ms": null,
+      "success_p95_ms": null,
+      "all_attempts_mean_ms": 4003.220266487915
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "native_mia1",
+      "attempts": 5,
+      "successes": 4,
+      "success_median_ms": 168.82931895088404,
+      "pooled_success_median_ms": 161.19762393645942,
+      "success_p95_ms": 299.5915529318154,
+      "all_attempts_mean_ms": 170.28744795825332
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "primp_mia1",
+      "attempts": 5,
+      "successes": 5,
+      "success_median_ms": 135.99986501503736,
+      "pooled_success_median_ms": 134.38703899737448,
+      "success_p95_ms": 318.84913705289364,
+      "all_attempts_mean_ms": 170.7886664196849
+    },
+    {
+      "operation": "shopping",
+      "route": "native_direct",
+      "attempts": 5,
+      "successes": 2,
+      "success_median_ms": 405.39115853607655,
+      "pooled_success_median_ms": 405.39115853607655,
+      "success_p95_ms": 417.07233409397304,
+      "all_attempts_mean_ms": 2563.0580944241956
+    },
+    {
+      "operation": "shopping",
+      "route": "native_mia1",
+      "attempts": 5,
+      "successes": 5,
+      "success_median_ms": 308.2683850079775,
+      "pooled_success_median_ms": 307.86885251291096,
+      "success_p95_ms": 398.7677249824628,
+      "all_attempts_mean_ms": 326.94923758972436
+    },
+    {
+      "operation": "shopping",
+      "route": "primp_mia1",
+      "attempts": 5,
+      "successes": 5,
+      "success_median_ms": 375.0242340611294,
+      "pooled_success_median_ms": 360.4074420290999,
+      "success_p95_ms": 423.4298369847238,
+      "all_attempts_mean_ms": 372.62731762602925
+    },
+    {
+      "operation": "calendar_one_way",
+      "route": "production_api",
+      "attempts": 3,
+      "successes": 2,
+      "success_median_ms": 137.13600597111508,
+      "pooled_success_median_ms": 137.13600597111508,
+      "success_p95_ms": 144.03331698849797,
+      "all_attempts_mean_ms": 91.62251666809122
+    },
+    {
+      "operation": "calendar_roundtrip",
+      "route": "production_api",
+      "attempts": 3,
+      "successes": 3,
+      "success_median_ms": 149.65410996228456,
+      "pooled_success_median_ms": 159.1806669603102,
+      "success_p95_ms": 168.70722395833582,
+      "all_attempts_mean_ms": 150.00524162314832
+    },
+    {
+      "operation": "shopping",
+      "route": "production_api",
+      "attempts": 3,
+      "successes": 3,
+      "success_median_ms": 404.68919405248016,
+      "pooled_success_median_ms": 1823.5071024973877,
+      "success_p95_ms": 3272.0993120456114,
+      "all_attempts_mean_ms": 1350.5677996824186
+    }
+  ],
+  "calendar_one_way_prices_match": true,
+  "calendar_roundtrip_prices_match": true
+}

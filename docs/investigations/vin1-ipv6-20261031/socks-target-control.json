@@ -1,0 +1,8 @@
+{
+  "status": "204",
+  "exit_code": 0,
+  "safe_trace": [
+    "* [DNS] added www.google.com:443:[2001:4860:4828:7700::] to cache",
+    "* IPv6: 2001:4860:4828:7700::"
+  ]
+}

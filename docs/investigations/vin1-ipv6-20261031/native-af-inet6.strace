@@ -1,0 +1,18 @@
+2067657 connect(6, {sa_family=AF_INET6, sin6_port=htons(443), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "2001:4860:482b:7700::", &sin6_addr), sin6_scope_id=0}, 28) = -1 EINPROGRESS (Operation now in progress)
+2067657 getsockname(6, {sa_family=AF_INET6, sin6_port=htons(57027), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "2604:2dc0:100:2437::17", &sin6_addr), sin6_scope_id=0}, [128 => 28]) = 0
+2067661 connect(7, {sa_family=AF_INET, sin_port=htons(1082), sin_addr=inet_addr("10.0.0.10")}, 16) = -1 EINPROGRESS (Operation now in progress)
+2067653 getsockname(7, {sa_family=AF_INET, sin_port=htons(52300), sin_addr=inet_addr("10.0.0.17")}, [128 => 16]) = 0
+2067651 connect(14, {sa_family=AF_INET, sin_port=htons(1082), sin_addr=inet_addr("10.0.0.10")}, 16) = -1 EINPROGRESS (Operation now in progress)
+2067663 +++ exited with 0 +++
+2067662 +++ exited with 0 +++
+2067656 +++ exited with 0 +++
+2067654 +++ exited with 0 +++
+2067653 +++ exited with 0 +++
+2067652 +++ exited with 0 +++
+2067658 +++ exited with 0 +++
+2067661 +++ exited with 0 +++
+2067659 +++ exited with 0 +++
+2067657 +++ exited with 0 +++
+2067655 +++ exited with 0 +++
+2067660 +++ exited with 0 +++
+2067651 +++ exited with 0 +++
