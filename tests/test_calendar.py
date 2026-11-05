@@ -2,12 +2,13 @@
 
 import json
 import urllib.parse
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
 
 import swoop
-from swoop import CalendarPrice, SwoopParseError, SwoopUpstreamError
+from swoop import CalendarPrice, SwoopBookingHorizonError, SwoopParseError, SwoopUpstreamError
 from swoop import _calendar
 
 FIX = Path(__file__).parent / "fixtures" / "responses" / "calendar"
@@ -205,6 +206,43 @@ def test_regression_3048_return_window_starts_at_first_departure(monkeypatch):
         swoop.rpc._normalize_rpc_leg('ALB', 'MIA', '2027-01-10'),
         swoop.rpc._normalize_rpc_leg('MIA', 'ALB', '2027-01-10'),
     ])[1]
+
+
+def _ahead(days: int) -> str:
+    return (datetime.now(timezone.utc).date() + timedelta(days=days)).isoformat()
+
+
+@pytest.mark.parametrize("method", [swoop.calendar_prices, swoop.get_calendar, swoop.get_price_graph])
+def test_regression_3213_window_past_booking_horizon_fails_before_rpc(monkeypatch, method):
+    # Prod 2026-11-05: EWR-TLV calendars wholly past Google's booking horizon
+    # were answered with gRPC 3 INVALID_ARGUMENT. Those fares are not on sale yet.
+    calls = _serve(monkeypatch, "")
+    first = swoop.rpc.BOOKING_HORIZON_DAYS + 1
+    with pytest.raises(SwoopBookingHorizonError) as excinfo:
+        method("EWR", "TLV", _ahead(first), _ahead(first + 13))
+    assert isinstance(excinfo.value, ValueError)
+    assert excinfo.value.last_date == _ahead(swoop.rpc.BOOKING_HORIZON_DAYS)
+    assert calls == []
+
+
+def test_regression_3213_departure_window_crossing_booking_horizon_is_clamped(monkeypatch):
+    # Prod picker 2027-09-01..2027-10-31 crossed the horizon and got gRPC 3.
+    calls = _serve(monkeypatch, (FIX / "picker_jfk_pty_trailer_2985.txt").read_text())
+    swoop.get_calendar("EWR", "TLV", _ahead(300), _ahead(360))
+    assert _payload(calls[0][1])[2] == [_ahead(300), _ahead(swoop.rpc.BOOKING_HORIZON_DAYS)]
+
+
+def test_regression_3213_grid_return_window_is_clamped_or_refused(monkeypatch):
+    calls = _serve(monkeypatch, (FIX / "roundtrip_pty_cdg_business.txt").read_text())
+    last = _ahead(swoop.rpc.BOOKING_HORIZON_DAYS)
+    swoop.calendar_prices("EWR", "TLV", _ahead(300), _ahead(310),
+                          return_start=_ahead(310), return_end=_ahead(360))
+    assert _payload(calls[0][1])[2:] == [[_ahead(300), _ahead(310)], [_ahead(310), last]]
+    # Prod grid: departures inside, every return past the horizon.
+    with pytest.raises(SwoopBookingHorizonError):
+        swoop.calendar_prices("EWR", "TLV", _ahead(300), _ahead(310),
+                              return_start=_ahead(swoop.rpc.BOOKING_HORIZON_DAYS + 1), return_end=_ahead(360))
+    assert len(calls) == 1
 
 
 def test_regression_3048_return_window_before_departure_is_empty_without_rpc(monkeypatch):

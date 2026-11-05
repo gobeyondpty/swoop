@@ -45,6 +45,7 @@ from .decoder import (
 )
 from ._regions import Region
 from .exceptions import (
+    SwoopBookingHorizonError,
     SwoopError,
     SwoopHTTPError,
     SwoopParseError,
@@ -1790,6 +1791,7 @@ __all__ = [
     "AmenityFlags",
     "QualitySignals",
     # Exceptions
+    "SwoopBookingHorizonError",
     "SwoopError",
     "SwoopHTTPError",
     "SwoopParseError",

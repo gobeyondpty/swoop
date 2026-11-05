@@ -682,8 +682,35 @@ def test_public_search_raises_upstream_error_end_to_end(monkeypatch) -> None:
     monkeypatch.setattr(rpc, "_http_post", lambda *args, **kwargs: _FakeResponse())
 
     with pytest.raises(rpc.SwoopUpstreamError) as excinfo:
-        swoop.search("JFK", "LAX", "2030-01-01", max_stops=0)
+        swoop.search("JFK", "LAX", "2026-03-15", max_stops=0)
     assert excinfo.value.grpc_code == 13
+
+
+def test_regression_3213_search_past_booking_horizon_fails_before_rpc(monkeypatch) -> None:
+    # Dev probes 2026-11-05 (JFK-LAX): Google answers a date past its booking
+    # horizon with gRPC 3 INVALID_ARGUMENT, also when only the return is past it.
+    from datetime import datetime, timedelta, timezone
+
+    class _FakeResponse:
+        text = _SHOPPING_ERROR_RESPONSE
+
+    calls: list[object] = []
+    monkeypatch.setattr(rpc, "_http_post", lambda *args, **kwargs: calls.append(args) or _FakeResponse())
+    today = datetime.now(timezone.utc).date()
+    last = (today + timedelta(days=rpc.BOOKING_HORIZON_DAYS)).isoformat()
+    past = (today + timedelta(days=rpc.BOOKING_HORIZON_DAYS + 1)).isoformat()
+
+    for kwargs in ({"date": past}, {"date": last, "return_date": past}):
+        with pytest.raises(swoop.SwoopBookingHorizonError) as excinfo:
+            swoop.search("JFK", "LAX", **kwargs)
+        assert isinstance(excinfo.value, ValueError)
+        assert excinfo.value.last_date == last
+    assert calls == []
+
+    # The last bookable date still reaches Google.
+    with pytest.raises(rpc.SwoopUpstreamError):
+        swoop.search("JFK", "LAX", last, max_stops=0)
+    assert len(calls) == 1
 
 
 def test_booking_parser_logs_debug_for_partial_drops_and_warning_for_total_drop(caplog) -> None:

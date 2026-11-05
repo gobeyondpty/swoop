@@ -10,13 +10,14 @@ from typing import Any, Optional
 
 from .builders import CabinClass
 from .decoder import _decode_price_info, _safe_get, raise_if_error_envelope
-from .exceptions import SwoopParseError
+from .exceptions import SwoopBookingHorizonError, SwoopParseError
 from .diagnostics import measure_decode
 from .models import CalendarDay, CalendarResult, Passengers, TransportConfig
 from .rpc import (
     _build_filters_from_legs,
     _encode_f_req_payload,
     _http_post,
+    _last_bookable_date,
     _normalize_rpc_leg,
 )
 
@@ -206,7 +207,14 @@ def _fetch_calendar(
         validate_time_range(latest, latest_name, 1, 24)
         if earliest is not None and latest is not None and earliest >= latest:
             raise ValueError(f"{earliest_name} must be before {latest_name}")
-    windows = [_window(start, end, "departure window")]
+    _window(start, end, "departure window")
+    # Google rejects a window reaching past its booking horizon (gRPC 3,
+    # #3213). Later dates are not on sale yet, so omit them like any other.
+    last = _last_bookable_date().isoformat()
+    if start > last:
+        raise SwoopBookingHorizonError(last)
+    end = min(end, last)
+    windows = [[start, end]]
     if (date.fromisoformat(end) - date.fromisoformat(start)).days >= MAX_DEPARTURE_DATES:
         raise ValueError(f"departure window spans at most {MAX_DEPARTURE_DATES} dates")
     if (return_start is None) != (return_end is None):
@@ -222,6 +230,9 @@ def _fetch_calendar(
         stay = [lo, hi]
     if return_start is not None and return_end is not None:
         _window(return_start, return_end, "return window")
+        if return_start > last:
+            raise SwoopBookingHorizonError(last)
+        return_end = min(return_end, last)
         # Google rejects a return window opening before the first departure
         # (gRPC 3, #3048). Those dates have no fare, so omit them like any other.
         return_start = max(return_start, start)
@@ -305,7 +316,9 @@ def calendar_prices(
     the display currency. Filters have the same wire format as shopping.
     Time windows apply to the outbound leg; return departure hours are independent.
     Dates with no published fare, and return dates before ``departure_start``,
-    are omitted. The departure window spans at most 200 dates.
+    are omitted. The departure window spans at most 200 dates. Dates past
+    Google's booking horizon are omitted; a window wholly past it raises
+    ``SwoopBookingHorizonError``.
     """
     prices = _fetch_calendar(
         "GetCalendarGrid",
@@ -380,7 +393,8 @@ def get_calendar(
     Duration and layover limits are in minutes; max_price is in major units of
     the display currency. Filters have the same wire format as shopping.
     Time windows apply to the outbound leg; return departure hours are independent.
-    Dates with no published fare are omitted. The window spans at most 200 dates.
+    Dates with no published fare, or past Google's booking horizon, are
+    omitted. The window spans at most 200 dates.
     """
     prices = _fetch_calendar(
         "GetCalendarPicker",
@@ -452,7 +466,8 @@ def get_price_graph(
     Duration and layover limits are in minutes; max_price is in major units of
     the display currency. Filters have the same wire format as shopping.
     Time windows apply to the outbound leg; return departure hours are independent.
-    Dates with no published fare are omitted. The window spans at most 200 dates.
+    Dates with no published fare, or past Google's booking horizon, are
+    omitted. The window spans at most 200 dates.
     """
     prices = _fetch_calendar(
         "GetCalendarGraph",

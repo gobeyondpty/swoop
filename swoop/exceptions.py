@@ -90,6 +90,25 @@ class SwoopParseError(SwoopError):
     """Raised when the response from Google Flights cannot be parsed."""
 
 
+class SwoopBookingHorizonError(SwoopError, ValueError):
+    """Raised, before any request, for a date past Google's booking horizon.
+
+    Google answers such a request with gRPC 3 INVALID_ARGUMENT. Fares for the
+    date are not on sale yet; a later request can succeed. It is a
+    ``ValueError`` so callers that treat invalid input as caller-correctable
+    keep doing so.
+
+    Attributes:
+        last_date: The last date swoop sends to Google (ISO ``YYYY-MM-DD``).
+    """
+
+    def __init__(self, last_date: str):
+        self.last_date = last_date
+        super().__init__(
+            f"fares after {last_date} are not on sale yet (Google Flights booking horizon)"
+        )
+
+
 # The canonical gRPC status codes (0-16). Google's ErrorResponse envelope
 # carries one of these; the table is used only to label the exception message.
 # Listing all of them (not just the observed subset) keeps an unexpected code

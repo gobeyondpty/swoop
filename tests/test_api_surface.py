@@ -142,6 +142,7 @@ class TestFrozenExports:
         "AmenityFlags",
         "QualitySignals",
         # Exceptions
+        "SwoopBookingHorizonError",
         "SwoopError",
         "SwoopHTTPError",
         "SwoopParseError",

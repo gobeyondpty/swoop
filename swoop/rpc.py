@@ -8,6 +8,7 @@ Based on reverse-engineering from punitarani/fli.
 
 from copy import deepcopy
 from dataclasses import dataclass, replace
+from datetime import date as _date, datetime, timedelta, timezone
 import json
 import logging
 import threading
@@ -37,6 +38,7 @@ from ._airlines import normalize_exclusions
 from .builders import CABIN_CLASS_MAP, CabinClass
 from .decoder import BookingOption, RawSearchResult, Itinerary, decode_result, _safe_get, raise_if_error_envelope
 from .exceptions import (
+    SwoopBookingHorizonError,
     SwoopError,
     SwoopHTTPError,
     SwoopParseError,
@@ -64,6 +66,20 @@ CALENDAR_RPC_URL = (
     "https://www.google.com/_/FlightsFrontendUi/data/"
     "travel.frontend.flights.FlightsFrontendService/GetCalendarPicker"
 )
+
+# ponytail: fixed day count, measured 2026-11-05T02:02Z on the dev swoop-service
+# (JFK-LAX one-way, #3213): 328 days after the UTC date answered, 330 got gRPC 3
+# INVALID_ARGUMENT, and so did a round trip with only its return past that.
+# The UTC date was then a day ahead of the Americas, so counting from it never
+# lets through a date Google refuses whether Google counts from UTC, origin or
+# Pacific dates. One day of margin; re-bisect 300-345 days if Google moves it.
+BOOKING_HORIZON_DAYS = 327
+
+
+def _last_bookable_date() -> _date:
+    """Last date swoop sends to Google, counted from today's UTC date."""
+    return datetime.now(timezone.utc).date() + timedelta(days=BOOKING_HORIZON_DAYS)
+
 
 # Sort order values
 SORT_TOP = 1
@@ -221,6 +237,10 @@ def _build_filters_from_legs(
 ) -> list[Any]:
     """Build the shopping filters payload from normalized leg definitions."""
     _validate_pricing(carry_on_bags, checked_bags, max_price)
+    # Every shopping, booking and calendar RPC builds its legs here.
+    last = _last_bookable_date()
+    if any(_date.fromisoformat(leg["date"]) > last for leg in legs):
+        raise SwoopBookingHorizonError(last.isoformat())
     seat_type = CABIN_CLASS_MAP.get(cabin, 1)
     segments = [_build_segment_from_leg(leg) for leg in legs]
     trip_type = _trip_type_from_legs(legs)
