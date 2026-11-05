@@ -78,7 +78,20 @@ def test_fallback_classification_cooldown_and_recovery(monkeypatch, first, reaso
     assert adaptive.health()[0]["state"] == "closed"
 
 
-@pytest.mark.parametrize("text,error", [(EMPTY, None), (INVALID, SwoopUpstreamError), (DETAILED, SwoopUpstreamError)])
+def test_regression_3217_detailed_internal_tries_next_route_without_health(monkeypatch):
+    calls = client(monkeypatch, [(200, DETAILED), (200, EMPTY)])
+    assert send().text == EMPTY
+    assert [c.proxy for c in calls] == [None, "socks5h://trusted:1082"]
+    assert all(item["reason"] is None for item in adaptive.health())
+    calls = client(monkeypatch, [(200, DETAILED), (200, DETAILED)])
+    with pytest.raises(SwoopUpstreamError):
+        send()
+    assert len(calls) == 2
+    assert all(item["reason"] is None for item in adaptive.health())
+
+
+@pytest.mark.parametrize("text,error", [(EMPTY, None), (INVALID, SwoopUpstreamError),
+                                        (DETAILED.replace("[13,", "[9,"), SwoopUpstreamError)])
 def test_valid_empty_and_query_or_detailed_errors_do_not_failover(monkeypatch, text, error):
     calls = client(monkeypatch, [(200, text)])
     if error:

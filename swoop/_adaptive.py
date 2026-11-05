@@ -298,13 +298,17 @@ def run(operation: str, *, transport: TransportConfig, action: Callable[[Transpo
             if transport._cancel_check:
                 transport._cancel_check()
             reason = _failure(error)
+            # Detailed INTERNAL is Google's own transient fault: the identical query
+            # answers seconds later, on any route. Try the next route, but it says
+            # nothing about route health (#3217).
+            internal = isinstance(error, SwoopUpstreamError) and error.grpc_code == 13 and error.type_url is not None
+            if reason is None and not internal:
+                raise
             # A transport error at our own attempt bound is our budget cutting the
             # reply short, not evidence that the shared route is unhealthy (#3175).
             bound = state.deadline if state is not None and state.validated else probe_deadline
-            ours = reason is not None and isinstance(error, SwoopTransportError) and time.monotonic() >= bound
-            if reason is None:
-                raise
-            if ours:
+            ours = internal or (isinstance(error, SwoopTransportError) and time.monotonic() >= bound)
+            if ours or reason is None:
                 reason = None
             else:
                 delay = getattr(error, "retry_after", None) or _COOLDOWN

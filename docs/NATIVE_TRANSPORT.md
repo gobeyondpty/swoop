@@ -46,8 +46,10 @@ network failures, timeouts and malformed responses have separate health reasons.
 A send/read cut short at our own proof cap, attempt share or operation deadline,
 or by caller cancellation, still fails over but records no health and does not
 extend a probe's cooldown: it is not evidence about the route.
-Compact INTERNAL is an upstream refusal, not evidence of an IP ban. Detailed
-gRPC errors and invalid arguments propagate immediately. Protocol-valid empty
+Compact INTERNAL is an upstream refusal, not evidence of an IP ban. A detailed
+gRPC 13 INTERNAL is Google's transient fault: it tries the next route but
+records no health (#3217). Other detailed gRPC errors and invalid arguments
+propagate immediately. Protocol-valid empty
 inventory is healthy and does not trigger failover. An ambiguous body permits
 one identical-query comparison on a non-cooling fallback; only parsed inventory
 on that comparison marks the primary as hiding inventory. Unresolved ambiguous
