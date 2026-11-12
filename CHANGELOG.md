@@ -33,6 +33,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Under explicit routing, `request_timeout` caps each route's exchange and
   `timeout` bounds the whole failover, as documented. One shared per-request
   window had left each exit a third of it while the operation budget went unused.
+- Local IPv6 sources that stall past the direct proof cap count toward the
+  correlated prefix gate, so later operations stop paying that cap before
+  reaching an exit that answers. Shared fallbacks and single sources are unaffected.
 - Expanded trip searches retain completed choices when another selected prefix
   times out; total transport failures raise instead of returning an empty result.
 

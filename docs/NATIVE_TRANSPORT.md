@@ -46,7 +46,10 @@ HTTP 403, 429 (including Retry-After), redirects, 5xx, compact gRPC INTERNAL,
 network failures, timeouts and malformed responses have separate health reasons.
 A send/read cut short at our own proof cap, attempt share or operation deadline,
 or by caller cancellation, still fails over but records no health and does not
-extend a probe's cooldown: it is not evidence about the route.
+extend a probe's cooldown: it is not evidence about the route. One exception: a
+bank source that cannot prove itself inside the direct proof cap, while its
+attempt share still had time, has failed that probe. It counts toward the
+correlated prefix gate below, never toward a shared fallback or a single source.
 Compact INTERNAL is an upstream refusal, not evidence of an IP ban. A detailed
 gRPC 13 INTERNAL is Google's transient fault: it tries the next route but
 records no health (#3217). Other detailed gRPC errors and invalid arguments
@@ -144,7 +147,9 @@ Per-address health uses opaque source IDs. One address failure permits another
 fresh source on the next operation, while mia1 handles the failed operation.
 Three distinct source failures in 15 seconds open the shared prefix gate; a 429
 opens it immediately and honors Retry-After. This prevents a fresh-IP loop during
-prefix-wide refusal. Prefix concurrency is eight, cooldown/recovery uses the
+prefix-wide refusal. Proof-cap stalls are such failures: on vin1 (2026-11-11)
+fresh sources stalled past 2 s on 6 of 14 isolated lookups while mia1 answered in
+about 0.4 s, and without the gate every lookup paid the full proof cap first. Prefix concurrency is eight, cooldown/recovery uses the
 existing bounded single-probe/backoff policy, and protocol-valid empty inventory
 remains healthy. No evidence establishes Google's throttling scope or that a new
 address fixes it. Addresses in this bank remain in one routed /64.

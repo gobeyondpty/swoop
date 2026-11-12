@@ -271,6 +271,40 @@ def test_correlated_sources_open_prefix_without_hammering_new_addresses(monkeypa
     assert all('fd42' not in str(item) for item in _adaptive.health())
 
 
+def stalled_direct(client,url,kwargs):
+    if client.source:  # the direct source never answers inside the bound we gave it
+        time.sleep(kwargs['timeout'])
+        raise TimeoutError('operation timed out')
+    return SimpleNamespace(status_code=200,text=EMPTY,headers={})
+
+
+def test_regression_qpx_502_stalled_direct_proofs_open_prefix_not_fallback(monkeypatch,broker):
+    # vin1 2026-11-11: fresh direct sources stalled past the 2 s proof on 6 of 14
+    # isolated lookups while mia1 answered in ~0.4 s. A stall at the proof cap
+    # recorded nothing, so every lookup paid the whole cap again first.
+    edge=Edge(monkeypatch,stalled_direct)
+    for _ in range(4):
+        swoop.search_raw('JFK','LAX','2026-11-30',transport=broker.config(primary_timeout=.05))
+    broker.wait_releases(3)
+    assert len(broker.requests)==3  # the fourth lookup went straight to mia1
+    assert sum(c[0].source is not None for c in edge.calls)==3
+    health=_adaptive.health()
+    assert next(h for h in health if h.get('scope')=='prefix')['reason']=='timeout'
+    # Never a single source or the shared fallback (#3175).
+    assert all(h['state']=='closed' for h in health if h.get('scope')!='prefix')
+    assert all(message['reason'] is None for message in broker.releases)
+
+
+def test_regression_qpx_502_direct_cut_by_its_share_does_not_open_prefix(monkeypatch,broker):
+    # When the attempt share, not the proof cap, ends the wait, it is only our budget.
+    Edge(monkeypatch,stalled_direct)
+    for _ in range(4):
+        swoop.search_raw('JFK','LAX','2026-11-30',transport=replace(broker.config(primary_timeout=5),timeout=.4))
+    broker.wait_releases(4)
+    assert len(broker.requests)==4
+    assert all(h['state']=='closed' for h in _adaptive.health())
+
+
 def test_valid_empty_does_not_open_source_or_prefix(monkeypatch,broker):
     Edge(monkeypatch)
     swoop.search_raw('JFK','LAX','2026-11-30',transport=broker.config())

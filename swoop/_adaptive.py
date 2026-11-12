@@ -311,8 +311,18 @@ def run(operation: str, *, transport: TransportConfig, action: Callable[[Transpo
             # reply short, not evidence that the shared route is unhealthy (#3175).
             bound = state.deadline if state is not None and state.validated else probe_deadline
             ours = internal or (isinstance(error, SwoopTransportError) and time.monotonic() >= bound)
+            # Except a direct source that cannot prove itself inside its proof cap
+            # while its attempt still had time: that failed the very probe the cap
+            # exists for. It counts toward the correlated prefix gate only, never a
+            # shared fallback or a single source. Otherwise every operation pays
+            # the full cap again before reaching a route that answers.
+            stalled = (prefix_lease is not None and state is not None and not state.validated
+                       and not internal and isinstance(error, SwoopTransportError)
+                       and probe_deadline < state.deadline and time.monotonic() >= probe_deadline)
             if ours or reason is None:
                 reason = None
+                if stalled and prefix_lease is not None:
+                    prefix_reason = _prefix_failure(prefix_lease, transport.local_address or "", "timeout")
             else:
                 delay = getattr(error, "retry_after", None) or _COOLDOWN
                 if index == 0 and transport._source_lease is not None:
