@@ -415,3 +415,45 @@ def test_regression_3175_half_open_probe_cut_by_us_does_not_extend_cooldown(monk
     assert timeouts == [7.5]
     # The probe told us nothing about the route: another lookup may probe at once.
     assert adaptive._acquire(FALLBACK_KEY) is not None
+
+
+SECOND = "socks5h://trusted:1080"
+
+
+def slow_client(monkeypatch, needs):
+    """Each route answers after `needs` seconds; its client deadline fires first if shorter."""
+    now = [100.0]
+    monkeypatch.setattr(adaptive.time, "monotonic", lambda: now[0])
+    timeouts = []
+    def post(url, *, timeout, **kwargs):
+        timeouts.append(timeout)
+        need = needs.pop(0)
+        if need > timeout:
+            now[0] += timeout
+            raise TimeoutError("operation timed out")
+        now[0] += need
+        return SimpleNamespace(status_code=200, text=EMPTY, headers={})
+    monkeypatch.setattr(rpc, "_get_transport_client", lambda transport: SimpleNamespace(post=post))
+    # The ndcterm /search shape: a 24 s operation, 8 s per Google exchange.
+    transport = TransportConfig(address_family="ipv6", fallback_proxies=(FALLBACK, SECOND),
+                                timeout=24, request_timeout=8)
+    send = lambda: rpc._http_post(URL, b"x", transport=transport, _deadline=now[0] + 24)
+    return send, timeouts
+
+
+def test_regression_qpx_502_request_timeout_caps_each_route_not_the_failover(monkeypatch):
+    # vin1 2026-11-11: the direct proof stalled, then each mia1 exit got 3 s of one
+    # shared 8 s window while Google needed 4-6 s; searches 502'd at 8.0 s with
+    # 16 s of their 24 s budget unused.
+    send, timeouts = slow_client(monkeypatch, [30.0, 5.0, 5.0])
+    assert send().text == EMPTY
+    assert timeouts == [2.0, 8.0]
+    assert [route["reason"] for route in adaptive.health()] == [None, None]
+
+
+def test_regression_qpx_502_exit_cut_at_its_exchange_cap_records_no_health(monkeypatch):
+    send, timeouts = slow_client(monkeypatch, [30.0, 30.0, 1.0])
+    assert send().text == EMPTY
+    # Our 8 s cap ended the first exit's wait: it fails over but is not route evidence.
+    assert timeouts == [2.0, 8.0, 8.0]
+    assert [route["reason"] for route in adaptive.health()] == [None, None, None]

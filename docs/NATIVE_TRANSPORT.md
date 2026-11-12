@@ -31,8 +31,9 @@ hotel/flight token, dates, party, POS, currency and filters remain unchanged.
 Hotel follow-up builders retain caller currency and child ages over defaults in
 returned context. Builders and parsers remain endpoint-specific.
 
-`timeout` bounds a public operation under explicit family routing;
-`request_timeout` optionally caps each HTTP send/read. The first direct proof is
+`timeout` bounds a public operation under explicit family routing, including an
+exact RPC's whole failover; `request_timeout` optionally caps each route's HTTP
+send/read inside it, never all routes of one RPC together. The first direct proof is
 capped at 2s for flight RPCs and 5s for session bootstrap plus first RPC (override
 with `primary_timeout`). A parsed first hotel RPC releases that proof cap for
 remaining session work. The original operation deadline and the attempt's share

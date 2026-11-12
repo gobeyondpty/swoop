@@ -714,8 +714,15 @@ def _http_post(
         country = transport.country if transport.country is not None else _default_country
         headers["x-goog-ext-259736195-jspb"] = _currency_header(country, transport.currency)
     if transport.fallback_proxies or transport.local_address:
+        # Under explicit routing `timeout` bounds the operation, failover included;
+        # `request_timeout` caps each route's exchange inside it. Bounding every
+        # route by one request_timeout left a slow direct proof and two fallback
+        # shares a third of it each while the rest of the operation went unused.
         from ._adaptive import post
-        return post(url, content, headers, transport=transport, deadline=deadline)
+        routed = transport_deadline(transport.timeout, _deadline)
+        if transport._operation_deadline is not None:
+            routed = min(routed, transport._operation_deadline)
+        return post(url, content, headers, transport=transport, deadline=routed)
     client = _get_transport_client(transport)
     return _post_with_retry(client, url, content, headers, transport=transport, _deadline=deadline)
 

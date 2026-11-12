@@ -30,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Under explicit routing, `request_timeout` caps each route's exchange and
+  `timeout` bounds the whole failover, as documented. One shared per-request
+  window had left each exit a third of it while the operation budget went unused.
 - Expanded trip searches retain completed choices when another selected prefix
   times out; total transport failures raise instead of returning an empty result.
 

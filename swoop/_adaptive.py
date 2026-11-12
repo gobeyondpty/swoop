@@ -205,12 +205,13 @@ T = TypeVar("T")
 
 def run(operation: str, *, transport: TransportConfig, action: Callable[[TransportConfig], T],
         inventory: Callable[[T], bool] = bool, deadline: float | None = None,
-        primary_budget: float = 2.0) -> T:
+        primary_budget: float = 2.0, attempt_timeout: float | None = None) -> T:
     """Shared route choice/health for RPCs and complete route-bound sessions.
 
     Session actions rebuild their own bootstrap/params on each selected route.
     The outer deadline never moves; a short initial proof budget is released
     only after an actual RPC parses successfully, never on an HTTP 200 alone.
+    ``attempt_timeout`` caps one route's exchange inside that deadline.
     """
     from .rpc import _get_transport_client
     from ._session import RouteBusy
@@ -252,6 +253,8 @@ def run(operation: str, *, transport: TransportConfig, action: Callable[[Transpo
         try:
             remaining = remaining_timeout(deadline)
             attempt_deadline = time.monotonic() + remaining / (len(proxies) - index)
+            if attempt_timeout is not None:
+                attempt_deadline = min(attempt_deadline, time.monotonic() + attempt_timeout)
             selected = replace(transport, proxy=proxy, address_family=transport.address_family if index == 0 else "auto",
                                fallback_proxies=(), retries=0, _operation_deadline=deadline,
                                local_address=transport.local_address if index == 0 else None,
@@ -346,4 +349,4 @@ def post(url: str, body: bytes, headers: dict[str, str], *, transport: Transport
         validated_response(selected)
         return response
     return run(operation, transport=transport, action=action, deadline=deadline,
-               inventory=lambda response: inventory[0])
+               inventory=lambda response: inventory[0], attempt_timeout=transport.request_timeout)
